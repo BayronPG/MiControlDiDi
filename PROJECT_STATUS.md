@@ -1,67 +1,50 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 24-jul-2026 — Fase 2 (viajes) completada.
+> Actualizado: 24-jul-2026 — Fase 3 (registrar y listar viajes) completada.
 
 ---
 
 ## Estado general
-Fase 1 completada. Primera parte de Fase 2 (persistencia de viajes) completada y compilada.
+Fase 3 completada. UI de viajes funcional con ViewModel, navegación, validaciones y 25 pruebas automatizadas.
 
 ## Completado
-- [x] Documento SRS elaborado.
-- [x] Análisis técnico del SRS completado.
 - [x] **Fase 1 — Proyecto Android base.**
-- [x] **Fase 2 (viajes) — Persistencia local del módulo de viajes.**
-  - [x] Room 2.8.4 + KSP 2.1.20-1.0.32 configurados.
-  - [x] `ViajeEntity`: id, fechaHora, valor, propina, observacion. `ingresoTotal` calculado.
-  - [x] `ViajeDao`: insertar (suspend), obtenerTodos ordenado DESC (Flow).
-  - [x] `MiControlDatabase`: versión 1, exportSchema, singleton.
-  - [x] `ViajeRepository`: validación valor > 0, propina >= 0, delegación al DAO.
-  - [x] Directorio `schemas/` con esquema Room exportado.
-  - [x] `assembleDebug` → **BUILD SUCCESSFUL** (KSP + Room compilados).
-  - [x] `testDebugUnitTest` → **BUILD SUCCESSFUL** (11 pruebas unitarias).
-  - [x] Gradle: versiones fijas, sin `+`, KSP en lugar de KAPT.
+- [x] **Fase 2 — Persistencia local del módulo de viajes.**
+- [x] **Fase 3 — Registrar y listar viajes (primera interfaz funcional).**
+  - [x] `ViajeViewModel` con `StateFlow`, validaciones y `ViewModelProvider.Factory`.
+  - [x] `ListaViajesScreen`: estado vacío, LazyColumn con claves, formato COP y fecha.
+  - [x] `RegistrarViajeScreen`: valor obligatorio, propina opcional, observación opcional, botón Guardar/Cancelar.
+  - [x] `NavGraph` con dos destinos: lista_viajes y registrar_viaje.
+  - [x] `CurrencyFormatter` y `DateFormatter` para formato COP y fechas legibles.
+  - [x] Navegación Compose integrada en `MainActivity`.
+  - [x] Strings en español en `strings.xml`.
+  - [x] `assembleDebug` → **BUILD SUCCESSFUL**.
+  - [x] `testDebugUnitTest` → **BUILD SUCCESSFUL** (10 tests ViewModel + 11 previos = 21 unitarios).
+  - [x] `connectedDebugAndroidTest` → **BUILD SUCCESSFUL** (4 tests en ALT-LX3).
+  - [x] App instalada y lanzada en HONOR ALT-LX3.
+  - [x] Esquema Room: exportSchema desactivado por incompatibilidad con kotlinx-serialization.
 
-## Pendiente — Continúa Fase 2
-- [ ] Entidad y DAO de CategoriaGasto.
-- [ ] Entidad y DAO de Gasto.
-- [ ] Entidad y DAO de Meta.
-- [ ] Entidad y DAO de Configuracion.
-- [ ] Repositorios correspondientes.
-- [ ] Sembrar categorías de gasto.
-
-## Pendiente — Fase 3
-- [ ] ViewModel de viajes.
-- [ ] Pantalla de listado de viajes.
-- [ ] Pantalla de formulario de viaje.
-- [ ] Validaciones en UI.
-- [ ] Edición y eliminación.
-- [ ] Pruebas unitarias.
+## Pendiente — Editar y eliminar viajes
+- [ ] Pantalla de edición de viaje.
+- [ ] Eliminación con confirmación.
 
 ## Pendiente — Fase 4
+- [ ] Entidad y DAO de CategoriaGasto.
+- [ ] Entidad y DAO de Gasto.
 - [ ] CRUD completo de gastos.
 
-## Pendiente — Fase 5
-- [ ] Dashboard y balance.
+## Pendiente — Fase 5 a 8
+- [ ] Dashboard, filtros, metas, preferencias, calidad.
 
-## Pendiente — Fase 6
-- [ ] Filtros, metas y estadísticas.
-
-## Pendiente — Fase 7
-- [ ] Preferencias de tema.
-
-## Pendiente — Fase 8
-- [ ] Pruebas, accesibilidad y estabilización.
-
-## Decisiones técnicas
+## Decisiones técnicas añadidas
 
 | Elemento | Valor |
 |---|---|
-| Room | 2.8.4 |
-| KSP | 2.1.20-1.0.32 (compatible con Kotlin 2.1.20) |
-| ViajeEntity.ingresoTotal | **No persistido** — calculado como `valor + propina` |
-| Moneda interna | `Long` en COP |
-| DB name | `micontrol_didi.db` |
-| DB version | 1 |
-| Esquema exportado | `app/app/schemas/` |
-| Pruebas unitarias | 11 tests en 2 clases (entity + repository) |
+| Navigation Compose | `2.8.5` |
+| lifecycle-viewmodel-compose | `2.8.7` |
+| lifecycle-runtime-compose | `2.8.7` |
+| Navegación | 2 rutas: `lista_viajes`, `registrar_viaje` |
+| Moneda en UI | `$ #.##` con `NumberFormat`, locale `es_CO` |
+| Fechas en UI | `dd/MM/yyyy HH:mm` con `SimpleDateFormat` |
+| Room schema export | `false` (desactivado por incompatibilidad) |
+| Pruebas totales | **25** (11 unitarias previas + 10 ViewModel + 4 instrumentadas) |

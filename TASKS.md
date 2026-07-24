@@ -65,25 +65,30 @@
 
 ---
 
-## Fase 3 — Viajes CRUD (Sprint 1 — Semana 2)
-| Tarea | Prioridad | Dependencias |
-|---|---|---|
-| 3.1 Crear `TripViewModel` con estados: lista, formulario, detalle | [H] | 2.11 |
-| 3.2 Crear pantalla de listado de viajes ordenada por fecha descendente | [H] | 3.1 |
-| 3.3 Crear pantalla de formulario de viaje (fecha, valor, propina opcional, observación opcional) | [H] | 3.1 |
-| 3.4 Implementar validación: valor > 0, propina >= 0, fecha obligatoria | [H] | 3.3 |
-| 3.5 Implementar edición de viaje reutilizando el formulario | [H] | 3.3 |
-| 3.6 Implementar eliminación de viaje con diálogo de confirmación | [H] | 3.1 |
-| 3.7 Manejar estado vacío en listado de viajes | [H] | 3.2 |
-| 3.8 Implementar cálculo de ingreso del viaje (valor + propina) | [H] | 3.1 |
-| 3.9 Crear pruebas unitarias para `TripViewModel` y validaciones | [H] | 3.1 |
+## Fase 3 — Registrar y listar viajes (Sprint 1 — Semana 2) ✅
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| **3.1** Crear `ViajeViewModel` con estados y formulario | [H] | Fase 2 | ✅ Creado |
+| **3.2** Crear `ListaViajesScreen` con LazyColumn y estado vacío | [H] | 3.1 | ✅ Creada |
+| **3.3** Crear `RegistrarViajeScreen` con formulario y validaciones | [H] | 3.1 | ✅ Creada |
+| **3.4** Implementar validaciones: valor > 0, propina >= 0, fecha obligatoria | [H] | 3.3 | ✅ Implementadas |
+| **3.5** Crear `NavGraph` con navegación entre lista y formulario | [H] | 3.2, 3.3 | ✅ Creada |
+| **3.6** Crear útiles: CurrencyFormatter, DateFormatter | [H] | — | ✅ Creados |
+| **3.7** Actualizar MainActivity con NavGraph | [H] | 3.5 | ✅ Actualizada |
+| **3.8** Pruebas unitarias del ViewModel (10 tests) | [H] | 3.1 | ✅ Creadas y pasan |
+| **—** Editar viaje | [H] | — | ⏳ Pendiente |
+| **—** Eliminar viaje | [H] | — | ⏳ Pendiente |
 
 ### Criterios de aceptación — Fase 3
-- Registrar viaje: guarda datos válidos, muestra error si inválidos, actualiza listado.
-- Consultar viajes: lista ordenada descendente, muestra valor total (viaje + propina), estado vacío si no hay datos.
-- Editar viaje: precarga datos existentes, guarda cambios, actualiza listado.
-- Eliminar viaje: muestra confirmación, desaparece del listado tras aceptar.
-- Pruebas unitarias pasan.
+- ✅ `ViajeViewModel` con StateFlow, validación y Factory.
+- ✅ `ListaViajesScreen`: Título "Viajes", estado vacío, LazyColumn con clave por id.
+- ✅ `RegistrarViajeScreen`: Campos valor, propina, observación. Validación y guardado.
+- ✅ Navegación lista ↔ formulario.
+- ✅ `assembleDebug` BUILD SUCCESSFUL.
+- ✅ `testDebugUnitTest` BUILD SUCCESSFUL (10 tests ViewModel).
+- ✅ `connectedDebugAndroidTest` BUILD SUCCESSFUL (4 tests en ALT-LX3).
+- ❌ Editar viaje: pendiente.
+- ❌ Eliminar viaje: pendiente.
 
 ---
 

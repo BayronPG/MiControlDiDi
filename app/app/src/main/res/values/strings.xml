@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MiControlDiDi</string>
+    <string name="viajes_titulo">Viajes</string>
+    <string name="registrar_viaje">Registrar viaje</string>
+    <string name="sin_viajes">Aún no hay viajes registrados.\nPulsa + para registrar tu primer viaje.</string>
+    <string name="cargando">Cargando…</string>
+    <string name="valor_viaje">Valor del viaje</string>
+    <string name="propina">Propina</string>
+    <string name="propina_opcional">Propina (opcional)</string>
+    <string name="observacion_opcional">Observación (opcional)</string>
+    <string name="guardar">Guardar</string>
+    <string name="guardando">Guardando…</string>
+    <string name="cancelar">Cancelar</string>
 </resources>

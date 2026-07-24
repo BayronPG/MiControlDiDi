@@ -10,7 +10,7 @@ import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 @Database(
     entities = [ViajeEntity::class],
     version = 1,
-    exportSchema = true
+    exportSchema = false
 )
 abstract class MiControlDatabase : RoomDatabase() {
 
