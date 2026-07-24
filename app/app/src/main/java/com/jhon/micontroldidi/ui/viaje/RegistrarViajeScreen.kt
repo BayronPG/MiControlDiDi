@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -86,7 +87,7 @@ fun RegistrarViajeScreen(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("campo_valor_viaje")
             )
 
             Spacer(Modifier.height(12.dp))
@@ -102,7 +103,7 @@ fun RegistrarViajeScreen(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("campo_propina_viaje")
             )
 
             Spacer(Modifier.height(12.dp))
@@ -115,7 +116,7 @@ fun RegistrarViajeScreen(
                 minLines = 2,
                 maxLines = 4,
                 singleLine = false,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("campo_observacion_viaje")
             )
 
             Spacer(Modifier.height(24.dp))
@@ -124,7 +125,7 @@ fun RegistrarViajeScreen(
             Button(
                 onClick = { viewModel.guardarViaje() },
                 enabled = state.formularioValido,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("boton_guardar_viaje")
             ) {
                 if (state.guardando) {
                     Text(stringResource(R.string.guardando))
@@ -139,7 +140,7 @@ fun RegistrarViajeScreen(
             OutlinedButton(
                 onClick = onCancelar,
                 enabled = !state.guardando,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("boton_cancelar_viaje")
             ) {
                 Text(stringResource(R.string.cancelar))
             }

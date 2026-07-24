@@ -79,14 +79,21 @@
 | **—** Editar viaje | [H] | — | ⏳ Pendiente |
 | **—** Eliminar viaje | [H] | — | ⏳ Pendiente |
 
-### Criterios de aceptación — Fase 3
-- ✅ `ViajeViewModel` con StateFlow, validación y Factory.
-- ✅ `ListaViajesScreen`: Título "Viajes", estado vacío, LazyColumn con clave por id.
-- ✅ `RegistrarViajeScreen`: Campos valor, propina, observación. Validación y guardado.
+### Criterios de aceptación — Fase 3 (cierre)
+- ✅ `ViajeViewModel` con StateFlow, validación, Factory y protección contra doble clic.
+- ✅ `ListaViajesScreen`: Título "Viajes", LazyColumn con clave por id, testTags.
+- ✅ `RegistrarViajeScreen`: Campos valor, propina, observación. Validación y guardado, testTags.
 - ✅ Navegación lista ↔ formulario.
 - ✅ `assembleDebug` BUILD SUCCESSFUL.
-- ✅ `testDebugUnitTest` BUILD SUCCESSFUL (10 tests ViewModel).
-- ✅ `connectedDebugAndroidTest` BUILD SUCCESSFUL (4 tests en ALT-LX3).
+- ✅ `testDebugUnitTest` BUILD SUCCESSFUL (21 unitarios).
+- ✅ `connectedDebugAndroidTest` BUILD SUCCESSFUL.
+  - ✅ 4 tests DAO instrumentados en ALT-LX3.
+  - ✅ 8 tests Compose UI instrumentados en ALT-LX3.
+  - ✅ Total: **12/12 tests instrumentados**.
+- ✅ **Persistencia real verificada manualmente** en HONOR ALT-LX3:
+  - Valor $12.500 + Propina $1.500 = Total $14.000
+  - Cerrada y reabierta → viaje visible.
+- ⚠️ `exportSchema = false` — deuda técnica: Room 2.8.4 incompatible con Kotlin 2.1.20.
 - ❌ Editar viaje: pendiente.
 - ❌ Eliminar viaje: pendiente.
 

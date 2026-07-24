@@ -28,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,7 +59,8 @@ fun ListaViajesScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavegarARegistrar,
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.testTag("boton_registrar_viaje")
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -83,7 +85,8 @@ fun ListaViajesScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(innerPadding)
+                    .testTag("estado_vacio_viajes"),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -97,7 +100,8 @@ fun ListaViajesScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .testTag("lista_viajes"),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(

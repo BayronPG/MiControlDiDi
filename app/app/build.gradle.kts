@@ -43,7 +43,9 @@ android {
         compose = true
     }
 
-    // ksp configurado via room-compiler en dependencies
+    // Schema export desactivado por incompatibilidad Room 2.8.4 + Kotlin 2.1.20
+    // Ver: AbstractMethodError en kotlinx.serialization.internal.GeneratedSerializer
+    // ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 }
 
 dependencies {
@@ -69,6 +71,7 @@ dependencies {
     ksp("androidx.room:room-compiler:$roomVersion")
 
 
+
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.room:room-testing:$roomVersion")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
@@ -78,4 +81,7 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.01.01"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.8.5")
 }
