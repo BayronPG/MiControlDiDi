@@ -1,0 +1,1 @@
+Guarda aquí recursos temporales del proyecto que no pertenezcan al código Android.
