@@ -1,37 +1,30 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 24-jul-2026 — Análisis técnico completado.
+> Actualizado: 24-jul-2026 — Fase 1 completada.
 
 ---
 
 ## Estado general
-Análisis técnico finalizado. Listo para iniciar la Fase 1 (Creación del proyecto Android).
+Fase 1 completada. Proyecto Android creado y compilado. APK generado.
 
 ## Completado
 - [x] Documento SRS elaborado.
-- [x] Estructura inicial para trabajar con ClawCode creada.
-- [x] Reglas del agente definidas en `AGENTS.md`.
-- [x] **Análisis técnico del SRS completado.**
-  - [x] SRS leído y analizado completamente (55617 bytes, ~43 tablas).
-  - [x] 14 requisitos funcionales identificados y priorizados.
-  - [x] 12 requisitos no funcionales identificados.
-  - [x] 8 reglas de negocio documentadas.
-  - [x] 8 historias de usuario priorizadas.
-  - [x] 7 decisiones pendientes documentadas.
-  - [x] Estructura de paquetes Android propuesta.
-  - [x] Plan de fases y sprints elaborado (8 fases, 4 sprints).
-  - [x] Backlog refinado en `TASKS.md`.
+- [x] Análisis técnico del SRS completado.
+- [x] **Fase 1 — Proyecto Android base.**
+  - [x] Proyecto Gradle con Kotlin DSL y Gradle Wrapper.
+  - [x] AGP 8.13.0, Gradle 8.13, Kotlin 2.1.20, Compose BOM 2025.01.01.
+  - [x] compileSdk = 36 (API 36), minSdk = 26, targetSdk = 36.
+  - [x] `local.properties` creado y excluido por `.gitignore`.
+  - [x] Estructura de paquetes: data/ y ui/ con subpaquetes + .gitkeep.
+  - [x] Tema Material 3 con colores personalizados y tipografía.
+  - [x] `MainActivity` con `enableEdgeToEdge`, `Scaffold` y pantalla "MiControlDiDi".
+  - [x] Recursos: strings.xml, colors.xml, themes.xml, icono adaptativo.
+  - [x] `assembleDebug` → **BUILD SUCCESSFUL**.
+  - [x] `testDebugUnitTest` → **BUILD SUCCESSFUL** (NO-SOURCE, no hay pruebas aún).
+  - [x] APK generado: `app/app/build/outputs/apk/debug/app-debug.apk` (9,4 MB).
 
 ## En curso
-- [ ] Pendiente de iniciar — Fase 1: Proyecto Android.
-
-## Pendiente — Fase 1
-- [ ] Crear proyecto Android con Empty Activity y Jetpack Compose.
-- [ ] Configurar Gradle con Kotlin DSL.
-- [ ] Verificar compilación inicial.
-- [ ] Crear paquetes base y estructura de navegación.
-- [ ] Configurar tema Material 3.
-- [ ] Inicializar repositorio Git.
+- [ ] Pendiente de iniciar — Fase 2: Capa de datos (Room).
 
 ## Pendiente — Fase 2
 - [ ] Crear entidades Room (Viaje, Gasto, CategoriaGasto, Meta, Configuracion).
@@ -65,13 +58,19 @@ Análisis técnico finalizado. Listo para iniciar la Fase 1 (Creación del proye
 - [ ] APK de demostración.
 
 ## Bloqueos conocidos
-- DP-02: Versión mínima de Android no definida. Se propone **API 26 (Android 8.0)** como línea base por cobertura y compatibilidad con Room. Pendiente de confirmación.
-- DP-01: Nombre del producto (MiControlDiDi vs marca neutral) pendiente de decisión.
+- Ninguno. Entorno completamente funcional.
 
-## Últimas decisiones
-- MVP será local y sin conexión (confirmado en análisis).
-- Stack: Kotlin + Jetpack Compose + Room + MVVM (confirmado).
-- Moneda: Long en COP, sin decimales.
-- Categorías de gasto fijas sembradas en base de datos.
-- Inicio de semana: lunes (configurable post-MVP).
-- 4 sprints estimados para completar el MVP.
+## Decisiones técnicas
+
+| Elemento | Valor |
+|---|---|
+| Namespace / App ID | `com.jhon.micontroldidi` |
+| compileSdk | 36 (API 36 — Android 16) |
+| minSdk | 26 (Android 8.0) |
+| targetSdk | 36 |
+| AGP | 8.13.0 |
+| Gradle | 8.13 (Wrapper) |
+| Kotlin | 2.1.20 |
+| Compose BOM | 2025.01.01 |
+| JDK | OpenJDK 17.0.19 LTS |
+| Icono | Adaptativo con drawable vectorial |

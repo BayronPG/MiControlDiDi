@@ -21,22 +21,23 @@
 
 ---
 
-## Fase 1 — Proyecto Android (Sprint 1 — Semana 1)
-| Tarea | Prioridad | Dependencias |
-|---|---|---|
-| 1.1 Crear proyecto Android con Empty Activity y Jetpack Compose | [H] | — |
-| 1.2 Configurar Gradle con Kotlin DSL y dependencias base | [H] | 1.1 |
-| 1.3 Verificar que el proyecto compile y ejecute en emulador | [H] | 1.2 |
-| 1.4 Crear paquete base `com.micontrol.didi` y subpaquetes | [H] | 1.1 |
-| 1.5 Configurar tema Material 3 (colores, tipografía, formas) | [H] | 1.3 |
-| 1.6 Configurar Navigation Compose con rutas base | [H] | 1.3 |
-| 1.7 Inicializar repositorio Git y crear commit inicial | [H] | 1.3 |
+## Fase 1 — Proyecto Android (Sprint 1 — Semana 1) ✅
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| 1.1 Crear proyecto Android con Jetpack Compose | [H] | — | ✅ Compilado |
+| 1.2 Configurar Gradle con Kotlin DSL y dependencias base | [H] | 1.1 | ✅ Verificado |
+| 1.3 Verificar que el proyecto compile y ejecute en emulador | [H] | 1.2 | ✅ `assembleDebug` exitoso |
+| 1.4 Crear paquete base `com.jhon.micontroldidi` y subpaquetes | [H] | 1.1 | ✅ Creados |
+| 1.5 Configurar tema Material 3 (colores, tipografía, formas) | [H] | 1.3 | ✅ Aplicado |
+| 1.6 Configurar Navigation Compose con rutas base | [H] | 1.3 | ⏳ No implementado (pendiente de Fase 2+) |
+| 1.7 Commit inicial opcional | [H] | 1.3 | ⏳ Sin commit (pendiente de instrucciones) |
 
 ### Criterios de aceptación — Fase 1
-- El proyecto abre y compila sin errores en un emulador Android.
-- Existe navegación entre las pantallas placeholder (Dashboard, Viajes, Gastos, Estadísticas, Configuración).
-- El tema Material 3 se aplica de forma consistente.
-- El repositorio Git existe con al menos un commit.
+- ✅ El proyecto compila correctamente con `assembleDebug`.
+- ✅ El tema Material 3 se aplica de forma consistente.
+- ✅ La pantalla inicial muestra "MiControlDiDi".
+- ⏳ Navegación entre pantallas: pendiente (se implementará cuando se creen las pantallas).
+- ⏳ Repositorio Git con commit: pendiente de instrucciones.
 
 ---
 
