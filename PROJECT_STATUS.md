@@ -1,55 +1,53 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 24-jul-2026 — Fase 3 cerrada.
+> Actualizado: 24-jul-2026 — Capa de datos de gastos completada con COLLATE NOCASE.
 
 ---
 
 ## Estado general
-Fase 3 completada y verificada. UI de viajes funcional con 33 pruebas automatizadas y persistencia real confirmada en HONOR ALT-LX3.
+Capa de datos completa para viajes y gastos. Unicidad case-insensitive reforzada con COLLATE NOCASE en SQLite. 57 pruebas automatizadas.
 
 ## Completado
 - [x] **Fase 1 — Proyecto Android base.**
-- [x] **Fase 2 — Persistencia local del módulo de viajes.**
-- [x] **Fase 3 — Registrar y listar viajes (interfaz funcional).**
-  - [x] `ViajeViewModel` con `StateFlow`, validaciones, Factory y protección contra doble clic.
-  - [x] `ListaViajesScreen`: LazyColumn, formato COP, testTags.
-  - [x] `RegistrarViajeScreen`: 3 campos, validación, testTags.
-  - [x] `NavGraph`: navegación lista ↔ formulario.
-  - [x] `CurrencyFormatter`, `DateFormatter` con `Locale.of("es", "CO")`.
-  - [x] `assembleDebug` → **BUILD SUCCESSFUL**.
-  - [x] `testDebugUnitTest` → **BUILD SUCCESSFUL** (21 unitarios).
-  - [x] `connectedDebugAndroidTest` → **BUILD SUCCESSFUL** (12 instrumentados en ALT-LX3).
-  - [x] **Persistencia real verificada manualmente en HONOR ALT-LX3.**
-    - Valor: $12.500, Propina: $1.500, Total mostrado: $14.000
-    - Observación: "PRUEBA PERSISTENCIA"
-    - Cerrada desde recientes y reabierta → viaje visible.
+- [x] **Fase 2 — Capa de datos completa.**
+- [x] **Fase 3 — Registrar y listar viajes (UI funcional).**
 
-## Deuda técnica registrada
-| Elemento | Detalle |
-|---|---|
-| `exportSchema` | `false` — Room 2.8.4 incompatible con Kotlin 2.1.20 para exportar esquemas JSON. `AbstractMethodError` en `FieldBundle$$serializer`. Requiere Room ≥ 2.8.5+ o Kotlin < 2.1. |
-| Plugin `kotlin.plugin.serialization` | Eliminado — se agregó como intento de solución pero no resuelve el error de exportación. |
+## Capa de datos de gastos
+- [x] `CategoriaGastoEntity` con `@ColumnInfo(collate = ColumnInfo.NOCASE)` e índice único.
+- [x] `GastoEntity` con FK → categorias_gasto ON DELETE RESTRICT.
+- [x] DAOs y repositorios con validaciones.
+- [x] `MiControlDatabase` versión 2 con `MIGRATION_1_2` explícita.
+- [x] 6 categorías iniciales insertadas en migración (v1→v2) y callback (v2 nueva).
+- [x] **Unicidad case-insensitive en 3 capas:**
+  1. **SQLite:** `COLLATE NOCASE` en columna + `UNIQUE INDEX`
+  2. **Repositorio:** `existePorNombre()` con `LOWER()` + `Result.failure`
+  3. **DAO:** `OnConflictStrategy.IGNORE` → duplicados silenciosamente ignorados
+- [x] Repositorio detecta retorno `-1L` del DAO como fallo de inserción.
 
-## Pendiente — Editar y eliminar viajes
-- [ ] Pantalla de edición de viaje.
-- [ ] Eliminación con confirmación.
-
-## Pendiente — Fase 4
-- [ ] Entidad y DAO de CategoriaGasto.
-- [ ] Entidad y DAO de Gasto.
-- [ ] CRUD completo de gastos.
-
-## Pendiente — Fase 5 a 8
-- [ ] Dashboard, filtros, metas, preferencias, calidad.
-
-## Batería de pruebas verificada
+## Batería de pruebas
 
 | Tipo | Cantidad | Estado |
 |---|---|---|
-| Unitarias — ViajeEntity | 6 | ✅ |
-| Unitarias — ViajeRepository | 5 | ✅ |
-| Unitarias — ViajeViewModel | 10 | ✅ |
-| Instrumentadas — ViajeDao (Room in-memory) | 4 | ✅ |
-| Instrumentadas — Compose UI (semántica) | 8 | ✅ |
-| **Total automatizadas** | **33** | **✅** |
-| **Persistencia real (manual)** | 1 | ✅ Manuelmente en dispositivo |
+| Unitarias | **34** | ✅ |
+| Instrumentadas | **23** | ✅ |
+| **Total** | **57** | ✅ |
+
+## Composición instrumentadas (23)
+- 4 ViajeDao (preexistentes)
+- 8 ViajeCompose UI (preexistentes)
+- 3 CategoriaGastoDao
+- 4 GastoDao
+- 1 Migracion v1→v2
+- 3 CategoriaUnicidad
+
+## Deuda técnica
+| Elemento | Detalle |
+|---|---|
+| `exportSchema` | `false` — Room 2.8.4 incompatible con Kotlin 2.1.20 |
+| Persistencia tras cierre en HONOR | Verificada manualmente (no automatizada) |
+
+## Pendiente
+- [ ] Editar y eliminar viajes (UI).
+- [ ] UI completa de gastos (ViewModel + pantallas + navegación).
+- [ ] Fase 5: Dashboard y balance.
+- [ ] Fase 6–8: Filtros, metas, preferencias, calidad.

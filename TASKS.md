@@ -41,27 +41,44 @@
 
 ---
 
-## Fase 2 — Capa de datos: Viajes (Sprint 1 — Semana 1) — En progreso
+## Fase 2 — Capa de datos (Sprint 1 — Semana 1) ✅
+### Viajes
 | Tarea | Prioridad | Dependencias | Estado |
 |---|---|---|---|
 | **2.1** Crear entidad Room `ViajeEntity` | [H] | Fase 1 | ✅ Creada |
-| **2.2** Crear DAO `ViajeDao` (insert, obtenerTodos ordenado DESC) | [H] | 2.1 | ✅ Creado |
-| **2.3** Crear `MiControlDatabase` (versión 1, solo ViajeEntity) | [H] | 2.1 | ✅ Creada, esquema exportado |
+| **2.2** Crear DAO `ViajeDao` | [H] | 2.1 | ✅ Creado |
+| **2.3** Crear `MiControlDatabase` (versión 1) | [H] | 2.1 | ✅ Creada |
 | **2.4** Crear `ViajeRepository` con validaciones | [H] | 2.2, 2.3 | ✅ Creado |
-| **2.5** Configurar Gradle: Room + KSP | [H] | Fase 1 | ✅ KSP 2.1.20-1.0.32, Room 2.8.4 |
-| **2.6** Pruebas unitarias de entidad y repositorio | [H] | 2.1, 2.4 | ✅ 11 pruebas creadas y pasan |
-| **—** Otras entidades (CategoriaGasto, Gasto, Meta, Config) | [H/M/B] | — | ⏳ Pendiente (siguiente sprint) |
+| **2.5** Configurar Gradle: Room + KSP | [H] | Fase 1 | ✅ |
+| **2.6** Pruebas unitarias | [H] | 2.1, 2.4 | ✅ 11 pruebas |
 
-### Criterios de aceptación — Fase 2 (viajes)
-- ✅ `ViajeEntity` con campos: id, fechaHora, valor, propina, observacion.
-- ✅ `ingresoTotal` es calculado (valor + propina), no persistido como columna.
-- ✅ `ViajeDao.insertar` inserta y retorna el id.
-- ✅ `ViajeDao.obtenerTodos` retorna Flow<List<ViajeEntity>> ordenado DESC.
-- ✅ `MiControlDatabase` versión 1 con `exportSchema = true`.
-- ✅ `ViajeRepository.insertar` valida: valor > 0, propina >= 0.
-- ✅ KSP + Room configurados, `assembleDebug` BUILD SUCCESSFUL.
-- ✅ 11 pruebas unitarias pasan (`testDebugUnitTest` BUILD SUCCESSFUL).
-- ❌ Pruebas instrumentadas con Room in-memory: no ejecutadas (no hay dispositivo conectado).
+### Gastos (añadido con migración v1→v2)
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| **2.7** Crear entidad `CategoriaGastoEntity` | [H] | Fase 1 | ✅ Creada |
+| **2.8** Crear entidad `GastoEntity` con FK | [H] | 2.7 | ✅ Creada |
+| **2.9** Crear `CategoriaGastoDao` (insert, query, exists) | [H] | 2.7 | ✅ Creado |
+| **2.10** Crear `GastoDao` con JOIN categoría | [H] | 2.8 | ✅ Creado |
+| **2.11** Crear `CategoriaGastoRepository` con validaciones | [H] | 2.9 | ✅ Creado |
+| **2.12** Crear `GastoRepository` con validaciones | [H] | 2.10 | ✅ Creado |
+| **2.13** Actualizar `MiControlDatabase` a versión 2 + `MIGRATION_1_2` | [H] | 2.7–2.8 | ✅ Migración explícita |
+| **2.14** Categorías iniciales (6) con prepoblado seguro | [H] | 2.13 | ✅ Semilla en migración + onCreate |
+| **2.15** Pruebas unitarias categorías y gastos | [H] | 2.11, 2.12 | ✅ 11 pruebas |
+| **2.16** Pruebas DAO instrumentadas (categorías + gastos) | [H] | 2.9, 2.10 | ✅ 7 pruebas |
+| **2.17** Prueba de migración v1→v2 | [H] | 2.13 | ✅ 1 prueba |
+| **—** Meta, Config | [M/B] | — | ⏳ Pendiente |
+
+### Criterios de aceptación — Fase 2 (completa)
+- ✅ ViajeEntity y datos existentes conservados.
+- ✅ `CategoriaGastoEntity`: id, nombre, activa. Índice único en nombre.
+- ✅ `GastoEntity`: id, fechaHora, categoriaId (FK → RESTRICT), valor, descripcion.
+- ✅ `CategoriaGastoDao`: insertar, insertarLista, obtenerActivas, obtenerPorId, existePorNombre.
+- ✅ `GastoDao`: insertar, obtenerTodos con JOIN + nombreCategoria.
+- ✅ `MiControlDatabase` versión 2 con migración 1→2 explícita.
+- ✅ 6 categorías iniciales insertadas en migración + onCreate sin duplicados.
+- ✅ 11 pruebas unitarias (entidad + repositorios) pasan.
+- ✅ 8 instrumentadas (DAO + migración) pasan en ALT-LX3.
+- ⚠️ `exportSchema = false` — deuda técnica (ver Fase 3).
 
 ---
 
