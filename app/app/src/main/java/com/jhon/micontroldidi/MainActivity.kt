@@ -10,6 +10,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.jhon.micontroldidi.data.local.database.MiControlDatabase
+import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
+import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.navigation.AppNavGraph
 import com.jhon.micontroldidi.ui.theme.MiControlDiDiTheme
@@ -19,9 +21,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val viajeRepository = ViajeRepository(
-            MiControlDatabase.obtenerInstancia(applicationContext).viajeDao()
-        )
+        val database = MiControlDatabase.obtenerInstancia(applicationContext)
+        val viajeRepository = ViajeRepository(database.viajeDao())
+        val categoriaGastoRepository = CategoriaGastoRepository(database.categoriaGastoDao())
+        val gastoRepository = GastoRepository(database.gastoDao())
 
         setContent {
             MiControlDiDiTheme {
@@ -32,7 +35,9 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     AppNavGraph(
                         navController = navController,
-                        viajeRepository = viajeRepository
+                        viajeRepository = viajeRepository,
+                        gastoRepository = gastoRepository,
+                        categoriaGastoRepository = categoriaGastoRepository
                     )
                 }
             }

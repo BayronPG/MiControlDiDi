@@ -116,25 +116,32 @@
 
 ---
 
-## Fase 4 — Gastos CRUD (Sprint 2 — Semana 1)
-| Tarea | Prioridad | Dependencias |
-|---|---|---|
-| 4.1 Crear `ExpenseViewModel` con estados: lista, formulario, detalle | [H] | 2.12, 2.13 |
-| 4.2 Crear pantalla de listado de gastos ordenada por fecha descendente | [H] | 4.1 |
-| 4.3 Crear pantalla de formulario de gasto (fecha, categoría, valor, descripción opcional) | [H] | 4.1 |
-| 4.4 Implementar selector de categorías desde las sembradas | [H] | 4.3 |
-| 4.5 Implementar validación: valor > 0, fecha obligatoria, categoría obligatoria | [H] | 4.3 |
-| 4.6 Implementar edición de gasto reutilizando el formulario | [H] | 4.3 |
-| 4.7 Implementar eliminación de gasto con diálogo de confirmación | [H] | 4.1 |
-| 4.8 Manejar estado vacío en listado de gastos | [H] | 4.2 |
-| 4.9 Vincular navegación Viajes ↔ Gastos desde Dashboard | [H] | 3.2, 4.2 |
-| 4.10 Crear pruebas unitarias para `ExpenseViewModel` y validaciones | [H] | 4.1 |
+## Fase 4 — Gastos CRUD (Sprint 2 — Semana 1) ✅
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| 4.1 Crear `GastoViewModel` con estados: lista, formulario | [H] | 2.12, 2.13 | ✅ Creado |
+| 4.2 Crear `ListaGastosScreen` ordenada por fecha descendente | [H] | 4.1 | ✅ Creada |
+| 4.3 Crear `RegistrarGastoScreen` (fecha, categoría, valor, descripción) | [H] | 4.1 | ✅ Creada |
+| 4.4 Implementar selector de categorías desde las sembradas | [H] | 4.3 | ✅ ExposedDropdownMenu |
+| 4.5 Implementar validación: valor > 0, categoría obligatoria | [H] | 4.3 | ✅ Implementadas |
+| 4.6 Implementar edición de gasto reutilizando el formulario | [H] | 4.3 | ⏳ Pendiente |
+| 4.7 Implementar eliminación de gasto con diálogo de confirmación | [H] | 4.1 | ⏳ Pendiente |
+| 4.8 Manejar estado vacío en listado de gastos | [H] | 4.2 | ✅ Implementado |
+| 4.9 Vincular navegación Viajes ↔ Gastos mediante barra inferior | [H] | 3.2, 4.2 | ✅ Barra inferior |
+| 4.10 Crear pruebas unitarias para `GastoViewModel` y Compose | [H] | 4.1 | ✅ 12 unitarias + 10 Compose |
 
-### Criterios de aceptación — Fase 4
-- Registrar gasto: guarda con categoría, muestra error si falta categoría o valor inválido.
-- Consultar gastos: lista ordenada descendente con categoría visible.
-- Editar y eliminar: mismo comportamiento que viajes.
-- Pruebas unitarias pasan.
+### Criterios de aceptación — Fase 4 (incremento 1)
+- ✅ Registrar gasto: guarda con categoría, muestra error si falta categoría o valor inválido.
+- ✅ Consultar gastos: lista ordenada descendente con categoría visible.
+- ✅ Selección de categoría desde ExposedDropdownMenu con nombres reales de Room.
+- ✅ Validación: valor > 0, categoría obligatoria, valor numérico.
+- ✅ Protección contra doble pulsación.
+- ✅ Barra inferior con navegación Viajes ↔ Gastos.
+- ❌ Editar gasto: pendiente.
+- ❌ Eliminar gasto: pendiente.
+- ✅ `assembleDebug` BUILD SUCCESSFUL.
+- ✅ `testDebugUnitTest` BUILD SUCCESSFUL (47 unitarios).
+- ✅ `connectedDebugAndroidTest` BUILD SUCCESSFUL (33 instrumentados).
 
 ---
 
