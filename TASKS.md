@@ -41,30 +41,27 @@
 
 ---
 
-## Fase 2 — Capa de datos (Sprint 1 — Semana 1)
-| Tarea | Prioridad | Dependencias |
-|---|---|---|
-| 2.1 Crear entidad Room `ViajeEntity` con campos: id, fechaHora, valor, propina, observacion, fechaCreacion | [H] | Fase 1 |
-| 2.2 Crear entidad Room `CategoriaGastoEntity` con campos: id, nombre, activa | [H] | Fase 1 |
-| 2.3 Crear entidad Room `GastoEntity` con campos: id, fecha, categoriaId, valor, descripcion, fechaCreacion | [H] | 2.2 |
-| 2.4 Crear entidad Room `MetaEntity` con campos: id, tipoPeriodo, valorObjetivo, fechaInicio, activa | [M] | Fase 1 |
-| 2.5 Crear entidad Room `ConfiguracionEntity` con campos: moneda, tema, preferencias | [B] | Fase 1 |
-| 2.6 Crear DAO `ViajeDao` (insert, update, delete, getById, getAllOrderedByDate, getByDateRange, getSumByPeriod) | [H] | 2.1 |
-| 2.7 Crear DAO `GastoDao` (insert, update, delete, getById, getAllOrderedByDate, getByDateRange, getByCategory, getSumByPeriod) | [H] | 2.3 |
-| 2.8 Crear DAO `CategoriaGastoDao` (getAllActive, insert, update) | [H] | 2.2 |
-| 2.9 Crear DAO `MetaDao` (insert, update, getActive) | [M] | 2.4 |
-| 2.10 Crear `MiControlDatabase` con todas las entidades y versionado | [H] | 2.1–2.5 |
-| 2.11 Crear `ViajeRepository` | [H] | 2.6, 2.10 |
-| 2.12 Crear `GastoRepository` | [H] | 2.7, 2.10 |
-| 2.13 Crear `CategoriaGastoRepository` | [H] | 2.8, 2.10 |
-| 2.14 Crear `MetaRepository` | [M] | 2.9, 2.10 |
-| 2.15 Sembrar categorías de gasto iniciales (gasolina, mantenimiento, parqueadero, lavado, cuota moto, otros) | [H] | 2.10 |
+## Fase 2 — Capa de datos: Viajes (Sprint 1 — Semana 1) — En progreso
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| **2.1** Crear entidad Room `ViajeEntity` | [H] | Fase 1 | ✅ Creada |
+| **2.2** Crear DAO `ViajeDao` (insert, obtenerTodos ordenado DESC) | [H] | 2.1 | ✅ Creado |
+| **2.3** Crear `MiControlDatabase` (versión 1, solo ViajeEntity) | [H] | 2.1 | ✅ Creada, esquema exportado |
+| **2.4** Crear `ViajeRepository` con validaciones | [H] | 2.2, 2.3 | ✅ Creado |
+| **2.5** Configurar Gradle: Room + KSP | [H] | Fase 1 | ✅ KSP 2.1.20-1.0.32, Room 2.8.4 |
+| **2.6** Pruebas unitarias de entidad y repositorio | [H] | 2.1, 2.4 | ✅ 11 pruebas creadas y pasan |
+| **—** Otras entidades (CategoriaGasto, Gasto, Meta, Config) | [H/M/B] | — | ⏳ Pendiente (siguiente sprint) |
 
-### Criterios de aceptación — Fase 2
-- Las entidades se crean en SQLite al iniciar la app por primera vez.
-- Los DAO insertan, leen, actualizan y eliminan registros correctamente en pruebas.
-- Las categorías de gasto se siembran automáticamente.
-- Los repositorios encapsulan las operaciones de los DAO.
+### Criterios de aceptación — Fase 2 (viajes)
+- ✅ `ViajeEntity` con campos: id, fechaHora, valor, propina, observacion.
+- ✅ `ingresoTotal` es calculado (valor + propina), no persistido como columna.
+- ✅ `ViajeDao.insertar` inserta y retorna el id.
+- ✅ `ViajeDao.obtenerTodos` retorna Flow<List<ViajeEntity>> ordenado DESC.
+- ✅ `MiControlDatabase` versión 1 con `exportSchema = true`.
+- ✅ `ViajeRepository.insertar` valida: valor > 0, propina >= 0.
+- ✅ KSP + Room configurados, `assembleDebug` BUILD SUCCESSFUL.
+- ✅ 11 pruebas unitarias pasan (`testDebugUnitTest` BUILD SUCCESSFUL).
+- ❌ Pruebas instrumentadas con Room in-memory: no ejecutadas (no hay dispositivo conectado).
 
 ---
 

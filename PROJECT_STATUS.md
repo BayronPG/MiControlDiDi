@@ -1,76 +1,67 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 24-jul-2026 — Fase 1 completada.
+> Actualizado: 24-jul-2026 — Fase 2 (viajes) completada.
 
 ---
 
 ## Estado general
-Fase 1 completada. Proyecto Android creado y compilado. APK generado.
+Fase 1 completada. Primera parte de Fase 2 (persistencia de viajes) completada y compilada.
 
 ## Completado
 - [x] Documento SRS elaborado.
 - [x] Análisis técnico del SRS completado.
 - [x] **Fase 1 — Proyecto Android base.**
-  - [x] Proyecto Gradle con Kotlin DSL y Gradle Wrapper.
-  - [x] AGP 8.13.0, Gradle 8.13, Kotlin 2.1.20, Compose BOM 2025.01.01.
-  - [x] compileSdk = 36 (API 36), minSdk = 26, targetSdk = 36.
-  - [x] `local.properties` creado y excluido por `.gitignore`.
-  - [x] Estructura de paquetes: data/ y ui/ con subpaquetes + .gitkeep.
-  - [x] Tema Material 3 con colores personalizados y tipografía.
-  - [x] `MainActivity` con `enableEdgeToEdge`, `Scaffold` y pantalla "MiControlDiDi".
-  - [x] Recursos: strings.xml, colors.xml, themes.xml, icono adaptativo.
-  - [x] `assembleDebug` → **BUILD SUCCESSFUL**.
-  - [x] `testDebugUnitTest` → **BUILD SUCCESSFUL** (NO-SOURCE, no hay pruebas aún).
-  - [x] APK generado: `app/app/build/outputs/apk/debug/app-debug.apk` (9,4 MB).
+- [x] **Fase 2 (viajes) — Persistencia local del módulo de viajes.**
+  - [x] Room 2.8.4 + KSP 2.1.20-1.0.32 configurados.
+  - [x] `ViajeEntity`: id, fechaHora, valor, propina, observacion. `ingresoTotal` calculado.
+  - [x] `ViajeDao`: insertar (suspend), obtenerTodos ordenado DESC (Flow).
+  - [x] `MiControlDatabase`: versión 1, exportSchema, singleton.
+  - [x] `ViajeRepository`: validación valor > 0, propina >= 0, delegación al DAO.
+  - [x] Directorio `schemas/` con esquema Room exportado.
+  - [x] `assembleDebug` → **BUILD SUCCESSFUL** (KSP + Room compilados).
+  - [x] `testDebugUnitTest` → **BUILD SUCCESSFUL** (11 pruebas unitarias).
+  - [x] Gradle: versiones fijas, sin `+`, KSP en lugar de KAPT.
 
-## En curso
-- [ ] Pendiente de iniciar — Fase 2: Capa de datos (Room).
-
-## Pendiente — Fase 2
-- [ ] Crear entidades Room (Viaje, Gasto, CategoriaGasto, Meta, Configuracion).
-- [ ] Crear DAOs para cada entidad.
-- [ ] Crear MiControlDatabase.
-- [ ] Crear repositorios.
-- [ ] Sembrar categorías de gasto iniciales.
+## Pendiente — Continúa Fase 2
+- [ ] Entidad y DAO de CategoriaGasto.
+- [ ] Entidad y DAO de Gasto.
+- [ ] Entidad y DAO de Meta.
+- [ ] Entidad y DAO de Configuracion.
+- [ ] Repositorios correspondientes.
+- [ ] Sembrar categorías de gasto.
 
 ## Pendiente — Fase 3
-- [ ] Implementar CRUD completo de viajes.
-- [ ] Validaciones y pruebas unitarias.
-
-## Pendiente — Fase 4
-- [ ] Implementar CRUD completo de gastos.
-- [ ] Validaciones y pruebas unitarias.
-
-## Pendiente — Fase 5
-- [ ] Dashboard y cálculo de balance por periodo.
+- [ ] ViewModel de viajes.
+- [ ] Pantalla de listado de viajes.
+- [ ] Pantalla de formulario de viaje.
+- [ ] Validaciones en UI.
+- [ ] Edición y eliminación.
 - [ ] Pruebas unitarias.
 
+## Pendiente — Fase 4
+- [ ] CRUD completo de gastos.
+
+## Pendiente — Fase 5
+- [ ] Dashboard y balance.
+
 ## Pendiente — Fase 6
-- [ ] Filtros por fecha y categoría.
-- [ ] Configuración de metas.
-- [ ] Estadísticas básicas.
+- [ ] Filtros, metas y estadísticas.
 
 ## Pendiente — Fase 7
-- [ ] Preferencias de tema visual.
+- [ ] Preferencias de tema.
 
 ## Pendiente — Fase 8
-- [ ] Pruebas completas, accesibilidad y estabilización.
-- [ ] APK de demostración.
-
-## Bloqueos conocidos
-- Ninguno. Entorno completamente funcional.
+- [ ] Pruebas, accesibilidad y estabilización.
 
 ## Decisiones técnicas
 
 | Elemento | Valor |
 |---|---|
-| Namespace / App ID | `com.jhon.micontroldidi` |
-| compileSdk | 36 (API 36 — Android 16) |
-| minSdk | 26 (Android 8.0) |
-| targetSdk | 36 |
-| AGP | 8.13.0 |
-| Gradle | 8.13 (Wrapper) |
-| Kotlin | 2.1.20 |
-| Compose BOM | 2025.01.01 |
-| JDK | OpenJDK 17.0.19 LTS |
-| Icono | Adaptativo con drawable vectorial |
+| Room | 2.8.4 |
+| KSP | 2.1.20-1.0.32 (compatible con Kotlin 2.1.20) |
+| ViajeEntity.ingresoTotal | **No persistido** — calculado como `valor + propina` |
+| Moneda interna | `Long` en COP |
+| DB name | `micontrol_didi.db` |
+| DB version | 1 |
+| Esquema exportado | `app/app/schemas/` |
+| Pruebas unitarias | 11 tests en 2 clases (entity + repository) |
