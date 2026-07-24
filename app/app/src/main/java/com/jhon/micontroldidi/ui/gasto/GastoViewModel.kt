@@ -7,11 +7,9 @@ import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class GastoViewModel(
@@ -63,48 +61,135 @@ class GastoViewModel(
         _uiState.value = _uiState.value.copy(errorGuardado = null)
     }
 
+    fun cargarGastoParaEditar(id: Long) {
+        if (id <= 0) return
+        _uiState.value = _uiState.value.copy(
+            modoFormulario = ModoFormulario.CARGANDO_EDICION,
+            gastoEditandoId = null,
+            errorEdicion = null
+        )
+        viewModelScope.launch {
+            val gasto = gastoRepository.obtenerPorId(id)
+            if (gasto != null) {
+                _uiState.value = _uiState.value.copy(
+                    gastoEditandoId = gasto.id,
+                    modoFormulario = ModoFormulario.EDICION,
+                    fechaHoraOriginal = gasto.fechaHora,
+                    categoriaSeleccionadaId = gasto.categoriaId,
+                    valorText = gasto.valor.toString(),
+                    descripcionText = gasto.descripcion,
+                    errorCategoria = null,
+                    errorValor = null,
+                    errorGuardado = null,
+                    errorEdicion = null
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    modoFormulario = ModoFormulario.ERROR_EDICION,
+                    errorEdicion = "Gasto no encontrado"
+                )
+            }
+        }
+    }
+
     fun guardarGasto() {
         val estado = _uiState.value
 
-        // Re-validar antes de guardar
+        if (estado.modoFormulario != ModoFormulario.CREACION &&
+            estado.modoFormulario != ModoFormulario.EDICION
+        ) return
+
+        if (estado.guardando) return
+
         val errorC = if (estado.categoriaSeleccionadaId == null) "Debes seleccionar una categoría" else null
         val errorV = validarValor(estado.valorText)
         if (errorC != null || errorV != null) {
-            _uiState.value = estado.copy(
-                errorCategoria = errorC,
-                errorValor = errorV
-            )
+            _uiState.value = estado.copy(errorCategoria = errorC, errorValor = errorV)
             return
         }
-
-        if (estado.guardando) return
 
         _uiState.value = estado.copy(guardando = true, errorGuardado = null)
 
         viewModelScope.launch {
-            val gasto = GastoEntity(
-                fechaHora = System.currentTimeMillis(),
-                categoriaId = estado.categoriaSeleccionadaId!!,
-                valor = estado.valorText.toLong(),
-                descripcion = estado.descripcionText.trim()
-            )
+            if (estado.modoFormulario == ModoFormulario.EDICION) {
+                val gasto = GastoEntity(
+                    id = estado.gastoEditandoId!!,
+                    fechaHora = estado.fechaHoraOriginal,
+                    categoriaId = estado.categoriaSeleccionadaId!!,
+                    valor = estado.valorText.toLong(),
+                    descripcion = estado.descripcionText.trim()
+                )
+                val resultado = gastoRepository.actualizar(gasto)
+                if (resultado.isSuccess) {
+                    _uiState.value = _uiState.value.copy(
+                        gastoEditandoId = null,
+                        modoFormulario = ModoFormulario.CREACION,
+                        categoriaSeleccionadaId = null,
+                        valorText = "",
+                        descripcionText = "",
+                        errorCategoria = null,
+                        errorValor = null,
+                        guardando = false,
+                        guardadoExitoso = true
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        guardando = false,
+                        errorGuardado = resultado.exceptionOrNull()?.message
+                    )
+                }
+            } else {
+                val gasto = GastoEntity(
+                    fechaHora = System.currentTimeMillis(),
+                    categoriaId = estado.categoriaSeleccionadaId!!,
+                    valor = estado.valorText.toLong(),
+                    descripcion = estado.descripcionText.trim()
+                )
+                val resultado = gastoRepository.insertar(gasto)
+                if (resultado.isSuccess) {
+                    _uiState.value = _uiState.value.copy(
+                        categoriaSeleccionadaId = null,
+                        valorText = "",
+                        descripcionText = "",
+                        errorCategoria = null,
+                        errorValor = null,
+                        guardando = false,
+                        guardadoExitoso = true
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        guardando = false,
+                        errorGuardado = resultado.exceptionOrNull()?.message
+                    )
+                }
+            }
+        }
+    }
 
-            val resultado = gastoRepository.insertar(gasto)
+    fun mostrarDialogoEliminar(gastoId: Long) {
+        _uiState.value = _uiState.value.copy(gastoIdAEliminar = gastoId)
+    }
 
+    fun ocultarDialogoEliminar() {
+        _uiState.value = _uiState.value.copy(gastoIdAEliminar = null, errorEliminacion = null)
+    }
+
+    fun confirmarEliminacion() {
+        val gastoId = _uiState.value.gastoIdAEliminar ?: return
+        if (_uiState.value.eliminando) return
+        _uiState.value = _uiState.value.copy(eliminando = true, errorEliminacion = null)
+        viewModelScope.launch {
+            val resultado = gastoRepository.eliminar(gastoId)
             if (resultado.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    categoriaSeleccionadaId = null,
-                    valorText = "",
-                    descripcionText = "",
-                    errorCategoria = null,
-                    errorValor = null,
-                    guardando = false,
-                    guardadoExitoso = true
+                    gastoIdAEliminar = null,
+                    eliminando = false,
+                    errorEliminacion = null
                 )
             } else {
                 _uiState.value = _uiState.value.copy(
-                    guardando = false,
-                    errorGuardado = resultado.exceptionOrNull()?.message
+                    eliminando = false,
+                    errorEliminacion = resultado.exceptionOrNull()?.message
                 )
             }
         }

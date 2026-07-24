@@ -15,6 +15,15 @@ interface GastoDao {
     suspend fun insertar(gasto: GastoEntity): Long
 
     @Query("""
+        UPDATE gastos SET fechaHora = :fechaHora, categoriaId = :categoriaId,
+        valor = :valor, descripcion = :descripcion WHERE id = :id
+    """)
+    suspend fun actualizar(id: Long, fechaHora: Long, categoriaId: Long, valor: Long, descripcion: String): Int
+
+    @Query("DELETE FROM gastos WHERE id = :id")
+    suspend fun eliminar(id: Long): Int
+
+    @Query("""
         SELECT g.id, g.fechaHora, g.categoriaId, c.nombre AS nombreCategoria,
                g.valor, g.descripcion
         FROM gastos g
@@ -22,4 +31,13 @@ interface GastoDao {
         ORDER BY g.fechaHora DESC
     """)
     fun obtenerTodos(): Flow<List<GastoConCategoria>>
+
+    @Query("""
+        SELECT g.id, g.fechaHora, g.categoriaId, c.nombre AS nombreCategoria,
+               g.valor, g.descripcion
+        FROM gastos g
+        INNER JOIN categorias_gasto c ON g.categoriaId = c.id
+        WHERE g.id = :id
+    """)
+    suspend fun obtenerPorId(id: Long): GastoConCategoria?
 }

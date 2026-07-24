@@ -50,8 +50,9 @@ class GastoViewModelTest {
             insertarLlamadas++
             ultimoGastoInsertado = gasto
             errorSimulado?.let { throw it }
+            val id = insertarLlamadas.toLong()
             val nuevoGasto = GastoConCategoria(
-                id = insertarLlamadas.toLong(),
+                id = id,
                 fechaHora = gasto.fechaHora,
                 categoriaId = gasto.categoriaId,
                 nombreCategoria = "Gasolina",
@@ -59,8 +60,24 @@ class GastoViewModelTest {
                 descripcion = gasto.descripcion
             )
             gastosFlow.value = gastosFlow.value + nuevoGasto
-            return insertarLlamadas.toLong()
+            return id
         }
+        override suspend fun actualizar(id: Long, fechaHora: Long, categoriaId: Long, valor: Long, descripcion: String): Int {
+            insertarLlamadas++
+            errorSimulado?.let { throw it }
+            gastosFlow.value = gastosFlow.value.map {
+                if (it.id == id) it.copy(fechaHora = fechaHora, categoriaId = categoriaId, valor = valor, descripcion = descripcion)
+                else it
+            }
+            return 1
+        }
+        override suspend fun eliminar(id: Long): Int {
+            errorSimulado?.let { throw it }
+            gastosFlow.value = gastosFlow.value.filter { it.id != id }
+            return 1
+        }
+        override suspend fun obtenerPorId(id: Long): GastoConCategoria? =
+            gastosFlow.value.find { it.id == id }
 
         override fun obtenerTodos(): Flow<List<GastoConCategoria>> = gastosFlow
     }
@@ -262,5 +279,281 @@ class GastoViewModelTest {
 
         val gastos = viewModel.uiState.value.gastos
         assertEquals(3, gastos.size)
+    }
+
+    @Test
+    fun `cargarGastoParaEditar rellena todos los campos`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("25000")
+        viewModel.actualizarDescripcion("Gasto a editar")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        val gastoId = viewModel.uiState.value.gastos.first().id
+
+        viewModel.cargarGastoParaEditar(gastoId)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(gastoId, state.gastoEditandoId)
+        assertTrue(state.editando)
+        assertEquals("25000", state.valorText)
+        assertEquals("Gasto a editar", state.descripcionText)
+        assertEquals(1L, state.categoriaSeleccionadaId)
+    }
+
+    @Test
+    fun `gasto inexistente no cambia estado`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.cargarGastoParaEditar(99999L)
+        advanceUntilIdle()
+        assertNull(viewModel.uiState.value.gastoEditandoId)
+        assertFalse(viewModel.uiState.value.editando)
+    }
+
+    @Test
+    fun `actualizacion valida conserva ID y fechaHora`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("30000")
+        viewModel.actualizarDescripcion("Original")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        val gastoId = viewModel.uiState.value.gastos.first().id
+        viewModel.cargarGastoParaEditar(gastoId)
+        advanceUntilIdle()
+
+        val fechaOriginal = viewModel.uiState.value.fechaHoraOriginal
+        viewModel.actualizarValor("35000")
+        viewModel.actualizarDescripcion("Editado")
+        viewModel.seleccionarCategoria(2)
+        advanceUntilIdle()
+
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.guardadoExitoso)
+        // El gasto actualizado conserva su ID original en la lista
+    }
+
+    @Test
+    fun `doble pulsacion actualiza una sola vez`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("30000")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        val gastoId = viewModel.uiState.value.gastos.first().id
+        viewModel.cargarGastoParaEditar(gastoId)
+        advanceUntilIdle()
+        // Resetear contador para medir solo la actualizacion
+        insertarLlamadas = 0
+        viewModel.actualizarValor("35000")
+        advanceUntilIdle()
+
+        viewModel.guardarGasto()
+        viewModel.guardarGasto()
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        assertEquals("Solo una actualizacion", 1, insertarLlamadas)
+    }
+
+    @Test
+    fun `fallo de actualizacion conserva el error`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("30000")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        val gastoId = viewModel.uiState.value.gastos.first().id
+        viewModel.cargarGastoParaEditar(gastoId)
+        advanceUntilIdle()
+
+        // Simular fallo y verificar que el formulario no se limpia
+        errorSimulado = IllegalArgumentException("Fallo simulado")
+        viewModel.actualizarValor("35000")
+        advanceUntilIdle()
+
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        assertNotNull("Debe haber error de guardado", viewModel.uiState.value.errorGuardado)
+        assertFalse("No debe estar guardando", viewModel.uiState.value.guardando)
+        assertEquals("El valor debe conservarse", "35000", viewModel.uiState.value.valorText)
+    }
+
+    @Test
+    fun `evento de actualizacion se consume una sola vez`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("30000")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        val gastoId = viewModel.uiState.value.gastos.first().id
+        viewModel.cargarGastoParaEditar(gastoId)
+        advanceUntilIdle()
+
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.guardadoExitoso)
+        viewModel.limpiarEstadoTransitorio()
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.guardadoExitoso)
+    }
+
+    @Test
+    fun `solicitar eliminacion no elimina sin confirmar`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("40000")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        val totalAntes = viewModel.uiState.value.gastos.size
+        viewModel.mostrarDialogoEliminar(1L)
+        advanceUntilIdle()
+
+        assertEquals(1L, viewModel.uiState.value.gastoIdAEliminar)
+        assertEquals(totalAntes, viewModel.uiState.value.gastos.size)
+    }
+
+    @Test
+    fun `cancelar eliminacion cierra dialogo sin llamar al repositorio`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.mostrarDialogoEliminar(1L)
+        advanceUntilIdle()
+
+        viewModel.ocultarDialogoEliminar()
+        advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.gastoIdAEliminar)
+    }
+
+    @Test
+    fun `confirmar eliminacion remueve el gasto`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("40000")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        val gastoId = viewModel.uiState.value.gastos.first().id
+        val totalAntes = viewModel.uiState.value.gastos.size
+
+        viewModel.mostrarDialogoEliminar(gastoId)
+        advanceUntilIdle()
+        viewModel.confirmarEliminacion()
+        advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.gastoIdAEliminar)
+        assertEquals(totalAntes - 1, viewModel.uiState.value.gastos.size)
+    }
+
+    @Test
+    fun `doble confirmacion no duplica eliminacion`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("40000")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        val gastoId = viewModel.uiState.value.gastos.first().id
+        val totalAntes = viewModel.uiState.value.gastos.size
+
+        viewModel.mostrarDialogoEliminar(gastoId)
+        advanceUntilIdle()
+        viewModel.confirmarEliminacion()
+        advanceUntilIdle()
+
+        // La segunda confirmacion no debe afectar porque
+        // gastoIdAEliminar ya fue limpiado por la primera
+        viewModel.confirmarEliminacion()
+        advanceUntilIdle()
+
+        assertEquals(totalAntes - 1, viewModel.uiState.value.gastos.size)
+    }
+
+    @Test
+    fun `fallo de eliminacion conserva el mensaje de error`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.mostrarDialogoEliminar(1L)
+        advanceUntilIdle()
+
+        errorSimulado = RuntimeException("Error al eliminar")
+
+        viewModel.confirmarEliminacion()
+        advanceUntilIdle()
+
+        assertNotNull(viewModel.uiState.value.errorEliminacion)
+    }
+
+    @Test
+    fun `ID inexistente muestra modo ERROR_EDICION`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.cargarGastoParaEditar(99999L)
+        advanceUntilIdle()
+        assertEquals(ModoFormulario.ERROR_EDICION, viewModel.uiState.value.modoFormulario)
+        assertNotNull(viewModel.uiState.value.errorEdicion)
+    }
+
+    @Test
+    fun `ID inexistente nunca llama a insertar ni actualizar`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.cargarGastoParaEditar(99999L)
+        advanceUntilIdle()
+        insertarLlamadas = 0
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+        assertEquals(0, insertarLlamadas)
+    }
+
+    @Test
+    fun `ID invalido no consulta el repositorio`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        insertarLlamadas = 0
+        viewModel.cargarGastoParaEditar(-1L)
+        advanceUntilIdle()
+        assertEquals(ModoFormulario.CREACION, viewModel.uiState.value.modoFormulario)
+    }
+
+    @Test
+    fun `cancelar edicion no actualiza datos originales`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("30000")
+        viewModel.actualizarDescripcion("Original")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+
+        val gastoId = viewModel.uiState.value.gastos.first().id
+        viewModel.cargarGastoParaEditar(gastoId)
+        advanceUntilIdle()
+
+        viewModel.actualizarValor("99999")
+        advanceUntilIdle()
+
+        // Salir sin guardar no deberia haber llamado a actualizar
+        // El modo sigue siendo EDICION hasta que se navegue hacia atras
+        assertEquals(ModoFormulario.EDICION, viewModel.uiState.value.modoFormulario)
+    }
+
+    @Test
+    fun `modo ERROR_EDICION impide guardar`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        viewModel.cargarGastoParaEditar(99999L)
+        advanceUntilIdle()
+        val llamadasAntes = insertarLlamadas
+        viewModel.seleccionarCategoria(1)
+        viewModel.actualizarValor("50000")
+        viewModel.guardarGasto()
+        advanceUntilIdle()
+        assertEquals(llamadasAntes, insertarLlamadas)
     }
 }

@@ -124,8 +124,8 @@
 | 4.3 Crear `RegistrarGastoScreen` (fecha, categoría, valor, descripción) | [H] | 4.1 | ✅ Creada |
 | 4.4 Implementar selector de categorías desde las sembradas | [H] | 4.3 | ✅ ExposedDropdownMenu |
 | 4.5 Implementar validación: valor > 0, categoría obligatoria | [H] | 4.3 | ✅ Implementadas |
-| 4.6 Implementar edición de gasto reutilizando el formulario | [H] | 4.3 | ⏳ Pendiente |
-| 4.7 Implementar eliminación de gasto con diálogo de confirmación | [H] | 4.1 | ⏳ Pendiente |
+| 4.6 Implementar edición de gasto reutilizando el formulario | [H] | 4.3 | ✅ Formulario reutilizado |
+| 4.7 Implementar eliminación de gasto con diálogo de confirmación | [H] | 4.1 | ✅ AlertDialog confirmación |
 | 4.8 Manejar estado vacío en listado de gastos | [H] | 4.2 | ✅ Implementado |
 | 4.9 Vincular navegación Viajes ↔ Gastos mediante barra inferior | [H] | 3.2, 4.2 | ✅ Barra inferior |
 | 4.10 Crear pruebas unitarias para `GastoViewModel` y Compose | [H] | 4.1 | ✅ 12 unitarias + 10 Compose |
@@ -137,8 +137,8 @@
 - ✅ Validación: valor > 0, categoría obligatoria, valor numérico.
 - ✅ Protección contra doble pulsación.
 - ✅ Barra inferior con navegación Viajes ↔ Gastos.
-- ❌ Editar gasto: pendiente.
-- ❌ Eliminar gasto: pendiente.
+- ✅ Editar gasto: formulario reutilizado, carga datos existentes.
+- ✅ Eliminar gasto: diálogo de confirmación, eliminación desde repositorio.
 - ✅ `assembleDebug` BUILD SUCCESSFUL.
 - ✅ `testDebugUnitTest` BUILD SUCCESSFUL (47 unitarios).
 - ✅ `connectedDebugAndroidTest` BUILD SUCCESSFUL (33 instrumentados).

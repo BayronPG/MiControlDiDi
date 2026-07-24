@@ -21,6 +21,9 @@ class GastoRepositoryTest {
             insertarLlamadas++
             return 1L
         }
+        override suspend fun actualizar(id: Long, fechaHora: Long, categoriaId: Long, valor: Long, descripcion: String): Int = 1
+        override suspend fun eliminar(id: Long): Int = 1
+        override suspend fun obtenerPorId(id: Long): GastoConCategoria? = null
         override fun obtenerTodos(): Flow<List<GastoConCategoria>> = flowOf(emptyList())
     }
 
@@ -69,5 +72,34 @@ class GastoRepositoryTest {
         val resultado = repository.insertar(g)
         assertFalse(resultado.isSuccess)
         assertTrue(resultado.exceptionOrNull()?.message?.contains("categoría") == true)
+    }
+
+    @Test
+    fun `actualizar gasto valido retorna exito`() = runTest {
+        val g = GastoEntity(id = 1, fechaHora = 1000L, categoriaId = 1, valor = 5000)
+        val resultado = repository.actualizar(g)
+        assertTrue(resultado.isSuccess)
+    }
+
+    @Test
+    fun `actualizar gasto con valor cero es rechazado`() = runTest {
+        val g = GastoEntity(id = 1, fechaHora = 1000L, categoriaId = 1, valor = 0)
+        val resultado = repository.actualizar(g)
+        assertFalse(resultado.isSuccess)
+        assertTrue(resultado.exceptionOrNull()?.message?.contains("mayor que cero") == true)
+    }
+
+    @Test
+    fun `actualizar gasto con categoriaId cero es rechazado`() = runTest {
+        val g = GastoEntity(id = 1, fechaHora = 1000L, categoriaId = 0, valor = 5000)
+        val resultado = repository.actualizar(g)
+        assertFalse(resultado.isSuccess)
+        assertTrue(resultado.exceptionOrNull()?.message?.contains("categoría") == true)
+    }
+
+    @Test
+    fun `eliminar gasto retorna exito`() = runTest {
+        val resultado = repository.eliminar(1L)
+        assertTrue(resultado.isSuccess)
     }
 }

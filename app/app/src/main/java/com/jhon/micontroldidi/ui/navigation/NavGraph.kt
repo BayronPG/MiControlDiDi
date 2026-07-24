@@ -17,9 +17,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
@@ -36,6 +38,7 @@ object Rutas {
     const val REGISTRAR_VIAJE = "registrar_viaje"
     const val LISTA_GASTOS = "lista_gastos"
     const val REGISTRAR_GASTO = "registrar_gasto"
+    const val REGISTRAR_GASTO_CON_ID = "registrar_gasto/{gastoId}"
 }
 
 private val rutasConBarraInferior = setOf(Rutas.LISTA_VIAJES, Rutas.LISTA_GASTOS)
@@ -145,6 +148,28 @@ fun AppNavGraph(
                     viewModel = gastoViewModel,
                     onNavegarARegistrar = {
                         navController.navigate(Rutas.REGISTRAR_GASTO)
+                    },
+                    onNavegarAEditar = { gastoId ->
+                        navController.navigate("registrar_gasto/$gastoId")
+                    }
+                )
+            }
+
+            composable(
+                route = Rutas.REGISTRAR_GASTO_CON_ID,
+                arguments = listOf(
+                    navArgument("gastoId") { type = NavType.LongType; defaultValue = -1L }
+                )
+            ) { backStackEntry ->
+                val gastoId = backStackEntry.arguments?.getLong("gastoId") ?: -1L
+                RegistrarGastoScreen(
+                    viewModel = gastoViewModel,
+                    gastoId = if (gastoId > 0) gastoId else null,
+                    onGuardadoExitoso = {
+                        navController.popBackStack()
+                    },
+                    onCancelar = {
+                        navController.popBackStack()
                     }
                 )
             }
@@ -152,6 +177,7 @@ fun AppNavGraph(
             composable(Rutas.REGISTRAR_GASTO) {
                 RegistrarGastoScreen(
                     viewModel = gastoViewModel,
+                    gastoId = null,
                     onGuardadoExitoso = {
                         navController.popBackStack()
                     },

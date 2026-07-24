@@ -11,12 +11,44 @@ class GastoRepository(
 
     fun obtenerTodos(): Flow<List<GastoConCategoria>> = gastoDao.obtenerTodos()
 
+    suspend fun obtenerPorId(id: Long): GastoConCategoria? = gastoDao.obtenerPorId(id)
+
     suspend fun insertar(gasto: GastoEntity): Result<Long> {
         return try {
             validarGasto(gasto)
             val id = gastoDao.insertar(gasto)
             Result.success(id)
         } catch (e: IllegalArgumentException) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun actualizar(gasto: GastoEntity): Result<Unit> {
+        return try {
+            validarGasto(gasto)
+            val filas = gastoDao.actualizar(
+                gasto.id, gasto.fechaHora, gasto.categoriaId,
+                gasto.valor, gasto.descripcion
+            )
+            if (filas == 0) {
+                Result.failure(NoSuchElementException("El gasto no existe"))
+            } else {
+                Result.success(Unit)
+            }
+        } catch (e: IllegalArgumentException) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun eliminar(id: Long): Result<Unit> {
+        return try {
+            val filas = gastoDao.eliminar(id)
+            if (filas == 0) {
+                Result.failure(NoSuchElementException("El gasto no existe"))
+            } else {
+                Result.success(Unit)
+            }
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
