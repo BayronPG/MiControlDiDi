@@ -24,3 +24,6 @@ openclaw-workspace-state.json
 *.log
 
 BOOTSTRAP.md
+
+# OpenClaw local memory
+memory/
