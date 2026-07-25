@@ -5,8 +5,8 @@ Aplicación Android para controlar ingresos, gastos y ganancias de un conductor 
 ## Estado del proyecto
 
 - **Fases 1 a 4 cerradas.**
-- **Fase 5 en desarrollo.** Incrementos 1A (cálculo de periodos) y 1B (totales por rango) completados e integrados.
-- **Capa visual del Dashboard pendiente** (DashboardViewModel, DashboardScreen, navegación).
+- **Fase 5 en desarrollo.** Incrementos 1A (cálculo de periodos), 1B (totales por rango) y 1C (DashboardViewModel) completados e integrados.
+- **DashboardScreen y navegación al Dashboard pendientes.**
 - La aplicación funciona completamente sin conexión a Internet.
 
 ## Stack técnico
@@ -77,20 +77,22 @@ Compose UI → ViewModel → Repository → DAO → Room
 
 | Tipo | Cantidad | Estado |
 |------|----------|--------|
-| Unitarias | 93 | ✅ |
+| Unitarias | 113 | ✅ |
 | Instrumentadas | 65 | ✅ |
-| **Total** | **158** | ✅ |
+| **Total** | **178** | ✅ |
 
 ### Trazabilidad
 
-- Validación completa registrada: **93/93** unitarias + **65/65** instrumentadas = **158/158**.
+- Unitarias validadas tras Incremento 1C: **113/113**.
+- Instrumentadas vigentes desde validación del Incremento 1B: **65/65**.
+- **No se repitió `connectedDebugAndroidTest` después del Incremento 1C.**
 - 0 pruebas flaky pendientes.
 
 > Para detalles completos (distribución por archivo, limpieza selectiva, antecedente de incidencia flaky), consultar `PROJECT_STATUS.md`.
 
 ### Desglose por archivo
 
-**Unitarias (93)**
+**Unitarias (113)**
 | Archivo | Pruebas |
 |---------|---------|
 | `ViajeEntityTest` | 6 |
@@ -101,6 +103,7 @@ Compose UI → ViewModel → Repository → DAO → Room
 | `ViajeViewModelTest` | 10 |
 | `GastoViewModelTest` | 28 |
 | `CalculadorRangoPeriodoTest` | 22 |
+| `DashboardViewModelTest` | **20** |
 
 **Instrumentadas (65)**
 | Archivo | Pruebas |
@@ -115,7 +118,6 @@ Compose UI → ViewModel → Repository → DAO → Room
 
 ## Funcionalidades pendientes (no implementadas)
 
-- [ ] **DashboardViewModel** (combinar ingresos y gastos, calcular ganancia neta).
 - [ ] **DashboardScreen** con resumen del periodo y selector visual (día / semana / mes).
 - [ ] Ruta `dashboard` y cambio de `startDestination` en NavGraph.
 - [ ] Accesos rápidos "Registrar viaje" y "Registrar gasto" desde Dashboard.

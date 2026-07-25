@@ -170,20 +170,27 @@
 | 5.1m Pruebas unitarias de repositorio (4 nuevas) | [H] | 5.1k | ✅ Creadas y pasan |
 | 5.1n Estabilizar selector `Gasolina` en `GastoComposeTest` | [H] | — | ✅ Corregido |
 
-### Pendiente — Capa visual del Dashboard
+### Incremento 1C: DashboardViewModel y DashboardUiState ✅
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| 5.2 Crear `DashboardUiState` con ingresos, gastos, ganancia neta y periodo seleccionado | [H] | — | ✅ Creado |
+| 5.3 Crear `DashboardViewModel` consolidando datos de viajes y gastos | [H] | 5.1g–5.1k, 5.2 | ✅ Creado |
+| 5.4 Clock inyectable en ViewModel | [H] | 5.3 | ✅ Aplicado |
+| 5.5 flatMapLatest + combine para observación reactiva | [H] | 5.3 | ✅ Implementado |
+| 5.6 Manejo de errores con catch (sin stack traces) | [H] | 5.3 | ✅ Implementado |
+| 5.7 Pruebas unitarias del DashboardViewModel (20 pruebas) | [H] | 5.3 | ✅ 20 pruebas |
+
+### Pendiente — Capa de presentación del Dashboard
 | Tarea | Prioridad | Dependencias |
 |---|---|---|
-| 5.2 Crear `DashboardViewModel` consolidando datos de viajes y gastos | [H] | 5.1g–5.1k |
-| 5.3 Crear `DashboardUiState` con ingresos, gastos, ganancia neta y periodo seleccionado | [H] | 5.2 |
-| 5.4 Crear `DashboardScreen` con resumen del periodo | [H] | 5.3 |
-| 5.5 Implementar selector visual de periodo (día, semana, mes) | [H] | 5.4 |
-| 5.6 Mostrar accesos rápidos "Registrar viaje" y "Registrar gasto" en Dashboard | [H] | 5.4 |
-| 5.7 Manejar estado vacío en Dashboard (ceros y mensaje informativo) | [H] | 5.4 |
-| 5.8 Aplicar RN-07: mostrar valores en COP con formato legible | [H] | 5.4 |
-| 5.9 Agregar ruta `dashboard` al NavGraph | [H] | 5.4 |
-| 5.10 Cambiar `startDestination` a Dashboard | [H] | 5.9 |
-| 5.11 Pruebas unitarias del DashboardViewModel | [H] | 5.2 |
-| 5.12 Pruebas Compose del DashboardScreen | [H] | 5.4 |
+| 5.8 Crear `DashboardScreen` con resumen del periodo | [H] | 5.2, 5.3 |
+| 5.9 Implementar selector visual de periodo (día, semana, mes) | [H] | 5.8 |
+| 5.10 Mostrar accesos rápidos "Registrar viaje" y "Registrar gasto" en Dashboard | [H] | 5.8 |
+| 5.11 Manejar estado vacío en Dashboard (ceros y mensaje informativo) | [H] | 5.8 |
+| 5.12 Aplicar RN-07: mostrar valores en COP con formato legible | [H] | 5.8 |
+| 5.13 Agregar ruta `dashboard` al NavGraph | [H] | 5.8 |
+| 5.14 Cambiar `startDestination` a Dashboard | [H] | 5.13 |
+| 5.15 Pruebas Compose del DashboardScreen | [H] | 5.8 |
 
 ### Criterios de aceptación — Fase 5 (actualizados)
 - ✅ Cálculo de periodos: DIA (00:00–24:00), SEMANA (lunes–lunes), MES (1ro–1ro).
@@ -193,12 +200,14 @@
 - ✅ Ingresos por rango: SUM(valor + propina) con COALESCE, Flow&lt;Long&gt; reactivo.
 - ✅ Gastos por rango: SUM(valor) con COALESCE, Flow&lt;Long&gt; reactivo reactivo a CUD.
 - ✅ Repositorios delegan directamente en DAOs.
-- ⏳ Dashboard muestra día actual al abrir la app.
-- ⏳ Selector de periodo funcional.
-- ⏳ Ganancia neta = ingresos − gastos del mismo periodo.
+- ✅ DashboardUiState con periodo, ingresos, gastos, ganancia neta, cargando y error.
+- ✅ DashboardViewModel con flatMapLatest + combine + Clock inyectable + catch de errores.
+- ✅ 20 pruebas unitarias del DashboardViewModel.
+- ⏳ DashboardScreen con resumen del periodo.
+- ⏳ Selector visual de periodo funcional.
+- ⏳ Ganancia neta mostrada en la UI.
 - ⏳ Valores en formato COP.
 - ⏳ Accesos rápidos a registro de viaje y gasto.
-- ⏳ Pruebas del DashboardViewModel y DashboardScreen.
 
 ---
 

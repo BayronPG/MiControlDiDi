@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 25-jul-2026 — Cierre de Incrementos 1A y 1B de la Fase 5.
+> Actualizado: 25-jul-2026 — Cierre del Incremento 1C de la Fase 5.
 
 ---
 
@@ -8,12 +8,12 @@
 
 Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con edición, eliminación y protección ante ID inexistente. Navegación con barra inferior.
 
-**Fase 5 iniciada.** Incrementos 1A (dominio de periodos) y 1B (consultas agregadas de ingresos y gastos por rango) completados, validados e integrados en `main`. DashboardViewModel, DashboardScreen y navegación al Dashboard todavía no implementados.
+**Fase 5 en desarrollo.** Incrementos 1A (dominio de periodos), 1B (consultas agregadas) y 1C (DashboardViewModel) completados, validados e integrados en `main`. DashboardScreen y navegación al Dashboard todavía no implementados.
 
-- 93 pruebas unitarias, 65 instrumentadas.
-- **158/158 superadas, 0 flaky pendientes.**
+- 113 pruebas unitarias, 65 instrumentadas.
+- **178/178 superadas, 0 flaky pendientes.**
 
-> **Las fases 1 a 4 están cerradas. La Fase 5 está en desarrollo: Incrementos 1A y 1B completados. La capa visual del Dashboard (ViewModel + Screen + navegación) sigue pendiente.**
+> **Las fases 1 a 4 están cerradas. La Fase 5 está en desarrollo: Incrementos 1A, 1B y 1C completados. La capa de presentación (DashboardScreen + navegación) sigue pendiente.**
 
 ## Completado
 
@@ -23,6 +23,7 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 - [x] **Fase 4 — Gastos CRUD completo: listar, registrar, editar y eliminar.**
 - [x] **Fase 5 — Incremento 1A: Cálculo de periodos del Dashboard.**
 - [x] **Fase 5 — Incremento 1B: Totales por rango (ingresos y gastos).**
+- [x] **Fase 5 — Incremento 1C: DashboardUiState y DashboardViewModel.**
 
 ---
 
@@ -79,6 +80,93 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 
 ---
 
+## Fase 5 — Incremento 1C: DashboardUiState y DashboardViewModel
+
+### Implementado
+
+#### DashboardUiState (`com.jhon.micontroldidi.ui.dashboard`)
+
+```kotlin
+data class DashboardUiState(
+    val periodoSeleccionado: PeriodoDashboard = PeriodoDashboard.DIA,
+    val ingresos: Long = 0L,
+    val gastos: Long = 0L,
+    val gananciaNeta: Long = 0L,
+    val cargando: Boolean = true,
+    val mensajeError: String? = null
+)
+```
+
+- Valores de dominio sin formato monetario.
+- Estado inicial: DIA, ceros, cargando.
+
+#### DashboardViewModel
+
+- Dependencias inyectables: `ViajeRepository`, `GastoRepository`, `java.time.Clock`.
+- `Clock` evita `System.currentTimeMillis()` y permite pruebas con tiempo fijo.
+- `ZoneId` se obtiene de `clock.zone`, usado por `CalculadorRangoPeriodo`.
+
+**Flujo reactivo:**
+
+```
+_periodo (MutableStateFlow<PeriodoDashboard>)
+  |  flatMapLatest { periodo ->
+  |    CalculadorRangoPeriodo.calcular(periodo, clock.millis(), clock.zone)
+  |    combine(
+  |      viajeRepository.obtenerIngresosPorRango(inicio, fin),
+  |      gastoRepository.obtenerTotalGastosPorRango(inicio, fin)
+  |    ) { ingresos, gastos -> DashboardUiState(gananciaNeta = ingresos - gastos, ...) }
+  |      .catch { ... }   // errores capturados sin exponer stack traces
+  |  }
+  v
+collect -> _uiState
+```
+
+- `flatMapLatest` cancela la observación anterior al cambiar de periodo, evitando fugas.
+- `seleccionarPeriodo(periodo)` cambia `_periodo`, disparando `flatMapLatest`.
+- `combine` fusiona los Flows de ingresos y gastos en un solo estado.
+- `gananciaNeta = ingresos - gastos`.
+- Manejo de errores con `catch`: establece `cargando = false` y `mensajeError` legible.
+- `CancellationException` se relanza (no se oculta).
+- Recuperación al cambiar de periodo: `flatMapLatest` crea un nuevo Flow interno.
+
+#### Factory
+
+```kotlin
+class Factory(
+    private val viajeRepository: ViajeRepository,
+    private val gastoRepository: GastoRepository,
+    private val clock: Clock = Clock.systemDefaultZone()
+) : ViewModelProvider.Factory
+```
+
+#### Pruebas unitarias (20)
+
+| Prueba | Categoría |
+|---|---|
+| `estado inicial periodo es DIA` | Estado inicial |
+| `sin movimientos devuelve ceros` | Estado inicial |
+| `combina ingresos y gastos en el estado` | Combinación |
+| `ganancia positiva cuando ingresos superan gastos` | Ganancia |
+| `ganancia cero cuando ingresos igualan gastos` | Ganancia |
+| `ganancia negativa cuando gastos superan ingresos` | Ganancia |
+| `ingresos recibidos del repositorio ya incluyen propinas` | Propinas |
+| `cambio a SEMANA actualiza periodo en el estado` | Periodo |
+| `cambio a MES actualiza periodo en el estado` | Periodo |
+| `limites del rango se delegan a los DAOs` | Límites |
+| `cambio a SEMANA delega rango semanal` | Límites |
+| `cambio a MES delega rango mensual` | Límites |
+| `actualizacion de ingresos actualiza el estado` | Reactividad |
+| `actualizacion de gastos actualiza el estado` | Reactividad |
+| `cambio de periodo recalcula con la hora actual del reloj` | Reactividad |
+| `no emite estados duplicados con la misma entrada` | Emisiones |
+| `error en flow de ingresos establece mensajeError` | Error |
+| `error en flow de gastos establece mensajeError` | Error |
+| `error en ingresos no expone stack trace` | Error |
+| `cambio de periodo recupera tras error` | Recuperación |
+
+---
+
 ## Capa de datos de gastos
 
 - [x] `CategoriaGastoEntity` con `@ColumnInfo(collate = ColumnInfo.NOCASE)` e índice único.
@@ -105,16 +193,15 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 
 | Tipo | Existentes | Superadas (última ejecución) | Flaky/fallidas |
 |------|---:|---:|---:|
-| Unitarias | **93** | **93** | 0 |
+| Unitarias | **113** | **113** | 0 |
 | Instrumentadas | **65** | **65** | 0 |
-| **Total** | **158** | **158** | 0 |
+| **Total** | **178** | **178** | 0 |
 
-> **Nota (25-jul-2026):** Validación final ejecutada en HONOR ALT-LX3 después de todos los cambios del Incremento 1B.
+> **Nota (25-jul-2026):**
 >
-> - `assembleDebug`: BUILD SUCCESSFUL
-> - `testDebugUnitTest`: **93/93**
-> - `connectedDebugAndroidTest`: **65/65**
-> - **Total: 158/158**
+> - Unitarias validadas tras integrar Incremento 1C: **113/113** (`testDebugUnitTest`, BUILD SUCCESSFUL).
+> - Instrumentadas vigentes desde la validación del Incremento 1B: **65/65** (`connectedDebugAndroidTest` en HONOR ALT-LX3).
+> - **No se repitió `connectedDebugAndroidTest` después del Incremento 1C** porque no hubo cambios en Compose, Room ni navegación.
 
 ### Estado funcional de gastos
 
@@ -126,7 +213,7 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 | Eliminar gastos | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | ID inexistente | ✅ | ✅ | ✅ | — | ❌ no implementada | — |
 
-### Unitarias (93)
+### Unitarias (113)
 | Archivo | Pruebas |
 |---------|---------|
 | `ViajeEntityTest` | 6 |
@@ -137,6 +224,7 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 | `ViajeViewModelTest` | 10 |
 | `GastoViewModelTest` | 28 |
 | `CalculadorRangoPeriodoTest` | **22** |
+| `DashboardViewModelTest` | **20** |
 
 ### Instrumentadas (65)
 | Archivo | Pruebas |
@@ -180,8 +268,8 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 ## Pendiente
 
 ### Fase 5 — Dashboard y balance
-- [ ] DashboardViewModel (combinar ingresos y gastos, calcular ganancia neta).
-- [ ] DashboardUiState (ingresos, gastos, ganancia neta, periodo seleccionado, cargando).
+- [x] DashboardViewModel (combinar ingresos y gastos, calcular ganancia neta).
+- [x] DashboardUiState (ingresos, gastos, ganancia neta, periodo seleccionado, cargando).
 - [ ] DashboardScreen con resumen del periodo.
 - [ ] Selector visual de periodo (día / semana / mes).
 - [ ] Ruta `dashboard` en NavGraph.
