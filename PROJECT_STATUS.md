@@ -1,11 +1,13 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 24-jul-2026 — Gastos CRUD completo con verificación manual en HONOR ALT-LX3.
+> Actualizado: 25-jul-2026 — Cierre documental de fases 1 a 4.
 
 ---
 
 ## Estado general
-Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con edición, eliminación y protección ante ID inexistente. Navegación con barra inferior. 116 pruebas existentes (109 superadas en última ejecución, 7 flaky).
+Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con edición, eliminación y protección ante ID inexistente. Navegación con barra inferior. 117 pruebas automatizadas existentes, 117 superadas, 0 flaky pendientes.
+
+> **Las fases 1 a 4 están implementadas, verificadas y documentadas. La Fase 5 (Dashboard y balance) no ha sido iniciada y requiere autorización explícita del propietario del proyecto.**
 
 ## Completado
 - [x] **Fase 1 — Proyecto Android base.**
@@ -39,23 +41,30 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 | Instrumentadas | **50** | **50** | 0 |
 | **Total** | **117** | **117** | 0 |
 
-> **Nota (24-jul-2026):** La incidencia flaky de `GastoComposeTest` fue corregida.
+> **Nota (25-jul-2026):** Trazabilidad completa de la validación de pruebas.
 >
-> **Causa raiz:** Dos asignaciones consecutivas de `Modifier.testTag("a").testTag("b")` impedian que `onAllNodesWithTag` encontrara los nodos. Se simplifico a un unico `testTag` por boton.
+> ### Validación completa registrada (antes del reemplazo sintáctico)
+> - `testDebugUnitTest`: **67/67**.
+> - `connectedDebugAndroidTest`: **50/50** (dos ejecuciones consecutivas).
+> - `GastoComposeTest`: **17/17** (tres ejecuciones consecutivas).
+> - **Total: 117/117**.
 >
-> **Selectores:** Cada prueba identifica el gasto por su ID unico obtenido de Room, usando `boton_editar_gasto_<id>` y `boton_eliminar_gasto_<id>`. Sin selectores por indice.
+> ### Validación posterior al reemplazo de aserciones
+> Después del cambio de aserciones de Kotlin (`assert(…)`) por aserciones JUnit (`assertEquals`, `assertTrue`, `assertNotNull`), se ejecutó y validó específicamente `GastoComposeTest`: **17/17**.
+> **La suite completa no se repitió después de ese último cambio sintáctico.**
 >
-> **Limpieza selectiva:** `@Before` y `@After` ejecutan `limpiarGastosDePrueba()`, que filtra gastos por el prefijo `__TEST_GASTO_COMPOSE__` y solo elimina los que coinciden. Gastos normales, viajes y categorias nunca se eliminan. Las descripciones de prueba incluyen el prefijo reservado y un UUID. La prueba `limpiezaSelectiva_conservaGastosSinPrefijo` verifica la conservacion, y retira su gasto de control (sin prefijo) mediante try/finally con su ID.
+> ---
 >
-> **Validacion:** Eliminacion verifica $item_gasto_<id>$ y descripcion unica via `waitUntil` + confirmacion Room. Edicion verifica que el texto anterior desaparece (el card permanece).
+> ### Antecedente: incidencia flaky (corregida)
+> **Causa raíz:** Dos asignaciones consecutivas de `Modifier.testTag("a").testTag("b")` impedían que `onAllNodesWithTag` encontrara los nodos. Se simplificó a un único `testTag` por botón.
 >
-> **Resultados:**
-> - Tres ejecuciones consecutivas de `GastoComposeTest`: 17/17 cada una.
-> - Dos ejecuciones consecutivas de `connectedDebugAndroidTest`: 50/50 cada una.
-> - `testDebugUnitTest`: 67/67.
-> - Total: 117/117.
+> **Selectores:** Cada prueba identifica el gasto por su ID único obtenido de Room, usando `boton_editar_gasto_<id>` y `boton_eliminar_gasto_<id>`. Sin selectores por índice.
 >
-> Resultado previo: 42/49. Corregido en esta tarea.
+> **Limpieza selectiva:** `@Before` y `@After` ejecutan `limpiarGastosDePrueba()`, que filtra gastos por el prefijo `__TEST_GASTO_COMPOSE__` y solo elimina los que coinciden. Gastos normales, viajes y categorías nunca se eliminan. Las descripciones de prueba incluyen el prefijo reservado y un UUID. La prueba `limpiezaSelectiva_conservaGastosSinPrefijo` verifica la conservación, y retira su gasto de control (sin prefijo) mediante try/finally con su ID.
+>
+> **Validación:** Eliminación verifica `$item_gasto_<id>$` y descripción única vía `waitUntil` + confirmación Room. Edición verifica que el texto anterior desaparece (el card permanece).
+>
+> **Resultado previo a la corrección:** 42/49. Corregido en esa tarea.
 
 ### Estado funcional de gastos
 
