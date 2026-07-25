@@ -11,6 +11,13 @@ class GastoRepository(
 
     fun obtenerTodos(): Flow<List<GastoConCategoria>> = gastoDao.obtenerTodos()
 
+    /**
+     * Obtiene la suma de gastos en el rango semiabierto
+     * [inicioInclusivo, finExclusivo) mediante consulta agregada en SQLite.
+     */
+    fun obtenerTotalGastosPorRango(inicioInclusivo: Long, finExclusivo: Long): Flow<Long> =
+        gastoDao.obtenerTotalGastosPorRango(inicioInclusivo, finExclusivo)
+
     suspend fun obtenerPorId(id: Long): GastoConCategoria? = gastoDao.obtenerPorId(id)
 
     suspend fun insertar(gasto: GastoEntity): Result<Long> {

@@ -15,6 +15,8 @@ import org.junit.Test
 class GastoRepositoryTest {
 
     private var insertarLlamadas = 0
+    private var ultimoInicio = 0L
+    private var ultimoFin = 0L
 
     private val daoFalso = object : GastoDao {
         override suspend fun insertar(gasto: GastoEntity): Long {
@@ -25,6 +27,13 @@ class GastoRepositoryTest {
         override suspend fun eliminar(id: Long): Int = 1
         override suspend fun obtenerPorId(id: Long): GastoConCategoria? = null
         override fun obtenerTodos(): Flow<List<GastoConCategoria>> = flowOf(emptyList())
+        override fun obtenerTotalGastosPorRango(
+            inicioInclusivo: Long, finExclusivo: Long
+        ): Flow<Long> {
+            ultimoInicio = inicioInclusivo
+            ultimoFin = finExclusivo
+            return flowOf(7777L)
+        }
     }
 
     private lateinit var repository: GastoRepository
@@ -101,5 +110,25 @@ class GastoRepositoryTest {
     fun `eliminar gasto retorna exito`() = runTest {
         val resultado = repository.eliminar(1L)
         assertTrue(resultado.isSuccess)
+    }
+
+    @Test
+    fun `obtenerTotalGastosPorRango delega limites al DAO`() = runTest {
+        val flujo = repository.obtenerTotalGastosPorRango(2000L, 8888L)
+        var resultado: Long? = null
+        flujo.collect { resultado = it }
+        assertEquals(7777L, resultado)
+        assertEquals(2000L, ultimoInicio)
+        assertEquals(8888L, ultimoFin)
+    }
+
+    @Test
+    fun `obtenerTotalGastosPorRango expone el Flow sin transformar`() = runTest {
+        val flujo = repository.obtenerTotalGastosPorRango(0L, 5000L)
+        assertEquals(0L, ultimoInicio)
+        assertEquals(5000L, ultimoFin)
+        var resultado: Long? = null
+        flujo.collect { resultado = it }
+        assertEquals(7777L, resultado)
     }
 }

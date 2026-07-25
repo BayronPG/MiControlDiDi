@@ -40,4 +40,11 @@ interface GastoDao {
         WHERE g.id = :id
     """)
     suspend fun obtenerPorId(id: Long): GastoConCategoria?
+
+    @Query("""
+        SELECT COALESCE(SUM(valor), 0)
+        FROM gastos
+        WHERE fechaHora >= :inicioInclusivo AND fechaHora < :finExclusivo
+    """)
+    fun obtenerTotalGastosPorRango(inicioInclusivo: Long, finExclusivo: Long): Flow<Long>
 }

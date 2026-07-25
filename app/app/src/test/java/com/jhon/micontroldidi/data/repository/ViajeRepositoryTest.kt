@@ -15,6 +15,8 @@ class ViajeRepositoryTest {
 
     private lateinit var repository: ViajeRepository
     private var ultimoViajeInsertado: ViajeEntity? = null
+    private var ultimoInicio = 0L
+    private var ultimoFin = 0L
 
     private val daoFalso = object : ViajeDao {
         override suspend fun insertar(viaje: ViajeEntity): Long {
@@ -24,6 +26,14 @@ class ViajeRepositoryTest {
 
         override fun obtenerTodos(): Flow<List<ViajeEntity>> {
             return flowOf(emptyList())
+        }
+
+        override fun obtenerIngresosPorRango(
+            inicioInclusivo: Long, finExclusivo: Long
+        ): Flow<Long> {
+            ultimoInicio = inicioInclusivo
+            ultimoFin = finExclusivo
+            return flowOf(9999L)
         }
     }
 
@@ -87,6 +97,10 @@ class ViajeRepositoryTest {
         val dao = object : ViajeDao {
             override suspend fun insertar(viaje: ViajeEntity): Long = 1L
             override fun obtenerTodos(): Flow<List<ViajeEntity>> = flowOf(viajesEsperados)
+            override fun obtenerIngresosPorRango(
+                inicioInclusivo: Long,
+                finExclusivo: Long
+            ): Flow<Long> = kotlinx.coroutines.flow.flowOf(0L)
         }
         val repo = ViajeRepository(dao)
         var listaRecibida: List<ViajeEntity>? = null
@@ -96,5 +110,25 @@ class ViajeRepositoryTest {
         assertEquals(2, listaRecibida?.size)
         assertEquals(2000L, listaRecibida?.get(0)?.fechaHora)
         assertEquals("Segundo", listaRecibida?.get(1)?.observacion)
+    }
+
+    @Test
+    fun `obtenerIngresosPorRango delega limites al DAO`() = runTest {
+        val flujo = repository.obtenerIngresosPorRango(1000L, 9999L)
+        var resultado: Long? = null
+        flujo.collect { resultado = it }
+        assertEquals(9999L, resultado)
+        assertEquals(1000L, ultimoInicio)
+        assertEquals(9999L, ultimoFin)
+    }
+
+    @Test
+    fun `obtenerIngresosPorRango expone el Flow sin transformar`() = runTest {
+        val flujo = repository.obtenerIngresosPorRango(0L, 1000L)
+        assertEquals(0L, ultimoInicio)
+        assertEquals(1000L, ultimoFin)
+        var resultado: Long? = null
+        flujo.collect { resultado = it }
+        assertEquals(9999L, resultado)
     }
 }

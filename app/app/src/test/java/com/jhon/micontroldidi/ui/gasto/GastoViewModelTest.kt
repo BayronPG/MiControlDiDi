@@ -80,6 +80,16 @@ class GastoViewModelTest {
             gastosFlow.value.find { it.id == id }
 
         override fun obtenerTodos(): Flow<List<GastoConCategoria>> = gastosFlow
+
+        override fun obtenerTotalGastosPorRango(
+            inicioInclusivo: Long,
+            finExclusivo: Long
+        ): Flow<Long> {
+            val suma = gastosFlow.value
+                .filter { it.fechaHora >= inicioInclusivo && it.fechaHora < finExclusivo }
+                .sumOf { it.valor }
+            return kotlinx.coroutines.flow.flowOf(suma)
+        }
     }
 
     private val categoriaDaoFalso = object : CategoriaGastoDao {

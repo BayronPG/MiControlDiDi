@@ -2,6 +2,9 @@ package com.jhon.micontroldidi.ui.gasto
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -135,7 +138,9 @@ class GastoComposeTest {
         val desc = descripcionPrueba("Listado")
         val id = crearGastoYObtenerId("Gasolina", "25000", desc)
         assertGastoVisible(id, desc)
-        composeTestRule.onNodeWithText("Gasolina").assertIsDisplayed()
+        composeTestRule.onNode(
+            hasText("Gasolina") and hasAnyAncestor(hasTestTag("item_gasto_$id"))
+        ).assertIsDisplayed()
         composeTestRule.onNodeWithText("$ 25.000").assertIsDisplayed()
     }
 
