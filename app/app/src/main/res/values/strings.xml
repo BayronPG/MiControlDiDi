@@ -27,4 +27,13 @@
     <string name="guardar">Guardar</string>
     <string name="guardando">Guardando…</string>
     <string name="cancelar">Cancelar</string>
+    <string name="dashboard_titulo">Dashboard</string>
+    <string name="dashboard_ingresos">Ingresos</string>
+    <string name="dashboard_gastos">Gastos</string>
+    <string name="dashboard_ganancia_neta">Ganancia neta</string>
+    <string name="dashboard_periodo_dia">Día</string>
+    <string name="dashboard_periodo_semana">Semana</string>
+    <string name="dashboard_periodo_mes">Mes</string>
+    <string name="dashboard_sin_datos">No hay datos para el periodo seleccionado</string>
+    <string name="dashboard_error">Error al cargar los datos del dashboard</string>
 </resources>
