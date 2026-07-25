@@ -9,13 +9,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,12 +47,16 @@ import com.jhon.micontroldidi.util.CurrencyFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    viewModel: DashboardViewModel
+    viewModel: DashboardViewModel,
+    onNavegarARegistrarViaje: () -> Unit = {},
+    onNavegarARegistrarGasto: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     DashboardScreen(
         uiState = state,
-        onPeriodoSeleccionado = viewModel::seleccionarPeriodo
+        onPeriodoSeleccionado = viewModel::seleccionarPeriodo,
+        onNavegarARegistrarViaje = onNavegarARegistrarViaje,
+        onNavegarARegistrarGasto = onNavegarARegistrarGasto
     )
 }
 
@@ -56,7 +68,9 @@ fun DashboardScreen(
 @Composable
 fun DashboardScreen(
     uiState: DashboardUiState,
-    onPeriodoSeleccionado: (PeriodoDashboard) -> Unit
+    onPeriodoSeleccionado: (PeriodoDashboard) -> Unit,
+    onNavegarARegistrarViaje: () -> Unit = {},
+    onNavegarARegistrarGasto: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -67,6 +81,35 @@ fun DashboardScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
+        },
+        floatingActionButton = {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.testTag("dashboard_fab_container")
+            ) {
+                FloatingActionButton(
+                    onClick = onNavegarARegistrarViaje,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.testTag("fab_registrar_viaje_dashboard")
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.List,
+                        contentDescription = stringResource(R.string.registrar_viaje)
+                    )
+                }
+                FloatingActionButton(
+                    onClick = onNavegarARegistrarGasto,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.testTag("fab_registrar_gasto_dashboard")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.registrar_gasto)
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         when {

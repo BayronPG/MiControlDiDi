@@ -19,13 +19,26 @@ class ViajeComposeTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
+    /**
+     * Navega desde Dashboard hacia la lista de viajes pulsando
+     * el primer ítem de la barra inferior (Viajes).
+     */
+    private fun navegarAViajes() {
+        // La app arranca en Dashboard (startDestination).
+        // La barra inferior está visible porque Dashboard está en rutasConBarraInferior.
+        composeTestRule.onNodeWithTag("navegacion_viajes").performClick()
+        composeTestRule.onNodeWithTag("boton_registrar_viaje").assertIsDisplayed()
+    }
+
     @Test
     fun listaVacia_muestraBotonRegistrar() {
+        navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").assertIsDisplayed()
     }
 
     @Test
     fun pulsarRegistrar_abreFormulario() {
+        navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
         composeTestRule.onNodeWithTag("campo_valor_viaje").assertIsDisplayed()
         composeTestRule.onNodeWithTag("boton_guardar_viaje").assertIsDisplayed()
@@ -34,12 +47,14 @@ class ViajeComposeTest {
 
     @Test
     fun valorVacio_botonGuardarDeshabilitado() {
+        navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
         composeTestRule.onNodeWithTag("boton_guardar_viaje").assertIsNotEnabled()
     }
 
     @Test
     fun valorCero_botonGuardarDeshabilitado() {
+        navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("0")
         composeTestRule.onNodeWithTag("boton_guardar_viaje").assertIsNotEnabled()
@@ -47,6 +62,7 @@ class ViajeComposeTest {
 
     @Test
     fun propinaNegativa_muestraError() {
+        navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("10000")
         composeTestRule.onNodeWithTag("campo_propina_viaje").performTextReplacement("-500")
@@ -56,6 +72,7 @@ class ViajeComposeTest {
     @Test
     fun guardarViajeValido_regresaAListaYMuestraViaje() {
         val observacion = "Viaje unico"
+        navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
 
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("15000")
@@ -68,6 +85,7 @@ class ViajeComposeTest {
 
     @Test
     fun cancelar_regresaAListaSinGuardar() {
+        navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("99999")
         composeTestRule.onNodeWithTag("boton_cancelar_viaje").performClick()
@@ -77,6 +95,7 @@ class ViajeComposeTest {
     @Test
     fun guardarViaje_muestraDetalles() {
         val observacion = "Detalle verificado"
+        navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
 
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("25000")

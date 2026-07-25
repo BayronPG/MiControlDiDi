@@ -26,6 +26,8 @@ import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
+import com.jhon.micontroldidi.ui.dashboard.DashboardScreen
+import com.jhon.micontroldidi.ui.dashboard.DashboardViewModel
 import com.jhon.micontroldidi.ui.gasto.GastoViewModel
 import com.jhon.micontroldidi.ui.gasto.ListaGastosScreen
 import com.jhon.micontroldidi.ui.gasto.RegistrarGastoScreen
@@ -34,6 +36,7 @@ import com.jhon.micontroldidi.ui.viaje.RegistrarViajeScreen
 import com.jhon.micontroldidi.ui.viaje.ViajeViewModel
 
 object Rutas {
+    const val DASHBOARD = "dashboard"
     const val LISTA_VIAJES = "lista_viajes"
     const val REGISTRAR_VIAJE = "registrar_viaje"
     const val LISTA_GASTOS = "lista_gastos"
@@ -41,7 +44,7 @@ object Rutas {
     const val REGISTRAR_GASTO_CON_ID = "registrar_gasto/{gastoId}"
 }
 
-private val rutasConBarraInferior = setOf(Rutas.LISTA_VIAJES, Rutas.LISTA_GASTOS)
+private val rutasConBarraInferior = setOf(Rutas.DASHBOARD, Rutas.LISTA_VIAJES, Rutas.LISTA_GASTOS)
 
 data class BottomNavItem(
     val ruta: String,
@@ -51,6 +54,12 @@ data class BottomNavItem(
 )
 
 private val bottomNavItems = listOf(
+    BottomNavItem(
+        ruta = Rutas.DASHBOARD,
+        labelRes = R.string.dashboard_titulo,
+        icon = Icons.AutoMirrored.Filled.List,
+        testTag = "navegacion_dashboard"
+    ),
     BottomNavItem(
         ruta = Rutas.LISTA_VIAJES,
         labelRes = R.string.viajes,
@@ -84,6 +93,9 @@ fun AppNavGraph(
     val gastoViewModel: GastoViewModel = viewModel(
         factory = GastoViewModel.Factory(gastoRepository, categoriaGastoRepository)
     )
+    val dashboardViewModel: DashboardViewModel = viewModel(
+        factory = DashboardViewModel.Factory(viajeRepository, gastoRepository)
+    )
 
     val mostrarBarra = navController.mostrarBarraInferior()
 
@@ -100,7 +112,7 @@ fun AppNavGraph(
                             onClick = {
                                 if (navController.currentDestination?.route != item.ruta) {
                                     navController.navigate(item.ruta) {
-                                        popUpTo(Rutas.LISTA_VIAJES) {
+                                        popUpTo(Rutas.DASHBOARD) {
                                             saveState = true
                                         }
                                         launchSingleTop = true
@@ -119,9 +131,21 @@ fun AppNavGraph(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Rutas.LISTA_VIAJES,
+            startDestination = Rutas.DASHBOARD,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(Rutas.DASHBOARD) {
+                DashboardScreen(
+                    viewModel = dashboardViewModel,
+                    onNavegarARegistrarViaje = {
+                        navController.navigate(Rutas.REGISTRAR_VIAJE)
+                    },
+                    onNavegarARegistrarGasto = {
+                        navController.navigate(Rutas.REGISTRAR_GASTO)
+                    }
+                )
+            }
+
             composable(Rutas.LISTA_VIAJES) {
                 ListaViajesScreen(
                     viewModel = viajeViewModel,

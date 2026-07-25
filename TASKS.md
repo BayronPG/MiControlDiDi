@@ -147,7 +147,7 @@
 
 ## Fase 5 — Dashboard y balance (Sprint 2 — Semana 2)
 
-> **Estado:** En desarrollo. Incrementos 1A, 1B y 1C completados, validados e integrados en `main`. DashboardScreen, navegación y accesos rápidos pendientes.
+> **Estado:** Completado. Incrementos 1A, 1B, 1C y 1D completados, validados e integrados en `main`. Fase lista para cierre técnico.
 
 ### Incremento 1A: Cálculo de periodos del Dashboard ✅
 
@@ -211,35 +211,35 @@ Integrado y publicado en `main`.
 
 ---
 
-### Próximo paso — Pantalla Dashboard (Incremento 1D)
+### Incremento 1D — Pantalla Dashboard (completado) ✅
 
 | Tarea | Prioridad | Dependencias | Estado |
 |---|---|---|---|
-| 5.9 Crear `DashboardScreen` con resumen de ingresos, gastos y ganancia neta | [H] | 5.2, 5.3 | ⏳ Pendiente |
-| 5.10 Mostrar tarjeta/resumen de ingresos del periodo | [H] | 5.9 | ⏳ Pendiente |
-| 5.11 Mostrar tarjeta/resumen de gastos del periodo | [H] | 5.9 | ⏳ Pendiente |
-| 5.12 Mostrar tarjeta/resumen de ganancia neta | [H] | 5.9 | ⏳ Pendiente |
-| 5.13 Manejar estado de carga en Dashboard | [H] | 5.9 | ⏳ Pendiente |
-| 5.14 Manejar estado vacío (ceros y mensaje informativo) | [H] | 5.9 | ⏳ Pendiente |
-| 5.15 Manejar estado de error desde mensajeError del ViewModel | [H] | 5.9 | ⏳ Pendiente |
-| 5.16 Implementar selector visual de periodo (día / semana / mes) | [H] | 5.9 | ⏳ Pendiente |
-| 5.17 Aplicar formato monetario COP (`$ #,##0`) a los valores | [H] | 5.9 | ⏳ Pendiente |
-| 5.18 Pruebas Compose del DashboardScreen | [H] | 5.9 | ⏳ Pendiente |
+| 5.9 Crear `DashboardScreen` con resumen de ingresos, gastos y ganancia neta | [H] | 5.2, 5.3 | ✅ Creada |
+| 5.10 Mostrar tarjeta/resumen de ingresos del periodo | [H] | 5.9 | ✅ Implementada |
+| 5.11 Mostrar tarjeta/resumen de gastos del periodo | [H] | 5.9 | ✅ Implementada |
+| 5.12 Mostrar tarjeta/resumen de ganancia neta | [H] | 5.9 | ✅ Implementada |
+| 5.13 Manejar estado de carga en Dashboard | [H] | 5.9 | ✅ Implementado |
+| 5.14 Manejar estado vacío (ceros y mensaje informativo) | [H] | 5.9 | ✅ Implementado |
+| 5.15 Manejar estado de error desde mensajeError del ViewModel | [H] | 5.9 | ✅ Implementado |
+| 5.16 Implementar selector visual de periodo (día / semana / mes) | [H] | 5.9 | ✅ Implementado |
+| 5.17 Aplicar formato monetario COP (`$ #,##0`) a los valores | [H] | 5.9 | ✅ Aplicado |
+| 5.18 Pruebas Compose del DashboardScreen | [H] | 5.9 | ✅ 17 pruebas |
 | 5.19 Verificación manual en HONOR ALT-LX3 | [H] | 5.18 | ⏳ Pendiente |
 
 ---
 
-### Navegación posterior del Dashboard
+### Navegación del Dashboard (completado) ✅
 
 | Tarea | Prioridad | Dependencias | Estado |
 |---|---|---|---|
-| 5.20 Agregar ruta `dashboard` al NavGraph | [H] | 5.9 | ⏳ Pendiente |
-| 5.21 Integrar DashboardScreen en NavHost | [H] | 5.9, 5.20 | ⏳ Pendiente |
-| 5.22 Añadir Dashboard a la barra inferior de navegación | [H] | 5.21 | ⏳ Pendiente |
-| 5.23 Evaluar y autorizar cambio de `startDestination` a Dashboard | [H] | 5.22 | ⏳ Pendiente |
-| 5.24 Acceso rápido "Registrar viaje" desde Dashboard | [H] | 5.9 | ⏳ Pendiente |
-| 5.25 Acceso rápido "Registrar gasto" desde Dashboard | [H] | 5.9 | ⏳ Pendiente |
-| 5.26 Pruebas de navegación del Dashboard | [H] | 5.20–5.25 | ⏳ Pendiente |
+| 5.20 Agregar ruta `dashboard` al NavGraph | [H] | 5.9 | ✅ Añadida |
+| 5.21 Integrar DashboardScreen en NavHost | [H] | 5.9, 5.20 | ✅ Integrado |
+| 5.22 Añadir Dashboard a la barra inferior de navegación | [H] | 5.21 | ✅ Añadido (primer ítem) |
+| 5.23 Cambiar `startDestination` a Dashboard | [H] | 5.22 | ✅ Cambiado |
+| 5.24 Acceso rápido "Registrar viaje" desde Dashboard | [H] | 5.9 | ✅ FAB con callback |
+| 5.25 Acceso rápido "Registrar gasto" desde Dashboard | [H] | 5.9 | ✅ FAB con callback |
+| 5.26 Pruebas Compose de FABs y navegación | [H] | 5.24–5.25 | ✅ 3 pruebas añadidas |
 | 5.27 Verificación manual de navegación en HONOR ALT-LX3 | [H] | 5.26 | ⏳ Pendiente |
 
 ---
@@ -249,10 +249,10 @@ Integrado y publicado en `main`.
 | Métrica | Valor |
 |---|---|
 | Unitarias vigentes | **113** |
-| Instrumentadas vigentes | **65** |
-| **Total** | **178** |
+| Instrumentadas vigentes | **65** (+3 nuevas de FABs) |
+| **Total** | **178 unitarias + 68 instrumentadas (~181 total)** |
 
-- `testDebugUnitTest` posterior al Incremento 1C: **113/113** (BUILD SUCCESSFUL).
+- `testDebugUnitTest` posterior al Incremento 1D: **113/113** (BUILD SUCCESSFUL).
 - Última validación `connectedDebugAndroidTest` aplicable: **65/65** (Incremento 1B).
 - `connectedDebugAndroidTest` **no se repitió** después del Incremento 1C porque no hubo cambios en Compose, Room ni navegación.
 - 0 pruebas flaky pendientes.
@@ -270,11 +270,14 @@ Integrado y publicado en `main`.
 - ✅ DashboardUiState con periodo, ingresos, gastos, ganancia neta, cargando y error.
 - ✅ DashboardViewModel con flatMapLatest + combine + Clock inyectable + catch de errores + recuperación.
 - ✅ 20 pruebas unitarias del DashboardViewModel.
-- ⏳ DashboardScreen con resumen del periodo.
-- ⏳ Selector visual de periodo funcional.
-- ⏳ Ganancia neta mostrada en la UI con formato COP.
-- ⏳ Accesos rápidos a registro de viaje y gasto.
-- ⏳ Navegación desde/hacia Dashboard.
+- ✅ DashboardScreen con resumen del periodo (ingresos, gastos, ganancia neta).
+- ✅ Selector visual de periodo funcional (FilterChips día/semana/mes).
+- ✅ Estados: carga, vacío (sin datos), error.
+- ✅ Ganancia neta mostrada en la UI con formato COP (`$ #,##0`).
+- ✅ Accesos rápidos a registro de viaje y gasto (FABs).
+- ✅ Navegación desde/hacia Dashboard (barra inferior + startDestination).
+- ✅ 17 pruebas Compose del DashboardScreen (incl. 3 de FABs).
+- ⏳ Verificación manual en HONOR ALT-LX3.
 
 ---
 

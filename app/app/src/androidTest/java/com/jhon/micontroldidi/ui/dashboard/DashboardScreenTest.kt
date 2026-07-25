@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.jhon.micontroldidi.domain.PeriodoDashboard
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -220,5 +221,63 @@ class DashboardScreenTest {
         composeTestRule.onNodeWithText("$ 100.000").assertIsDisplayed()
         composeTestRule.onNodeWithText("$ 40.000").assertIsDisplayed()
         composeTestRule.onNodeWithText("$ 60.000").assertIsDisplayed()
+    }
+
+    @Test
+    fun fabsDeAccesoRapidoEstanVisibles() {
+        composeTestRule.setContent {
+            DashboardScreen(
+                uiState = DashboardUiState(
+                    ingresos = 0,
+                    gastos = 0,
+                    cargando = false,
+                    periodoSeleccionado = PeriodoDashboard.DIA
+                ),
+                onPeriodoSeleccionado = {}
+            )
+        }
+
+        composeTestRule.onNodeWithTag("fab_registrar_viaje_dashboard").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("fab_registrar_gasto_dashboard").assertIsDisplayed()
+    }
+
+    @Test
+    fun fabViajeInvocaCallbackAlPulsar() {
+        var pulsado = false
+        composeTestRule.setContent {
+            DashboardScreen(
+                uiState = DashboardUiState(
+                    ingresos = 0,
+                    gastos = 0,
+                    cargando = false,
+                    periodoSeleccionado = PeriodoDashboard.DIA
+                ),
+                onPeriodoSeleccionado = {},
+                onNavegarARegistrarViaje = { pulsado = true }
+            )
+        }
+
+        composeTestRule.onNodeWithTag("fab_registrar_viaje_dashboard").performClick()
+        Assert.assertTrue(pulsado)
+    }
+
+    @Test
+    fun fabGastoInvocaCallbackAlPulsar() {
+        var pulsado = false
+        composeTestRule.setContent {
+            DashboardScreen(
+                uiState = DashboardUiState(
+                    ingresos = 0,
+                    gastos = 0,
+                    cargando = false,
+                    periodoSeleccionado = PeriodoDashboard.DIA
+                ),
+                onPeriodoSeleccionado = {},
+                onNavegarARegistrarGasto = { pulsado = true }
+            )
+        }
+
+        composeTestRule.onNodeWithTag("fab_registrar_gasto_dashboard").performClick()
+        Assert.assertTrue(pulsado)
     }
 }

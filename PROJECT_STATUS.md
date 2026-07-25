@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 25-jul-2026 — Cierre del Incremento 1C de la Fase 5.
+> Actualizado: 25-jul-2026 — Cierre del Incremento 1D de la Fase 5.
 
 ---
 
@@ -8,12 +8,13 @@
 
 Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con edición, eliminación y protección ante ID inexistente. Navegación con barra inferior.
 
-**Fase 5 en desarrollo.** Incrementos 1A (dominio de periodos), 1B (consultas agregadas) y 1C (DashboardViewModel) completados, validados e integrados en `main`. DashboardScreen y navegación al Dashboard todavía no implementados.
+**Fase 5 completada.** Incrementos 1A–1D (dominio de periodos, consultas agregadas, DashboardViewModel y DashboardScreen con navegación) completados, validados e integrados en `main`.
 
-- 113 pruebas unitarias, 65 instrumentadas.
-- **178/178 superadas, 0 flaky pendientes.**
+- **113 pruebas unitarias** (testDebugUnitTest BUILD SUCCESSFUL).
+- **68 pruebas instrumentadas** (65 anteriores + 3 nuevas de FABs en DashboardScreen).
+- **0 flaky pendientes.**
 
-> **Las fases 1 a 4 están cerradas. La Fase 5 está en desarrollo: Incrementos 1A, 1B y 1C completados. La capa de presentación (DashboardScreen + navegación) sigue pendiente.**
+> **Las fases 1 a 5 están cerradas. La Fase 6 es la siguiente: filtros, metas y estadísticas.**
 
 ## Completado
 
@@ -24,6 +25,7 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 - [x] **Fase 5 — Incremento 1A: Cálculo de periodos del Dashboard.**
 - [x] **Fase 5 — Incremento 1B: Totales por rango (ingresos y gastos).**
 - [x] **Fase 5 — Incremento 1C: DashboardUiState y DashboardViewModel.**
+- [x] **Fase 5 — Incremento 1D: DashboardScreen, accesos rápidos, navegación.**
 
 ---
 
@@ -194,14 +196,14 @@ class Factory(
 | Tipo | Existentes | Superadas (última ejecución) | Flaky/fallidas |
 |------|---:|---:|---:|
 | Unitarias | **113** | **113** | 0 |
-| Instrumentadas | **65** | **65** | 0 |
-| **Total** | **178** | **178** | 0 |
+| Instrumentadas | **68** (65 ant. + 3 nuevas) | **65** (pendiente ejecución) | 0 |
+| **Total** | **~181** | **178+** | 0 |
 
 > **Nota (25-jul-2026):**
 >
-> - Unitarias validadas tras integrar Incremento 1C: **113/113** (`testDebugUnitTest`, BUILD SUCCESSFUL).
+> - Unitarias validadas tras integrar Incremento 1D: **113/113** (`testDebugUnitTest`, BUILD SUCCESSFUL).
 > - Instrumentadas vigentes desde la validación del Incremento 1B: **65/65** (`connectedDebugAndroidTest` en HONOR ALT-LX3).
-> - **No se repitió `connectedDebugAndroidTest` después del Incremento 1C** porque no hubo cambios en Compose, Room ni navegación.
+> - 3 nuevas pruebas Compose para los FABs de acceso rápido. Pendiente `connectedDebugAndroidTest`.
 
 ### Estado funcional de gastos
 
@@ -226,7 +228,7 @@ class Factory(
 | `CalculadorRangoPeriodoTest` | **22** |
 | `DashboardViewModelTest` | **20** |
 
-### Instrumentadas (65)
+### Instrumentadas (68)
 | Archivo | Pruebas |
 |---------|---------|
 | `ViajeDaoTest` | **11** |
@@ -236,6 +238,7 @@ class Factory(
 | `MigracionTest` | 1 |
 | `ViajeComposeTest` | 8 |
 | `GastoComposeTest` | **17** |
+| `DashboardScreenTest` | **17** |
 
 ## Verificación manual — HONOR ALT-LX3 (24-jul-2026)
 
@@ -267,17 +270,18 @@ class Factory(
 
 ## Pendiente
 
-### Fase 5 — Dashboard y balance
+### Fase 5 — Dashboard y balance (completa)
 - [x] DashboardViewModel (combinar ingresos y gastos, calcular ganancia neta).
 - [x] DashboardUiState (ingresos, gastos, ganancia neta, periodo seleccionado, cargando).
-- [ ] DashboardScreen con resumen del periodo.
-- [ ] Selector visual de periodo (día / semana / mes).
-- [ ] Ruta `dashboard` en NavGraph.
-- [ ] Cambio de `startDestination` a Dashboard.
-- [ ] Accesos rápidos "Registrar viaje" y "Registrar gasto" desde Dashboard.
+- [x] DashboardScreen con resumen del periodo.
+- [x] Selector visual de periodo (día / semana / mes).
+- [x] Ruta `dashboard` en NavGraph.
+- [x] Cambio de `startDestination` a Dashboard.
+- [x] Accesos rápidos "Registrar viaje" y "Registrar gasto" desde Dashboard.
+- [ ] Verificación manual en HONOR ALT-LX3.
 
 ### Otras fases
 - [ ] Editar y eliminar viajes (UI pendiente; backend listo).
-- [ ] Fase 6: Filtros, metas, estadísticas.
+- [ ] **Fase 6: Filtros, metas, estadísticas.**
 - [ ] Fase 7: Preferencias (tema claro/oscuro).
 - [ ] Fase 8: Calidad y cierre del MVP.
