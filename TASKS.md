@@ -1,6 +1,6 @@
 # Tareas de MiControlDiDi — Backlog refinado
 
-> Refinado el 24-jul-2026 tras el análisis técnico del SRS v1.0.
+> Refinado el 25-jul-2026 tras completar incrementos 1A, 1B y 1C de la Fase 5.
 
 ---
 
@@ -147,7 +147,12 @@
 
 ## Fase 5 — Dashboard y balance (Sprint 2 — Semana 2)
 
+> **Estado:** En desarrollo. Incrementos 1A, 1B y 1C completados, validados e integrados en `main`. DashboardScreen, navegación y accesos rápidos pendientes.
+
 ### Incremento 1A: Cálculo de periodos del Dashboard ✅
+
+**Alcance:** Capa de dominio para determinar rangos temporales.
+
 | Tarea | Prioridad | Dependencias | Estado |
 |---|---|---|---|
 | 5.1a Crear `PeriodoDashboard` enum (DIA, SEMANA, MES) | [H] | — | ✅ Creado |
@@ -158,7 +163,16 @@
 | 5.1f Intervalos semiabiertos [inicio, fin) | [H] | 5.1c | ✅ Aplicado |
 | 5.8a Crear `CalculadorRangoPeriodoTest` (22 pruebas) | [H] | 5.1c | ✅ 22 pruebas |
 
+**Validación:** Unitarias (89 + 22 = 111 en ese momento), integrado y publicado en `main`.
+
+**Tecnología:** `java.time`, `ZonedDateTime`, `TemporalAdjusters`, `ZoneId` explícito, `Object` singleton.
+
+---
+
 ### Incremento 1B: Totales por rango (ingresos y gastos) ✅
+
+**Alcance:** Consultas agregadas reactivas en DAOs + delegación en repositorios.
+
 | Tarea | Prioridad | Dependencias | Estado |
 |---|---|---|---|
 | 5.1g Consulta agregada de ingresos en `ViajeDao` (SUM valor + propina) | [H] | 2.3 | ✅ Implementada |
@@ -170,27 +184,80 @@
 | 5.1m Pruebas unitarias de repositorio (4 nuevas) | [H] | 5.1k | ✅ Creadas y pasan |
 | 5.1n Estabilizar selector `Gasolina` en `GastoComposeTest` | [H] | — | ✅ Corregido |
 
+**Validación:** 93 unitarias + 65 instrumentadas = 158/158. Integrado y publicado en `main`.
+
+**Tecnología:** Room `@Query`, `SUM`, `COALESCE`, `Flow<Long>`, intervalo semiabierto en SQL.
+
+---
+
 ### Incremento 1C: DashboardViewModel y DashboardUiState ✅
+
+**Alcance:** Lógica de presentación del Dashboard: estado, ViewModel reactivo y selección de periodo.
+
 | Tarea | Prioridad | Dependencias | Estado |
 |---|---|---|---|
 | 5.2 Crear `DashboardUiState` con ingresos, gastos, ganancia neta y periodo seleccionado | [H] | — | ✅ Creado |
 | 5.3 Crear `DashboardViewModel` consolidando datos de viajes y gastos | [H] | 5.1g–5.1k, 5.2 | ✅ Creado |
 | 5.4 Clock inyectable en ViewModel | [H] | 5.3 | ✅ Aplicado |
-| 5.5 flatMapLatest + combine para observación reactiva | [H] | 5.3 | ✅ Implementado |
-| 5.6 Manejo de errores con catch (sin stack traces) | [H] | 5.3 | ✅ Implementado |
-| 5.7 Pruebas unitarias del DashboardViewModel (20 pruebas) | [H] | 5.3 | ✅ 20 pruebas |
+| 5.5 `flatMapLatest` + `combine` para observación reactiva | [H] | 5.3 | ✅ Implementado |
+| 5.6 Manejo de errores con `catch` (sin stack traces, re-lanza CancellationException) | [H] | 5.3 | ✅ Implementado |
+| 5.7 Recuperación al cambiar de periodo (flatMapLatest crea nuevo Flow interno) | [H] | 5.3 | ✅ Implementado |
+| 5.8 Pruebas unitarias del DashboardViewModel (20 pruebas) | [H] | 5.3 | ✅ 20 pruebas |
 
-### Pendiente — Capa de presentación del Dashboard
-| Tarea | Prioridad | Dependencias |
-|---|---|---|
-| 5.8 Crear `DashboardScreen` con resumen del periodo | [H] | 5.2, 5.3 |
-| 5.9 Implementar selector visual de periodo (día, semana, mes) | [H] | 5.8 |
-| 5.10 Mostrar accesos rápidos "Registrar viaje" y "Registrar gasto" en Dashboard | [H] | 5.8 |
-| 5.11 Manejar estado vacío en Dashboard (ceros y mensaje informativo) | [H] | 5.8 |
-| 5.12 Aplicar RN-07: mostrar valores en COP con formato legible | [H] | 5.8 |
-| 5.13 Agregar ruta `dashboard` al NavGraph | [H] | 5.8 |
-| 5.14 Cambiar `startDestination` a Dashboard | [H] | 5.13 |
-| 5.15 Pruebas Compose del DashboardScreen | [H] | 5.8 |
+**Validación:** 113 unitarias (93 anteriores + 20). Instrumentadas vigentes: 65. **Total vigente: 178.**
+Integrado y publicado en `main`.
+
+**Tecnología:** `StateFlow`, `flatMapLatest`, `combine`, `catch`, `Clock`, `ViewModelProvider.Factory`.
+
+---
+
+### Próximo paso — Pantalla Dashboard (Incremento 1D)
+
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| 5.9 Crear `DashboardScreen` con resumen de ingresos, gastos y ganancia neta | [H] | 5.2, 5.3 | ⏳ Pendiente |
+| 5.10 Mostrar tarjeta/resumen de ingresos del periodo | [H] | 5.9 | ⏳ Pendiente |
+| 5.11 Mostrar tarjeta/resumen de gastos del periodo | [H] | 5.9 | ⏳ Pendiente |
+| 5.12 Mostrar tarjeta/resumen de ganancia neta | [H] | 5.9 | ⏳ Pendiente |
+| 5.13 Manejar estado de carga en Dashboard | [H] | 5.9 | ⏳ Pendiente |
+| 5.14 Manejar estado vacío (ceros y mensaje informativo) | [H] | 5.9 | ⏳ Pendiente |
+| 5.15 Manejar estado de error desde mensajeError del ViewModel | [H] | 5.9 | ⏳ Pendiente |
+| 5.16 Implementar selector visual de periodo (día / semana / mes) | [H] | 5.9 | ⏳ Pendiente |
+| 5.17 Aplicar formato monetario COP (`$ #,##0`) a los valores | [H] | 5.9 | ⏳ Pendiente |
+| 5.18 Pruebas Compose del DashboardScreen | [H] | 5.9 | ⏳ Pendiente |
+| 5.19 Verificación manual en HONOR ALT-LX3 | [H] | 5.18 | ⏳ Pendiente |
+
+---
+
+### Navegación posterior del Dashboard
+
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| 5.20 Agregar ruta `dashboard` al NavGraph | [H] | 5.9 | ⏳ Pendiente |
+| 5.21 Integrar DashboardScreen en NavHost | [H] | 5.9, 5.20 | ⏳ Pendiente |
+| 5.22 Añadir Dashboard a la barra inferior de navegación | [H] | 5.21 | ⏳ Pendiente |
+| 5.23 Evaluar y autorizar cambio de `startDestination` a Dashboard | [H] | 5.22 | ⏳ Pendiente |
+| 5.24 Acceso rápido "Registrar viaje" desde Dashboard | [H] | 5.9 | ⏳ Pendiente |
+| 5.25 Acceso rápido "Registrar gasto" desde Dashboard | [H] | 5.9 | ⏳ Pendiente |
+| 5.26 Pruebas de navegación del Dashboard | [H] | 5.20–5.25 | ⏳ Pendiente |
+| 5.27 Verificación manual de navegación en HONOR ALT-LX3 | [H] | 5.26 | ⏳ Pendiente |
+
+---
+
+### Conteos y trazabilidad — Fase 5
+
+| Métrica | Valor |
+|---|---|
+| Unitarias vigentes | **113** |
+| Instrumentadas vigentes | **65** |
+| **Total** | **178** |
+
+- `testDebugUnitTest` posterior al Incremento 1C: **113/113** (BUILD SUCCESSFUL).
+- Última validación `connectedDebugAndroidTest` aplicable: **65/65** (Incremento 1B).
+- `connectedDebugAndroidTest` **no se repitió** después del Incremento 1C porque no hubo cambios en Compose, Room ni navegación.
+- 0 pruebas flaky pendientes.
+
+---
 
 ### Criterios de aceptación — Fase 5 (actualizados)
 - ✅ Cálculo de periodos: DIA (00:00–24:00), SEMANA (lunes–lunes), MES (1ro–1ro).
@@ -201,13 +268,32 @@
 - ✅ Gastos por rango: SUM(valor) con COALESCE, Flow&lt;Long&gt; reactivo reactivo a CUD.
 - ✅ Repositorios delegan directamente en DAOs.
 - ✅ DashboardUiState con periodo, ingresos, gastos, ganancia neta, cargando y error.
-- ✅ DashboardViewModel con flatMapLatest + combine + Clock inyectable + catch de errores.
+- ✅ DashboardViewModel con flatMapLatest + combine + Clock inyectable + catch de errores + recuperación.
 - ✅ 20 pruebas unitarias del DashboardViewModel.
 - ⏳ DashboardScreen con resumen del periodo.
 - ⏳ Selector visual de periodo funcional.
-- ⏳ Ganancia neta mostrada en la UI.
-- ⏳ Valores en formato COP.
+- ⏳ Ganancia neta mostrada en la UI con formato COP.
 - ⏳ Accesos rápidos a registro de viaje y gasto.
+- ⏳ Navegación desde/hacia Dashboard.
+
+---
+
+### Fuera del alcance actual de la Fase 5
+
+Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendientes para fases posteriores:
+
+- Gráficos, tablas o visualizaciones avanzadas.
+- Filtros por rango de fechas en listados (Fase 6).
+- Comparación entre periodos.
+- Metas de ganancia diaria/mensual (Fase 6).
+- Presupuestos por categoría.
+- Categorías de gasto personalizadas desde la UI.
+- Editar y eliminar viajes desde la interfaz (backend listo).
+- Firebase, backend, sincronización.
+- PDF, Excel, escaneo, voz.
+- Inteligencia artificial.
+- Migración Room 2 → 3.
+- Resolución de `exportSchema = false`.
 
 ---
 
