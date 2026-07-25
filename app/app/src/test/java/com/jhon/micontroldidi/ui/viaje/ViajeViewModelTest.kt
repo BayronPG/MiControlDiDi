@@ -46,6 +46,16 @@ class ViajeViewModelTest {
         }
 
         override fun obtenerTodos(): Flow<List<ViajeEntity>> = viajesFlow
+
+        override fun obtenerIngresosPorRango(
+            inicioInclusivo: Long,
+            finExclusivo: Long
+        ): Flow<Long> {
+            val suma = viajesFlow.value
+                .filter { it.fechaHora >= inicioInclusivo && it.fechaHora < finExclusivo }
+                .sumOf { it.valor + it.propina }
+            return kotlinx.coroutines.flow.flowOf(suma)
+        }
     }
 
     @Before

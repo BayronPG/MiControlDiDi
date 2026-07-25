@@ -7,8 +7,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jhon.micontroldidi.data.local.database.MiControlDatabase
 import com.jhon.micontroldidi.data.local.entity.CategoriaGastoEntity
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -74,6 +80,118 @@ class GastoDaoTest {
             gastos[0].fechaHora >= gastos[1].fechaHora &&
             gastos[1].fechaHora >= gastos[2].fechaHora
         )
+    }
+
+    @Test
+    fun obtenerTotalGastosPorRango_sinRegistros_retornaCero() = runBlocking {
+        val total = gastoDao.obtenerTotalGastosPorRango(0L, 9999L).first()
+        assertEquals(0L, total)
+    }
+
+    @Test
+    fun obtenerTotalGastosPorRango_sumaCorrecta() = runBlocking {
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 8000))
+        gastoDao.insertar(GastoEntity(fechaHora = 2000L, categoriaId = categoriaId, valor = 12000))
+
+        val total = gastoDao.obtenerTotalGastosPorRango(0L, 9999L).first()
+        assertEquals(20000L, total)
+    }
+
+    @Test
+    fun obtenerTotalGastosPorRango_inicioIncluido() = runBlocking {
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 5000))
+
+        val total = gastoDao.obtenerTotalGastosPorRango(1000L, 9999L).first()
+        assertEquals(5000L, total)
+    }
+
+    @Test
+    fun obtenerTotalGastosPorRango_finExclusivo() = runBlocking {
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 5000))
+
+        val total = gastoDao.obtenerTotalGastosPorRango(0L, 1000L).first()
+        assertEquals(0L, total)
+    }
+
+    @Test
+    fun obtenerTotalGastosPorRango_excluyeFueraDeRango() = runBlocking {
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 5000))
+        gastoDao.insertar(GastoEntity(fechaHora = 9999L, categoriaId = categoriaId, valor = 10000))
+
+        val total = gastoDao.obtenerTotalGastosPorRango(0L, 5000L).first()
+        assertEquals(5000L, total)
+    }
+
+    @Test
+    fun obtenerTotalGastosPorRango_seActualizaAlInsertar() = runBlocking {
+        val flujo = gastoDao.obtenerTotalGastosPorRango(0L, 9999L)
+
+        val primeraRecibida = CompletableDeferred<Unit>()
+        val emisiones = async {
+            withTimeout(2000) {
+                flujo
+                    .onEach { if (!primeraRecibida.isCompleted) primeraRecibida.complete(Unit) }
+                    .take(2)
+                    .toList()
+            }
+        }
+
+        primeraRecibida.await()
+
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 8000))
+
+        val resultado = emisiones.await()
+        assertEquals(listOf(0L, 8000L), resultado)
+    }
+
+    @Test
+    fun obtenerTotalGastosPorRango_seActualizaAlEliminar() = runBlocking {
+        val id = gastoDao.insertar(
+            GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 8000)
+        )
+        val flujo = gastoDao.obtenerTotalGastosPorRango(0L, 9999L)
+
+        val primeraRecibida = CompletableDeferred<Unit>()
+        val emisiones = async {
+            withTimeout(2000) {
+                flujo
+                    .onEach { if (!primeraRecibida.isCompleted) primeraRecibida.complete(Unit) }
+                    .take(2)
+                    .toList()
+            }
+        }
+
+        primeraRecibida.await()
+
+        gastoDao.eliminar(id)
+
+        val resultado = emisiones.await()
+        assertEquals(listOf(8000L, 0L), resultado)
+    }
+
+    @Test
+    fun obtenerTotalGastosPorRango_seActualizaAlEditar() = runBlocking {
+        val id = gastoDao.insertar(
+            GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 5000)
+        )
+        val flujo = gastoDao.obtenerTotalGastosPorRango(0L, 9999L)
+
+        val primeraRecibida = CompletableDeferred<Unit>()
+        val emisiones = async {
+            withTimeout(2000) {
+                flujo
+                    .onEach { if (!primeraRecibida.isCompleted) primeraRecibida.complete(Unit) }
+                    .take(2)
+                    .toList()
+            }
+        }
+
+        primeraRecibida.await()
+
+        gastoDao.actualizar(id, 1000L, categoriaId, 9999L, "")
+
+        val resultado = emisiones.await()
+        assertEquals(listOf(5000L, 9999L), resultado)
     }
 
     @Test

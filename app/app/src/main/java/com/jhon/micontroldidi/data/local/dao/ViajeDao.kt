@@ -15,4 +15,11 @@ interface ViajeDao {
 
     @Query("SELECT * FROM viajes ORDER BY fechaHora DESC")
     fun obtenerTodos(): Flow<List<ViajeEntity>>
+
+    @Query("""
+        SELECT COALESCE(SUM(valor + propina), 0)
+        FROM viajes
+        WHERE fechaHora >= :inicioInclusivo AND fechaHora < :finExclusivo
+    """)
+    fun obtenerIngresosPorRango(inicioInclusivo: Long, finExclusivo: Long): Flow<Long>
 }

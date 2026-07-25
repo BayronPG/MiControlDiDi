@@ -9,6 +9,13 @@ class ViajeRepository(private val viajeDao: ViajeDao) {
     fun obtenerTodos(): Flow<List<ViajeEntity>> = viajeDao.obtenerTodos()
 
     /**
+     * Obtiene la suma de ingresos (valor + propina) en el rango semiabierto
+     * [inicioInclusivo, finExclusivo) mediante consulta agregada en SQLite.
+     */
+    fun obtenerIngresosPorRango(inicioInclusivo: Long, finExclusivo: Long): Flow<Long> =
+        viajeDao.obtenerIngresosPorRango(inicioInclusivo, finExclusivo)
+
+    /**
      * Inserta un viaje validando las reglas de negocio.
      * Retorna [Result.success] con el id generado si los datos son válidos,
      * o [Result.failure] con la excepción correspondiente.
