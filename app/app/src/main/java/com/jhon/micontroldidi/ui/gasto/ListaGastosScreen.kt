@@ -197,9 +197,7 @@ private fun GastoCard(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 IconButton(
                     onClick = onEditar,
-                    modifier = Modifier
-                        .testTag("boton_editar_gasto_${gasto.id}")
-                        .testTag("boton_editar_gasto")
+                    modifier = Modifier.testTag("boton_editar_gasto_${gasto.id}")
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -210,9 +208,7 @@ private fun GastoCard(
                 Spacer(Modifier.width(4.dp))
                 IconButton(
                     onClick = onEliminar,
-                    modifier = Modifier
-                        .testTag("boton_eliminar_gasto_${gasto.id}")
-                        .testTag("boton_eliminar_gasto")
+                    modifier = Modifier.testTag("boton_eliminar_gasto_${gasto.id}")
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,

@@ -36,12 +36,26 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 | Tipo | Existentes | Superadas (última ejecución) | Flaky/fallidas |
 |------|---:|---:|---:|
 | Unitarias | **67** | **67** | 0 |
-| Instrumentadas | **49** | **42** | **7** |
-| **Total** | **116** | **109** | **7** |
+| Instrumentadas | **50** | **50** | 0 |
+| **Total** | **117** | **117** | 0 |
 
-> **Nota sobre pruebas flaky:** Las 7 pruebas afectadas pertenecen a `GastoComposeTest`. El fallo es `Can't retrieve node at index '0'` al buscar botones de editar/eliminar. La causa identificada es la presencia de datos residuales de ejecuciones anteriores que desplazan los gastos recién creados fuera del viewport de `LazyColumn`. El aislamiento de las pruebas instrumentadas frente a datos persistentes permanece pendiente.
+> **Nota (24-jul-2026):** La incidencia flaky de `GastoComposeTest` fue corregida.
 >
-> Las pruebas unitarias y de DAO cubren completamente la lógica de edición y eliminación.
+> **Causa raiz:** Dos asignaciones consecutivas de `Modifier.testTag("a").testTag("b")` impedian que `onAllNodesWithTag` encontrara los nodos. Se simplifico a un unico `testTag` por boton.
+>
+> **Selectores:** Cada prueba identifica el gasto por su ID unico obtenido de Room, usando `boton_editar_gasto_<id>` y `boton_eliminar_gasto_<id>`. Sin selectores por indice.
+>
+> **Limpieza selectiva:** `@Before` y `@After` ejecutan `limpiarGastosDePrueba()`, que filtra gastos por el prefijo `__TEST_GASTO_COMPOSE__` y solo elimina los que coinciden. Gastos normales, viajes y categorias nunca se eliminan. Las descripciones de prueba incluyen el prefijo reservado y un UUID. La prueba `limpiezaSelectiva_conservaGastosSinPrefijo` verifica la conservacion, y retira su gasto de control (sin prefijo) mediante try/finally con su ID.
+>
+> **Validacion:** Eliminacion verifica $item_gasto_<id>$ y descripcion unica via `waitUntil` + confirmacion Room. Edicion verifica que el texto anterior desaparece (el card permanece).
+>
+> **Resultados:**
+> - Tres ejecuciones consecutivas de `GastoComposeTest`: 17/17 cada una.
+> - Dos ejecuciones consecutivas de `connectedDebugAndroidTest`: 50/50 cada una.
+> - `testDebugUnitTest`: 67/67.
+> - Total: 117/117.
+>
+> Resultado previo: 42/49. Corregido en esta tarea.
 
 ### Estado funcional de gastos
 
@@ -49,8 +63,8 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 |---|---|---|---|---|---|---|
 | Crear gastos | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Listar gastos | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Editar gastos | ✅ | ✅ | ✅ | ✅ | ⚠️ flaky | ✅ |
-| Eliminar gastos | ✅ | ✅ | ✅ | ✅ | ⚠️ flaky | ✅ |
+| Editar gastos | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Eliminar gastos | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | ID inexistente | ✅ | ✅ | ✅ | — | ❌ no implementada | — |
 
 ### Unitarias (67)
@@ -64,7 +78,7 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 | `ViajeViewModelTest` | 10 |
 | `GastoViewModelTest` | **28** |
 
-### Instrumentadas (49)
+### Instrumentadas (50)
 | Archivo | Pruebas |
 |---------|---------|
 | `ViajeDaoTest` | 4 |
@@ -73,7 +87,7 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 | `GastoDaoTest` | **14** |
 | `MigracionTest` | 1 |
 | `ViajeComposeTest` | 8 |
-| `GastoComposeTest` | **16** |
+| `GastoComposeTest` | **17** |
 
 ## Verificación manual — HONOR ALT-LX3 (24-jul-2026)
 
