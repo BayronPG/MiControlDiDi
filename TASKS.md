@@ -146,25 +146,59 @@
 ---
 
 ## Fase 5 — Dashboard y balance (Sprint 2 — Semana 2)
+
+### Incremento 1A: Cálculo de periodos del Dashboard ✅
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| 5.1a Crear `PeriodoDashboard` enum (DIA, SEMANA, MES) | [H] | — | ✅ Creado |
+| 5.1b Crear `RangoPeriodo` data class (inicioInclusivo, finExclusivo) | [H] | — | ✅ Creado |
+| 5.1c Crear `CalculadorRangoPeriodo` con lógica día/semana/mes | [H] | 5.1a, 5.1b | ✅ Creado |
+| 5.1d Semana iniciada el lunes (DP-04) | [H] | 5.1c | ✅ Aplicado |
+| 5.1e ZoneId explícito del dispositivo | [H] | 5.1c | ✅ Aplicado |
+| 5.1f Intervalos semiabiertos [inicio, fin) | [H] | 5.1c | ✅ Aplicado |
+| 5.8a Crear `CalculadorRangoPeriodoTest` (22 pruebas) | [H] | 5.1c | ✅ 22 pruebas |
+
+### Incremento 1B: Totales por rango (ingresos y gastos) ✅
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| 5.1g Consulta agregada de ingresos en `ViajeDao` (SUM valor + propina) | [H] | 2.3 | ✅ Implementada |
+| 5.1h Consulta agregada de gastos en `GastoDao` (SUM valor) | [H] | 2.10 | ✅ Implementada |
+| 5.1i `COALESCE` para devolver 0 sin registros | [H] | 5.1g, 5.1h | ✅ Aplicado |
+| 5.1j Retorno `Flow<Long>` reactivo | [H] | 5.1g, 5.1h | ✅ Implementado |
+| 5.1k Delegación en `ViajeRepository` y `GastoRepository` | [H] | 2.4, 2.12 | ✅ Implementada |
+| 5.1l Pruebas DAO instrumentadas (7 + 8 = 15 nuevas) | [H] | 5.1g, 5.1h | ✅ Creadas y pasan |
+| 5.1m Pruebas unitarias de repositorio (4 nuevas) | [H] | 5.1k | ✅ Creadas y pasan |
+| 5.1n Estabilizar selector `Gasolina` en `GastoComposeTest` | [H] | — | ✅ Corregido |
+
+### Pendiente — Capa visual del Dashboard
 | Tarea | Prioridad | Dependencias |
 |---|---|---|
-| 5.1 Crear lógica de cálculo de balance (ingresos, gastos, ganancia neta por periodo) | [H] | 2.11, 2.12 |
-| 5.2 Crear `DashboardViewModel` consolidando datos de viajes y gastos | [H] | 5.1 |
-| 5.3 Crear pantalla Dashboard con resumen del día (ingresos, gastos, ganancia neta) | [H] | 5.2 |
-| 5.4 Implementar selector de periodo (día, semana, mes) en Dashboard | [H] | 5.3 |
-| 5.5 Mostrar accesos rápidos "Registrar viaje" y "Registrar gasto" en Dashboard | [H] | 5.3 |
-| 5.6 Manejar estado vacío en Dashboard (ceros y mensaje informativo) | [H] | 5.3 |
-| 5.7 Aplicar RN-07: mostrar valores en COP con formato legible | [H] | 5.3 |
-| 5.8 Crear pruebas unitarias para cálculos de balance y periodos | [H] | 5.1 |
+| 5.2 Crear `DashboardViewModel` consolidando datos de viajes y gastos | [H] | 5.1g–5.1k |
+| 5.3 Crear `DashboardUiState` con ingresos, gastos, ganancia neta y periodo seleccionado | [H] | 5.2 |
+| 5.4 Crear `DashboardScreen` con resumen del periodo | [H] | 5.3 |
+| 5.5 Implementar selector visual de periodo (día, semana, mes) | [H] | 5.4 |
+| 5.6 Mostrar accesos rápidos "Registrar viaje" y "Registrar gasto" en Dashboard | [H] | 5.4 |
+| 5.7 Manejar estado vacío en Dashboard (ceros y mensaje informativo) | [H] | 5.4 |
+| 5.8 Aplicar RN-07: mostrar valores en COP con formato legible | [H] | 5.4 |
+| 5.9 Agregar ruta `dashboard` al NavGraph | [H] | 5.4 |
+| 5.10 Cambiar `startDestination` a Dashboard | [H] | 5.9 |
+| 5.11 Pruebas unitarias del DashboardViewModel | [H] | 5.2 |
+| 5.12 Pruebas Compose del DashboardScreen | [H] | 5.4 |
 
-### Criterios de aceptación — Fase 5
-- Dashboard muestra día actual al abrir la app.
-- Al cambiar a semana, suma correctamente los 7 días (inicio lunes, según DP-04 pendiente).
-- Al cambiar a mes, suma correctamente desde el día 1 hasta el último.
-- Ganancia neta = ingresos − gastos del mismo periodo.
-- Los valores se muestran en formato COP.
-- Acceso rápido a registro de viaje y gasto funciona.
-- Pruebas unitarias pasan.
+### Criterios de aceptación — Fase 5 (actualizados)
+- ✅ Cálculo de periodos: DIA (00:00–24:00), SEMANA (lunes–lunes), MES (1ro–1ro).
+- ✅ Intervalos semiabiertos [inicioInclusivo, finExclusivo).
+- ✅ Semana iniciada el lunes.
+- ✅ ZoneId explícito del dispositivo.
+- ✅ Ingresos por rango: SUM(valor + propina) con COALESCE, Flow&lt;Long&gt; reactivo.
+- ✅ Gastos por rango: SUM(valor) con COALESCE, Flow&lt;Long&gt; reactivo reactivo a CUD.
+- ✅ Repositorios delegan directamente en DAOs.
+- ⏳ Dashboard muestra día actual al abrir la app.
+- ⏳ Selector de periodo funcional.
+- ⏳ Ganancia neta = ingresos − gastos del mismo periodo.
+- ⏳ Valores en formato COP.
+- ⏳ Accesos rápidos a registro de viaje y gasto.
+- ⏳ Pruebas del DashboardViewModel y DashboardScreen.
 
 ---
 

@@ -4,8 +4,9 @@ Aplicación Android para controlar ingresos, gastos y ganancias de un conductor 
 
 ## Estado del proyecto
 
-- **Fases 1 a 4 implementadas y verificadas.**
-- **Fase 5 no iniciada** — requiere autorización explícita del propietario del proyecto antes de comenzar.
+- **Fases 1 a 4 cerradas.**
+- **Fase 5 en desarrollo.** Incrementos 1A (cálculo de periodos) y 1B (totales por rango) completados e integrados.
+- **Capa visual del Dashboard pendiente** (DashboardViewModel, DashboardScreen, navegación).
 - La aplicación funciona completamente sin conexión a Internet.
 
 ## Stack técnico
@@ -76,48 +77,48 @@ Compose UI → ViewModel → Repository → DAO → Room
 
 | Tipo | Cantidad | Estado |
 |------|----------|--------|
-| Unitarias | 67 | ✅ |
-| Instrumentadas | 50 | ✅ |
-| **Total** | **117** | ✅ |
+| Unitarias | 93 | ✅ |
+| Instrumentadas | 65 | ✅ |
+| **Total** | **158** | ✅ |
 
 ### Trazabilidad
 
-- Validación completa registrada: **67/67** unitarias + **50/50** instrumentadas = **117/117**.
-- Después del reemplazo final de aserciones Kotlin (`assert(…)`) por aserciones JUnit (`assertEquals`, `assertTrue`, `assertNotNull`) se validó específicamente `GastoComposeTest`: **17/17**.
-- **No se repitió la suite completa después de ese cambio sintáctico.**
+- Validación completa registrada: **93/93** unitarias + **65/65** instrumentadas = **158/158**.
 - 0 pruebas flaky pendientes.
 
 > Para detalles completos (distribución por archivo, limpieza selectiva, antecedente de incidencia flaky), consultar `PROJECT_STATUS.md`.
 
 ### Desglose por archivo
 
-**Unitarias (67)**
+**Unitarias (93)**
 | Archivo | Pruebas |
 |---------|---------|
 | `ViajeEntityTest` | 6 |
 | `CategoriaGastoEntityTest` | 3 |
-| `ViajeRepositoryTest` | 6 |
+| `ViajeRepositoryTest` | 8 |
 | `CategoriaGastoRepositoryTest` | 5 |
-| `GastoRepositoryTest` | 9 |
+| `GastoRepositoryTest` | 11 |
 | `ViajeViewModelTest` | 10 |
 | `GastoViewModelTest` | 28 |
+| `CalculadorRangoPeriodoTest` | 22 |
 
-**Instrumentadas (50)**
+**Instrumentadas (65)**
 | Archivo | Pruebas |
 |---------|---------|
-| `ViajeDaoTest` | 4 |
+| `ViajeDaoTest` | 11 |
 | `CategoriaGastoDaoTest` | 3 |
 | `CategoriaUnicidadTest` | 3 |
-| `GastoDaoTest` | 14 |
+| `GastoDaoTest` | 22 |
 | `MigracionTest` | 1 |
 | `ViajeComposeTest` | 8 |
 | `GastoComposeTest` | 17 |
 
 ## Funcionalidades pendientes (no implementadas)
 
-La Fase 5 **no debe iniciarse sin autorización explícita del propietario del proyecto**.
-
-- [ ] Dashboard, balance y selector de periodo (día, semana, mes) — Fase 5.
+- [ ] **DashboardViewModel** (combinar ingresos y gastos, calcular ganancia neta).
+- [ ] **DashboardScreen** con resumen del periodo y selector visual (día / semana / mes).
+- [ ] Ruta `dashboard` y cambio de `startDestination` en NavGraph.
+- [ ] Accesos rápidos "Registrar viaje" y "Registrar gasto" desde Dashboard.
 - [ ] Editar y eliminar viajes desde la interfaz.
 - [ ] Filtros por rango de fechas (viajes y gastos).
 - [ ] Metas de ganancia.
