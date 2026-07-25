@@ -28,6 +28,10 @@ class ViajeRepositoryTest {
             return flowOf(emptyList())
         }
 
+        override fun obtenerPorRango(
+            inicioInclusivo: Long, finExclusivo: Long
+        ): Flow<List<ViajeEntity>> = flowOf(emptyList())
+
         override fun obtenerIngresosPorRango(
             inicioInclusivo: Long, finExclusivo: Long
         ): Flow<Long> {
@@ -97,10 +101,15 @@ class ViajeRepositoryTest {
         val dao = object : ViajeDao {
             override suspend fun insertar(viaje: ViajeEntity): Long = 1L
             override fun obtenerTodos(): Flow<List<ViajeEntity>> = flowOf(viajesEsperados)
+            override fun obtenerPorRango(
+                inicioInclusivo: Long,
+                finExclusivo: Long
+            ): Flow<List<ViajeEntity>> = flowOf(emptyList())
+
             override fun obtenerIngresosPorRango(
                 inicioInclusivo: Long,
                 finExclusivo: Long
-            ): Flow<Long> = kotlinx.coroutines.flow.flowOf(0L)
+            ): Flow<Long> = flowOf(0L)
         }
         val repo = ViajeRepository(dao)
         var listaRecibida: List<ViajeEntity>? = null

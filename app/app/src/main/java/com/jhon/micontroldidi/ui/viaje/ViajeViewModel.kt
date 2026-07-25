@@ -5,33 +5,96 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 import com.jhon.micontroldidi.data.repository.ViajeRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ViajeViewModel(
     private val viajeRepository: ViajeRepository
 ) : ViewModel() {
 
-    /** Viajes expuestos directamente desde Room, ordenados DESC */
-    val viajes: StateFlow<List<ViajeEntity>> = viajeRepository.obtenerTodos()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    /**
+     * Filtro activo: null significa "sin filtro" (todos los viajes).
+     * Al cambiar este StateFlow, flatMapLatest cancela la suscripción anterior
+     * y se suscribe a la consulta correspondiente.
+     */
+    private val _filtro = MutableStateFlow<FiltroFecha?>(null)
+
+    /**
+     * Viajes observados reactivamente: todos o filtrados por rango,
+     * según el valor actual de [_filtro].
+     */
+    private val _viajesFiltrados = _filtro.flatMapLatest { filtro ->
+        if (filtro != null) {
+            viajeRepository.obtenerPorRango(filtro.inicio, filtro.fin)
+        } else {
+            viajeRepository.obtenerTodos()
+        }
+    }
 
     private val _uiState = MutableStateFlow(ViajeUiState())
     val uiState: StateFlow<ViajeUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            viajes.collect { lista ->
-                _uiState.value = _uiState.value.copy(
+            _viajesFiltrados.collect { lista ->
+                val estado = _uiState.value
+                val filtro = _filtro.value
+
+                val mensajeVacio = if (filtro != null && lista.isEmpty()) {
+                    "No hay viajes en el rango seleccionado"
+                } else {
+                    null
+                }
+
+                _uiState.value = estado.copy(
                     viajes = lista,
-                    cargando = false
+                    cargando = false,
+                    mensajeFiltroVacio = mensajeVacio
                 )
             }
         }
+    }
+
+    /**
+     * Aplica un filtro por rango de fechas.
+     * Al cambiar [_filtro], flatMapLatest recarga automáticamente.
+     */
+    fun aplicarFiltroFecha(inicio: Long, fin: Long) {
+        _filtro.value = FiltroFecha(inicio, fin)
+        _uiState.value = _uiState.value.copy(
+            filtroActivo = true,
+            filtroInicio = inicio,
+            filtroFin = fin,
+            mostrarSelectorFecha = false
+        )
+    }
+
+    /**
+     * Limpia el filtro y restaura la lista completa.
+     */
+    fun limpiarFiltro() {
+        _filtro.value = null
+        _uiState.value = _uiState.value.copy(
+            filtroActivo = false,
+            filtroInicio = null,
+            filtroFin = null,
+            mostrarSelectorFecha = false,
+            mensajeFiltroVacio = null
+        )
+    }
+
+    /**
+     * Muestra u oculta el selector de fechas.
+     */
+    fun toggleSelectorFecha() {
+        _uiState.value = _uiState.value.copy(
+            mostrarSelectorFecha = !_uiState.value.mostrarSelectorFecha
+        )
     }
 
     fun actualizarValor(texto: String) {
@@ -125,3 +188,12 @@ class ViajeViewModel(
         }
     }
 }
+
+/**
+ * Filtro por rango de fechas para la lista de viajes.
+ * Usa el mismo contrato semiabierto [inicio, fin) del resto del proyecto.
+ */
+data class FiltroFecha(
+    val inicio: Long,
+    val fin: Long
+)

@@ -180,5 +180,108 @@ class ViajeDaoTest {
         assertEquals(5000L, total)
     }
 
+    @Test
+    fun obtenerPorRango_sinRegistros_retornaListaVacia() = runBlocking {
+        val viajes = dao.obtenerPorRango(0L, 9999L).first()
+        assertTrue("Debe retornar lista vacía", viajes.isEmpty())
+    }
 
+    @Test
+    fun obtenerPorRango_registrosDentroDelRango_aparecen() = runBlocking {
+        dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000, propina = 2000))
+        dao.insertar(ViajeEntity(fechaHora = 2000L, valor = 20000))
+
+        val viajes = dao.obtenerPorRango(0L, 9999L).first()
+        assertEquals(2, viajes.size)
+    }
+
+    @Test
+    fun obtenerPorRango_registrosFueraDelRango_excluidos() = runBlocking {
+        dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000))  // dentro
+        dao.insertar(ViajeEntity(fechaHora = 9999L, valor = 20000))  // fuera
+
+        val viajes = dao.obtenerPorRango(0L, 5000L).first()
+        assertEquals(1, viajes.size)
+        assertEquals(10000L, viajes[0].valor)
+    }
+
+    @Test
+    fun obtenerPorRango_inicioIncluido_incluyeViaje() = runBlocking {
+        dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 5000))
+
+        val viajes = dao.obtenerPorRango(1000L, 9999L).first()
+        assertEquals(1, viajes.size)
+    }
+
+    @Test
+    fun obtenerPorRango_finExclusivo_excluyeViaje() = runBlocking {
+        dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 5000))
+
+        val viajes = dao.obtenerPorRango(0L, 1000L).first()
+        assertTrue("Debe excluir cuando fechaHora == finExclusivo", viajes.isEmpty())
+    }
+
+    @Test
+    fun obtenerPorRango_ordenDescendente() = runBlocking {
+        dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000))
+        dao.insertar(ViajeEntity(fechaHora = 3000L, valor = 30000))
+        dao.insertar(ViajeEntity(fechaHora = 2000L, valor = 20000))
+
+        val viajes = dao.obtenerPorRango(0L, 9999L).first()
+        assertEquals(3, viajes.size)
+        assertTrue("fechaHora[0] >= fechaHora[1]", viajes[0].fechaHora >= viajes[1].fechaHora)
+        assertTrue("fechaHora[1] >= fechaHora[2]", viajes[1].fechaHora >= viajes[2].fechaHora)
+    }
+
+    @Test
+    fun obtenerPorRango_seActualizaAlInsertar() = runBlocking {
+        val flujo = dao.obtenerPorRango(0L, 9999L)
+
+        val primeraRecibida = CompletableDeferred<Unit>()
+        val emisiones = async {
+            withTimeout(2000) {
+                flujo
+                    .onEach { if (!primeraRecibida.isCompleted) primeraRecibida.complete(Unit) }
+                    .take(2)
+                    .toList()
+            }
+        }
+
+        primeraRecibida.await()
+
+        dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 15000))
+
+        val resultado = emisiones.await()
+        assertEquals(2, resultado.size)
+        assertEquals(0, resultado[0].size)         // vacío inicial
+        assertEquals(1, resultado[1].size)         // 1 después de insertar
+        assertEquals(15000L, resultado[1][0].valor)
+    }
+
+    @Test
+    fun obtenerPorRango_insertarFueraDelRango_noActualiza() = runBlocking {
+        val flujo = dao.obtenerPorRango(0L, 5000L)
+
+        val primeraRecibida = CompletableDeferred<Unit>()
+        val emisiones = async {
+            withTimeout(2000) {
+                flujo
+                    .onEach { if (!primeraRecibida.isCompleted) primeraRecibida.complete(Unit) }
+                    .take(2)
+                    .toList()
+            }
+        }
+
+        primeraRecibida.await()
+
+        dao.insertar(ViajeEntity(fechaHora = 9999L, valor = 15000))  // fuera del rango
+
+        val resultado = emisiones.await()
+        // Solo debe recibir la emisión vacía inicial; el insert fuera del rango
+        // puede o no emitir dependiendo de Room, pero el contenido debe seguir vacío
+        assertEquals(0, resultado[0].size)
+        if (resultado.size > 1) {
+            assertEquals(0, resultado[1].size)  // sigue vacío
+        }
+    }
 }

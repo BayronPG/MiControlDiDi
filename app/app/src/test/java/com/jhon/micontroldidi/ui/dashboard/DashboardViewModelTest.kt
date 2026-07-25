@@ -63,6 +63,10 @@ class DashboardViewModelTest {
 
         override fun obtenerTodos(): Flow<List<ViajeEntity>> = flowOf(emptyList())
 
+        override fun obtenerPorRango(
+            inicioInclusivo: Long, finExclusivo: Long
+        ): Flow<List<ViajeEntity>> = flowOf(emptyList())
+
         override fun obtenerIngresosPorRango(
             inicioInclusivo: Long, finExclusivo: Long
         ): Flow<Long> {
@@ -337,6 +341,10 @@ class DashboardViewModelTest {
         val daoViajeError = object : ViajeDao {
             override suspend fun insertar(viaje: ViajeEntity): Long = 0L
             override fun obtenerTodos(): Flow<List<ViajeEntity>> = flowOf(emptyList())
+            override fun obtenerPorRango(
+                inicioInclusivo: Long, finExclusivo: Long
+            ): Flow<List<ViajeEntity>> = flowOf(emptyList())
+
             override fun obtenerIngresosPorRango(
                 inicioInclusivo: Long, finExclusivo: Long
             ): Flow<Long> = flow { throw RuntimeException("Error BD ingresos") }
@@ -389,6 +397,10 @@ class DashboardViewModelTest {
         val daoViajeError = object : ViajeDao {
             override suspend fun insertar(viaje: ViajeEntity): Long = 0L
             override fun obtenerTodos(): Flow<List<ViajeEntity>> = flowOf(emptyList())
+            override fun obtenerPorRango(
+                inicioInclusivo: Long, finExclusivo: Long
+            ): Flow<List<ViajeEntity>> = flowOf(emptyList())
+
             override fun obtenerIngresosPorRango(
                 inicioInclusivo: Long, finExclusivo: Long
             ): Flow<Long> = flow { throw RuntimeException("DetalleTecnicoNOdebeSalir") }
@@ -415,6 +427,10 @@ class DashboardViewModelTest {
         val daoViajeRecuperable = object : ViajeDao {
             override suspend fun insertar(viaje: ViajeEntity): Long = 0L
             override fun obtenerTodos(): Flow<List<ViajeEntity>> = flowOf(emptyList())
+            override fun obtenerPorRango(
+                inicioInclusivo: Long, finExclusivo: Long
+            ): Flow<List<ViajeEntity>> = flowOf(emptyList())
+
             override fun obtenerIngresosPorRango(
                 inicioInclusivo: Long, finExclusivo: Long
             ): Flow<Long> {

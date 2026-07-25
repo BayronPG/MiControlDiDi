@@ -16,7 +16,14 @@ data class ViajeUiState(
     val errorValor: String? = null,
     val errorPropina: String? = null,
     val guardando: Boolean = false,
-    val guardadoExitoso: Boolean = false
+    val guardadoExitoso: Boolean = false,
+
+    // Estado del filtro por fecha
+    val filtroActivo: Boolean = false,
+    val filtroInicio: Long? = null,
+    val filtroFin: Long? = null,
+    val mostrarSelectorFecha: Boolean = false,
+    val mensajeFiltroVacio: String? = null
 ) {
     val hayErrores: Boolean
         get() = errorValor != null || errorPropina != null

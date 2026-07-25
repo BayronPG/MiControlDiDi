@@ -36,4 +36,13 @@
     <string name="dashboard_periodo_mes">Mes</string>
     <string name="dashboard_sin_datos">No hay datos para el periodo seleccionado</string>
     <string name="dashboard_error">Error al cargar los datos del dashboard</string>
+
+    <!-- Filtro de viajes por fecha -->
+    <string name="viajes_filtrar">Filtrar por fecha</string>
+    <string name="viajes_filtro_activo">Filtro activo</string>
+    <string name="viajes_fecha_inicio">Fecha inicial</string>
+    <string name="viajes_fecha_fin">Fecha final</string>
+    <string name="viajes_aplicar_filtro">Aplicar filtro</string>
+    <string name="viajes_limpiar_filtro">Limpiar filtro</string>
+    <string name="viajes_sin_resultados">No hay viajes en el rango seleccionado</string>
 </resources>

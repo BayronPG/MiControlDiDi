@@ -47,6 +47,15 @@ class ViajeViewModelTest {
 
         override fun obtenerTodos(): Flow<List<ViajeEntity>> = viajesFlow
 
+        override fun obtenerPorRango(
+            inicioInclusivo: Long,
+            finExclusivo: Long
+        ): Flow<List<ViajeEntity>> {
+            val filtrados = viajesFlow.value
+                .filter { it.fechaHora >= inicioInclusivo && it.fechaHora < finExclusivo }
+            return flowOf(filtrados)
+        }
+
         override fun obtenerIngresosPorRango(
             inicioInclusivo: Long,
             finExclusivo: Long
@@ -54,7 +63,7 @@ class ViajeViewModelTest {
             val suma = viajesFlow.value
                 .filter { it.fechaHora >= inicioInclusivo && it.fechaHora < finExclusivo }
                 .sumOf { it.valor + it.propina }
-            return kotlinx.coroutines.flow.flowOf(suma)
+            return flowOf(suma)
         }
     }
 
@@ -75,7 +84,7 @@ class ViajeViewModelTest {
     }
 
     @Test
-    fun `estado inicial formulario vacio y sin errores`() = runTest(testDispatcher) {
+    fun estadoInicial_formularioVacioYSinErrores() = runTest(testDispatcher) {
         advanceUntilIdle()
         val state = viewModel.uiState.value
         assertEquals("", state.valorText)
@@ -88,15 +97,15 @@ class ViajeViewModelTest {
     }
 
     @Test
-    fun `valor vacio produce error`() {
+    fun valorVacio_produceError() {
         viewModel.actualizarValor("")
         val error = viewModel.uiState.value.errorValor
-        assertNotNull("Valor vacío debe producir error", error)
+        assertNotNull("Valor vac�o debe producir error", error)
         assertTrue(error?.contains("obligatorio") == true)
     }
 
     @Test
-    fun `valor cero produce error`() {
+    fun valorCero_produceError() {
         viewModel.actualizarValor("0")
         val error = viewModel.uiState.value.errorValor
         assertNotNull("Valor cero debe producir error", error)
@@ -104,7 +113,7 @@ class ViajeViewModelTest {
     }
 
     @Test
-    fun `valor negativo produce error`() {
+    fun valorNegativo_produceError() {
         viewModel.actualizarValor("-5000")
         val error = viewModel.uiState.value.errorValor
         assertNotNull("Valor negativo debe producir error", error)
@@ -112,7 +121,7 @@ class ViajeViewModelTest {
     }
 
     @Test
-    fun `propina negativa produce error`() {
+    fun propinaNegativa_produceError() {
         viewModel.actualizarPropina("-1000")
         val error = viewModel.uiState.value.errorPropina
         assertNotNull("Propina negativa debe producir error", error)
@@ -120,7 +129,7 @@ class ViajeViewModelTest {
     }
 
     @Test
-    fun `datos validos llaman una sola vez al repositorio`() = runTest(testDispatcher) {
+    fun datosValidos_llamanUnaSolaVezAlRepositorio() = runTest(testDispatcher) {
         viewModel.actualizarValor("15000")
         viewModel.actualizarPropina("2000")
         advanceUntilIdle()
@@ -133,22 +142,20 @@ class ViajeViewModelTest {
     }
 
     @Test
-    fun `guardado exitoso actualiza estado`() = runTest(testDispatcher) {
+    fun guardadoExitoso_actualizaEstado() = runTest(testDispatcher) {
         viewModel.actualizarValor("20000")
         viewModel.guardarViaje()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue("guardadoExitoso debe ser true", state.guardadoExitoso)
-        // El formulario se limpia
         assertEquals("", state.valorText)
         assertEquals("", state.propinaText)
     }
 
     @Test
-    fun `lista expuesta conserva orden descendente de Room`() = runTest(testDispatcher) {
+    fun listaExpuesta_conservaOrdenDescendente() = runTest(testDispatcher) {
         advanceUntilIdle()
-        // Insertar viajes a través del ViewModel
         viewModel.actualizarValor("10000")
         viewModel.guardarViaje()
         advanceUntilIdle()
@@ -161,13 +168,12 @@ class ViajeViewModelTest {
         viewModel.guardarViaje()
         advanceUntilIdle()
 
-        // El ViewModel expone los viajes tal como los entrega Room (ordenados DESC)
         val viajes = viewModel.uiState.value.viajes
         assertEquals(3, viajes.size)
     }
 
     @Test
-    fun `error de guardado no cierra formulario`() = runTest(testDispatcher) {
+    fun errorDeGuardado_noCierraFormulario() = runTest(testDispatcher) {
         errorSimulado = IllegalArgumentException("Error simulado")
         viewModel.actualizarValor("12000")
         viewModel.guardarViaje()
@@ -180,7 +186,7 @@ class ViajeViewModelTest {
     }
 
     @Test
-    fun `pulsaciones repetidas no insertan duplicados`() = runTest(testDispatcher) {
+    fun pulsacionesRepetidas_noInsertanDuplicados() = runTest(testDispatcher) {
         viewModel.actualizarValor("10000")
         advanceUntilIdle()
 
@@ -189,7 +195,66 @@ class ViajeViewModelTest {
         viewModel.guardarViaje()
         advanceUntilIdle()
 
-        // Solo la primera debe ejecutarse (guardando evita las siguientes)
-        assertEquals("Solo debe haber una inserción", 1, insertarLlamadas)
+        assertEquals("Solo debe haber una inserci�n", 1, insertarLlamadas)
+    }
+
+    // --- Filtro por fecha ---
+
+    @Test
+    fun sinFiltro_devuelveTodosLosViajes() = runTest(testDispatcher) {
+        daoFalso.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000))
+        daoFalso.insertar(ViajeEntity(fechaHora = 2000L, valor = 20000))
+        advanceUntilIdle()
+
+        assertEquals(2, viewModel.uiState.value.viajes.size)
+        assertFalse("No debe tener filtro activo", viewModel.uiState.value.filtroActivo)
+    }
+
+    @Test
+    fun conFiltro_devuelveSoloLosDelRango() = runTest(testDispatcher) {
+        daoFalso.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000))
+        daoFalso.insertar(ViajeEntity(fechaHora = 5000L, valor = 20000))
+        daoFalso.insertar(ViajeEntity(fechaHora = 9999L, valor = 30000))
+        advanceUntilIdle()
+
+        viewModel.aplicarFiltroFecha(0L, 6000L)
+        advanceUntilIdle()
+
+        assertEquals(2, viewModel.uiState.value.viajes.size)
+        assertTrue("Filtro debe estar activo", viewModel.uiState.value.filtroActivo)
+    }
+
+    @Test
+    fun limpiarFiltro_restauraTodosLosViajes() = runTest(testDispatcher) {
+        daoFalso.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000))
+        daoFalso.insertar(ViajeEntity(fechaHora = 5000L, valor = 20000))
+        daoFalso.insertar(ViajeEntity(fechaHora = 9999L, valor = 30000))
+        advanceUntilIdle()
+
+        viewModel.aplicarFiltroFecha(0L, 6000L)
+        advanceUntilIdle()
+        assertEquals(2, viewModel.uiState.value.viajes.size)
+
+        viewModel.limpiarFiltro()
+        advanceUntilIdle()
+
+        assertEquals(3, viewModel.uiState.value.viajes.size)
+        assertFalse("Filtro debe estar inactivo", viewModel.uiState.value.filtroActivo)
+    }
+
+    @Test
+    fun cambioDeFiltro_cancelaObservacionAnterior() = runTest(testDispatcher) {
+        daoFalso.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000))
+        daoFalso.insertar(ViajeEntity(fechaHora = 5000L, valor = 20000))
+        daoFalso.insertar(ViajeEntity(fechaHora = 9999L, valor = 30000))
+        advanceUntilIdle()
+
+        viewModel.aplicarFiltroFecha(0L, 6000L)
+        advanceUntilIdle()
+        assertEquals(2, viewModel.uiState.value.viajes.size)
+
+        viewModel.aplicarFiltroFecha(0L, 3000L)
+        advanceUntilIdle()
+        assertEquals(1, viewModel.uiState.value.viajes.size)
     }
 }
