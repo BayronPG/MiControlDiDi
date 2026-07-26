@@ -16,7 +16,8 @@ class FakeResourceProvider : ResourceProvider {
         com.jhon.micontroldidi.R.string.gasto_no_encontrado to "Gasto no encontrado",
         com.jhon.micontroldidi.R.string.viajes_sin_resultados to "No hay viajes en el rango seleccionado",
         com.jhon.micontroldidi.R.string.gastos_sin_resultados to "No hay gastos en el rango seleccionado",
-        com.jhon.micontroldidi.R.string.dashboard_error to "Error al cargar los datos del dashboard"
+        com.jhon.micontroldidi.R.string.dashboard_error to "Error al cargar los datos del dashboard",
+        com.jhon.micontroldidi.R.string.stats_error to "Error al cargar las estadísticas"
     )
 
     override fun getString(resId: Int): String {

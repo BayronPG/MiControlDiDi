@@ -7,6 +7,7 @@ import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
+import com.jhon.micontroldidi.util.FakeResourceProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -76,7 +77,8 @@ class StatsViewModelTest {
         viewModel = StatsViewModel(
             ViajeRepository(daoViajeFalso),
             GastoRepository(daoGastoFalso),
-            relojFijo
+            relojFijo,
+            FakeResourceProvider()
         )
     }
 
