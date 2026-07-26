@@ -75,7 +75,7 @@ class MigracionTest {
         val database = Room.databaseBuilder(
             context, MiControlDatabase::class.java, dbName
         )
-            .addMigrations(MiControlDatabase.MIGRATION_1_2)
+            .addMigrations(MiControlDatabase.MIGRATION_1_2, MiControlDatabase.MIGRATION_2_3)
             .build()
 
         runBlocking {
