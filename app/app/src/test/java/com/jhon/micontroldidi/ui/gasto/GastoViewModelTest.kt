@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -80,11 +81,15 @@ class GastoViewModelTest {
         override suspend fun obtenerPorId(id: Long): GastoConCategoria? =
             gastosFlow.value.find { it.id == id }
 
-        override fun obtenerTodos(): Flow<List<GastoConCategoria>> = gastosFlow
+        override fun obtenerTodos(): Flow<List<GastoConCategoria>> {
+            if (errorSimulado != null) return flow { throw errorSimulado!! }
+            return gastosFlow
+        }
 
         override fun obtenerPorRango(
             inicioInclusivo: Long, finExclusivo: Long, categoriaId: Long?
         ): Flow<List<GastoConCategoria>> {
+            if (errorSimulado != null) return flow { throw errorSimulado!! }
             val filtrados = gastosFlow.value.filter {
                 it.fechaHora >= inicioInclusivo && it.fechaHora < finExclusivo &&
                 (categoriaId == null || it.categoriaId == categoriaId)
@@ -660,5 +665,42 @@ class GastoViewModelTest {
 
         viewModel.toggleSelectorFecha()
         assertFalse(viewModel.uiState.value.mostrarSelectorFecha)
+    }
+
+    // --- Error global de carga ---
+
+    @Test
+    fun errorDeCarga_estableceMensajeErrorCarga() = runTest(testDispatcher) {
+        errorSimulado = RuntimeException("Error")
+        val repo = GastoRepository(gastoDaoFalso)
+        val catRepo = CategoriaGastoRepository(categoriaDaoFalso)
+        viewModel = GastoViewModel(repo, catRepo, FakeResourceProvider())
+        advanceUntilIdle()
+        assertNotNull("mensajeErrorCarga esperado", viewModel.uiState.value.mensajeErrorCarga)
+    }
+
+    @Test
+    fun errorDeCarga_dejaCargandoEnFalse() = runTest(testDispatcher) {
+        errorSimulado = RuntimeException("Error")
+        val repo = GastoRepository(gastoDaoFalso)
+        val catRepo = CategoriaGastoRepository(categoriaDaoFalso)
+        viewModel = GastoViewModel(repo, catRepo, FakeResourceProvider())
+        advanceUntilIdle()
+        assertFalse("cargando debe ser false tras error", viewModel.uiState.value.cargando)
+    }
+
+    @Test
+    fun errorDeCarga_noSobrescribeErrorValor() = runTest(testDispatcher) {
+        // Simular error de carga creando ViewModel con error
+        errorSimulado = RuntimeException("Error")
+        val repo = GastoRepository(gastoDaoFalso)
+        val catRepo = CategoriaGastoRepository(categoriaDaoFalso)
+        viewModel = GastoViewModel(repo, catRepo, FakeResourceProvider())
+        advanceUntilIdle()
+        assertNotNull(viewModel.uiState.value.mensajeErrorCarga)
+
+        // Luego probar que la validación de formulario sigue funcionando
+        viewModel.actualizarValor("")
+        assertNotNull("errorValor no debe ser sobrescrito", viewModel.uiState.value.errorValor)
     }
 }
