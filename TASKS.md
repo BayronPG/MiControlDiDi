@@ -303,22 +303,22 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 ## Fase 6 — Edición global, filtros y metas (Sprint 3 — Semana 1)
 | Tarea | Prioridad | Dependencias |
 |---|---|---|
-| 6.1 Implementar filtro por rango de fechas en listado de viajes | [M] | 3.2 |
-| 6.2 Implementar filtro por rango de fechas y categoría en listado de gastos | [M] | 4.2 |
-| 6.3 Implementar pantalla de configuración de meta (diaria o mensual) | [M] | 2.14 |
-| 6.4 Mostrar progreso de meta en Dashboard | [M] | 5.3, 6.3 |
-| 6.5 Validar meta: valorObjetivo > 0, tipoPeriodo obligatorio | [M] | 6.3 |
-| 6.6 Crear pantalla de estadísticas básicas (comparación por día/mes) | [M] | 5.1 |
-| 6.7 Crear `StatsViewModel` | [M] | 5.1 |
-| 6.8 Crear pruebas unitarias para filtros, metas y estadísticas | [M] | 6.1–6.7 |
+| 6.1 Implementar filtro por rango de fechas en listado de viajes | [M] | 3.2 | ✅ Implementado, validado e integrado en main |
+| 6.2 Implementar filtro por rango de fechas y categoría en listado de gastos | [M] | 4.2 | ✅ Implementado, validado e integrado en main |
+| 6.3 Implementar pantalla de configuración de meta (diaria o mensual) | [M] | 2.14 | ✅ Implementado, validado e integrado en main |
+| 6.4 Mostrar progreso de meta en Dashboard | [M] | 5.3, 6.3 | ✅ Implementado, validado e integrado en main |
+| 6.5 Validar meta: valorObjetivo > 0, tipoPeriodo obligatorio | [M] | 6.3 | ✅ Incluida en Tarea 6.3 |
+| 6.6 Crear pantalla de estadísticas básicas (comparación por día/mes) | [M] | 5.1 | ✅ Implementado, validado e integrado en main |
+| 6.7 Crear `StatsViewModel` | [M] | 5.1 | ✅ Implementado, validado e integrado en main |
+| 6.8 Crear pruebas unitarias para filtros, metas y estadísticas | [M] | 6.1–6.7 | ✅ Incluida en 6.6+6.7 |
 
 ### Criterios de aceptación — Fase 6
-- Filtrar viajes por fecha: solo muestra los del rango.
-- Filtrar gastos por fecha y categoría: solo muestra los del rango y categoría.
-- Meta guardada persiste entre reinicios de app.
-- Progreso de meta = (ganancia neta / meta) × 100.
-- Estadísticas muestran cifras verificables contra los datos guardados.
-- Pruebas pasan.
+- ✅ Filtrar viajes por fecha: solo muestra los del rango.
+- ✅ Filtrar gastos por fecha y categoría: solo muestra los del rango y categoría.
+- ✅ Meta guardada persiste entre reinicios de app.
+- ⏳ Progreso de meta = (ganancia neta / meta) × 100.
+- ⏳ Estadísticas muestran cifras verificables contra los datos guardados.
+- ⏳ Pruebas pasan.
 
 ---
 

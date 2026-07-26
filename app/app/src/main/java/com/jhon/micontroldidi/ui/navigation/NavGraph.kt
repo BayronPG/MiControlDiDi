@@ -3,6 +3,7 @@ package com.jhon.micontroldidi.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -34,6 +35,8 @@ import com.jhon.micontroldidi.ui.gasto.ListaGastosScreen
 import com.jhon.micontroldidi.ui.gasto.RegistrarGastoScreen
 import com.jhon.micontroldidi.ui.meta.ConfigurarMetaScreen
 import com.jhon.micontroldidi.ui.meta.MetaViewModel
+import com.jhon.micontroldidi.ui.stats.StatsScreen
+import com.jhon.micontroldidi.ui.stats.StatsViewModel
 import com.jhon.micontroldidi.ui.viaje.ListaViajesScreen
 import com.jhon.micontroldidi.ui.viaje.RegistrarViajeScreen
 import com.jhon.micontroldidi.ui.viaje.ViajeViewModel
@@ -46,9 +49,10 @@ object Rutas {
     const val REGISTRAR_GASTO = "registrar_gasto"
     const val REGISTRAR_GASTO_CON_ID = "registrar_gasto/{gastoId}"
     const val CONFIGURAR_META = "configurar_meta"
+    const val ESTADISTICAS = "estadisticas"
 }
 
-private val rutasConBarraInferior = setOf(Rutas.DASHBOARD, Rutas.LISTA_VIAJES, Rutas.LISTA_GASTOS)
+private val rutasConBarraInferior = setOf(Rutas.DASHBOARD, Rutas.LISTA_VIAJES, Rutas.LISTA_GASTOS, Rutas.ESTADISTICAS)
 
 data class BottomNavItem(
     val ruta: String,
@@ -75,6 +79,12 @@ private val bottomNavItems = listOf(
         labelRes = R.string.gastos,
         icon = Icons.AutoMirrored.Filled.List,
         testTag = "navegacion_gastos"
+    ),
+    BottomNavItem(
+        ruta = Rutas.ESTADISTICAS,
+        labelRes = R.string.stats_titulo,
+        icon = Icons.Default.DateRange,
+        testTag = "navegacion_estadisticas"
     )
 )
 
@@ -103,6 +113,9 @@ fun AppNavGraph(
     )
     val metaViewModel: MetaViewModel = viewModel(
         factory = MetaViewModel.Factory(metaRepository)
+    )
+    val statsViewModel: StatsViewModel = viewModel(
+        factory = StatsViewModel.Factory(viajeRepository, gastoRepository)
     )
 
     val mostrarBarra = navController.mostrarBarraInferior()
@@ -228,6 +241,12 @@ fun AppNavGraph(
                     onNavegarAtras = {
                         navController.popBackStack()
                     }
+                )
+            }
+
+            composable(Rutas.ESTADISTICAS) {
+                StatsScreen(
+                    viewModel = statsViewModel
                 )
             }
         }

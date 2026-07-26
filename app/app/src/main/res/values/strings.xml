@@ -71,4 +71,17 @@
     <string name="meta_configurar">Configurar meta</string>
     <string name="meta_cumplida">¡Meta cumplida!</string>
     <string name="meta_progreso_porcentaje">%1$d%% completado</string>
+
+    <!-- Estadísticas -->
+    <string name="stats_titulo">Estadísticas</string>
+    <string name="stats_hoy">Hoy</string>
+    <string name="stats_semana">Semana</string>
+    <string name="stats_mes">Mes</string>
+    <string name="stats_periodo_actual">Periodo actual</string>
+    <string name="stats_periodo_anterior">Periodo anterior</string>
+    <string name="stats_ingresos">Ingresos</string>
+    <string name="stats_gastos">Gastos</string>
+    <string name="stats_ganancia">Ganancia neta</string>
+    <string name="stats_viajes">Viajes</string>
+    <string name="stats_diferencia">Diferencia</string>
 </resources>

@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 25-jul-2026 — Cierre del Incremento 1D de la Fase 5.
+> Actualizado: 25-jul-2026 — Tarea 6.4 completada en main.
 
 ---
 
@@ -282,6 +282,7 @@ class Factory(
 
 ### Otras fases
 - [ ] Editar y eliminar viajes (UI pendiente; backend listo).
-- [ ] **Fase 6: Filtros, metas, estadísticas.**
+- [x] **Fase 6: Filtros, metas y dashboard — Tareas 6.1 a 6.4 completadas.**
+- [ ] Tarea 6.6+6.7: Estadísticas.
 - [ ] Fase 7: Preferencias (tema claro/oscuro).
 - [ ] Fase 8: Calidad y cierre del MVP.
