@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
@@ -53,6 +54,129 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListaViajesScreen(
+    state: ViajeUiState,
+    onNavegarARegistrar: () -> Unit = {}
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.viajes_titulo)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onNavegarARegistrar,
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.testTag("boton_registrar_viaje")
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.registrar_viaje)
+                )
+            }
+        }
+    ) { innerPadding ->
+        ListaViajesContent(
+            state = state,
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
+}
+
+@Composable
+private fun ListaViajesContent(
+    state: ViajeUiState,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxSize()) {
+        when {
+            state.mensajeError != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .testTag("estado_error_viajes"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = state.mensajeError!!,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            state.cargando -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.cargando),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+            state.mensajeFiltroVacio != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("estado_vacio_filtro"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = state.mensajeFiltroVacio!!,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            state.viajes.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("estado_vacio_viajes"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.sin_viajes),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .testTag("lista_viajes"),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(items = state.viajes, key = { it.id }) { viaje ->
+                        ViajeCard(
+                            viaje = viaje,
+                            onEditar = {},
+                            onEliminar = {}
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -178,10 +302,26 @@ fun ListaViajesScreen(
 
             // Contenido principal
             when {
-                state.cargando -> {
+                state.mensajeError != null -> {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .padding(16.dp)
+                            .testTag("estado_error_viajes"),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = state.mensajeError!!,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                state.cargando -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(

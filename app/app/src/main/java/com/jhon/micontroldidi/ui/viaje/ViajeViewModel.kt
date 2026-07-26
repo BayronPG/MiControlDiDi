@@ -7,10 +7,12 @@ import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.util.ResourceProvider
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
@@ -44,22 +46,31 @@ class ViajeViewModel(
 
     init {
         viewModelScope.launch {
-            _viajesFiltrados.collect { lista ->
-                val estado = _uiState.value
-                val filtro = _filtro.value
-
-                val mensajeVacio = if (filtro != null && lista.isEmpty()) {
-                    resourceProvider.getString(R.string.viajes_sin_resultados)
-                } else {
-                    null
+            _viajesFiltrados
+                .catch { e ->
+                    if (e is CancellationException) throw e
+                    _uiState.value = _uiState.value.copy(
+                        cargando = false,
+                        mensajeError = resourceProvider.getString(R.string.viajes_error)
+                    )
                 }
+                .collect { lista ->
+                    val estado = _uiState.value
+                    val filtro = _filtro.value
 
-                _uiState.value = estado.copy(
-                    viajes = lista,
-                    cargando = false,
-                    mensajeFiltroVacio = mensajeVacio
-                )
-            }
+                    val mensajeVacio = if (filtro != null && lista.isEmpty()) {
+                        resourceProvider.getString(R.string.viajes_sin_resultados)
+                    } else {
+                        null
+                    }
+
+                    _uiState.value = estado.copy(
+                        viajes = lista,
+                        cargando = false,
+                        mensajeFiltroVacio = mensajeVacio,
+                        mensajeError = null
+                    )
+                }
         }
     }
 

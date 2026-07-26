@@ -30,7 +30,10 @@ data class ViajeUiState(
     val editando: Boolean = false,
     val fechaHoraOriginal: Long = 0L,
     val eliminando: Boolean = false,
-    val viajeIdAEliminar: Long? = null
+    val viajeIdAEliminar: Long? = null,
+
+    // Estado de error global
+    val mensajeError: String? = null
 ) {
     val hayErrores: Boolean
         get() = errorValor != null || errorPropina != null
