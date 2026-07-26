@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -88,35 +87,7 @@ fun DashboardScreen(
                 )
             )
         },
-        floatingActionButton = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.testTag("dashboard_fab_container")
-            ) {
-                FloatingActionButton(
-                    onClick = onNavegarARegistrarViaje,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.testTag("fab_registrar_viaje_dashboard")
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.List,
-                        contentDescription = stringResource(R.string.registrar_viaje)
-                    )
-                }
-                FloatingActionButton(
-                    onClick = onNavegarARegistrarGasto,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.testTag("fab_registrar_gasto_dashboard")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.registrar_gasto)
-                    )
-                }
-            }
-        }
+        floatingActionButton = { }
     ) { innerPadding ->
         when {
             uiState.cargando -> {
@@ -144,6 +115,8 @@ fun DashboardScreen(
                 DashboardContent(
                     state = uiState,
                     onPeriodoSeleccionado = onPeriodoSeleccionado,
+                    onNavegarARegistrarViaje = onNavegarARegistrarViaje,
+                    onNavegarARegistrarGasto = onNavegarARegistrarGasto,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
@@ -176,6 +149,8 @@ private fun ErrorContent(
 private fun DashboardContent(
     state: DashboardUiState,
     onPeriodoSeleccionado: (PeriodoDashboard) -> Unit,
+    onNavegarARegistrarViaje: () -> Unit = {},
+    onNavegarARegistrarGasto: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -224,6 +199,24 @@ private fun DashboardContent(
                 modifier = Modifier.testTag("dashboard_tarjeta_meta")
             )
         }
+
+            Button(
+                onClick = onNavegarARegistrarViaje,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("btn_dashboard_viaje")
+            ) {
+                Text(stringResource(R.string.registrar_viaje))
+            }
+
+            Button(
+                onClick = onNavegarARegistrarGasto,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("btn_dashboard_gasto")
+            ) {
+                Text(stringResource(R.string.registrar_gasto))
+            }
 
         if (state.ingresos == 0L && state.gastos == 0L) {
             Text(
