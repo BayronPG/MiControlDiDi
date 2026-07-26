@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -24,6 +25,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -49,14 +52,16 @@ import com.jhon.micontroldidi.util.CurrencyFormatter
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     onNavegarARegistrarViaje: () -> Unit = {},
-    onNavegarARegistrarGasto: () -> Unit = {}
+    onNavegarARegistrarGasto: () -> Unit = {},
+    onNavegarAConfigurarMeta: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     DashboardScreen(
         uiState = state,
         onPeriodoSeleccionado = viewModel::seleccionarPeriodo,
         onNavegarARegistrarViaje = onNavegarARegistrarViaje,
-        onNavegarARegistrarGasto = onNavegarARegistrarGasto
+        onNavegarARegistrarGasto = onNavegarARegistrarGasto,
+        onNavegarAConfigurarMeta = onNavegarAConfigurarMeta
     )
 }
 
@@ -70,7 +75,8 @@ fun DashboardScreen(
     uiState: DashboardUiState,
     onPeriodoSeleccionado: (PeriodoDashboard) -> Unit,
     onNavegarARegistrarViaje: () -> Unit = {},
-    onNavegarARegistrarGasto: () -> Unit = {}
+    onNavegarARegistrarGasto: () -> Unit = {},
+    onNavegarAConfigurarMeta: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -210,6 +216,15 @@ private fun DashboardContent(
             testTag = "dashboard_tarjeta_ganancia"
         )
 
+        // Progreso de meta activa
+        if (state.metaActiva != null && state.progresoMeta != null) {
+            MetaProgressCard(
+                metaActiva = state.metaActiva!!,
+                progreso = state.progresoMeta!!,
+                modifier = Modifier.testTag("dashboard_tarjeta_meta")
+            )
+        }
+
         if (state.ingresos == 0L && state.gastos == 0L) {
             Text(
                 text = stringResource(R.string.dashboard_sin_datos),
@@ -256,6 +271,104 @@ private fun PeriodoSelector(
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 modifier = Modifier.testTag("chip_periodo_${periodo.name}")
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MetaProgressCard(
+    metaActiva: com.jhon.micontroldidi.data.local.entity.MetaEntity,
+    progreso: Float,
+    modifier: Modifier = Modifier
+) {
+    val porcentaje = (progreso * 100).toInt().coerceAtLeast(0)
+    val metaCumplida = progreso >= 1.0f
+    val colorBarra = if (metaCumplida)
+        MaterialTheme.colorScheme.primary
+    else
+        MaterialTheme.colorScheme.tertiary
+
+    val textoPeriodo = if (metaActiva.tipoPeriodo == "DIA")
+        stringResource(R.string.meta_diaria)
+    else
+        stringResource(R.string.meta_mensual)
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (metaCumplida)
+                MaterialTheme.colorScheme.primaryContainer
+            else
+                MaterialTheme.colorScheme.tertiaryContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.meta_progreso_titulo),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.meta_configurar),
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = CurrencyFormatter.format(metaActiva.valorObjetivo),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = if (metaCumplida)
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                else
+                    MaterialTheme.colorScheme.onTertiaryContainer
+            )
+
+            Text(
+                text = textoPeriodo,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            LinearProgressIndicator(
+                progress = progreso.coerceIn(0f, 1f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .testTag("barra_progreso_meta"),
+                color = colorBarra,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = if (metaCumplida)
+                    stringResource(R.string.meta_cumplida)
+                else
+                    stringResource(R.string.meta_progreso_porcentaje, porcentaje),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = if (metaCumplida)
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                else
+                    MaterialTheme.colorScheme.onTertiaryContainer,
+                modifier = Modifier.testTag("texto_progreso_meta")
             )
         }
     }

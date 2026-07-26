@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jhon.micontroldidi.data.repository.GastoRepository
+import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.domain.CalculadorRangoPeriodo
 import com.jhon.micontroldidi.domain.PeriodoDashboard
@@ -22,6 +23,7 @@ import java.time.Clock
 class DashboardViewModel(
     private val viajeRepository: ViajeRepository,
     private val gastoRepository: GastoRepository,
+    private val metaRepository: MetaRepository,
     private val clock: Clock
 ) : ViewModel() {
 
@@ -44,15 +46,23 @@ class DashboardViewModel(
                         ),
                         gastoRepository.obtenerTotalGastosPorRango(
                             rango.inicioInclusivo, rango.finExclusivo
-                        )
-                    ) { ingresos, gastos ->
+                        ),
+                        metaRepository.obtenerActiva()
+                    ) { ingresos, gastos, meta ->
+                        val gananciaNeta = ingresos - gastos
+                        val progreso = if (meta != null && meta.valorObjetivo > 0L) {
+                            gananciaNeta.toFloat() / meta.valorObjetivo.toFloat()
+                        } else null
+
                         DashboardUiState(
                             periodoSeleccionado = periodo,
                             ingresos = ingresos,
                             gastos = gastos,
-                            gananciaNeta = ingresos - gastos,
+                            gananciaNeta = gananciaNeta,
                             cargando = false,
-                            mensajeError = null
+                            mensajeError = null,
+                            metaActiva = meta,
+                            progresoMeta = progreso
                         )
                     }.catch { e ->
                         if (e is CancellationException) throw e
@@ -84,11 +94,12 @@ class DashboardViewModel(
     class Factory(
         private val viajeRepository: ViajeRepository,
         private val gastoRepository: GastoRepository,
+        private val metaRepository: MetaRepository,
         private val clock: Clock = Clock.systemDefaultZone()
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return DashboardViewModel(viajeRepository, gastoRepository, clock) as T
+            return DashboardViewModel(viajeRepository, gastoRepository, metaRepository, clock) as T
         }
     }
 }

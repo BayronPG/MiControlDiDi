@@ -99,7 +99,7 @@ fun AppNavGraph(
         factory = GastoViewModel.Factory(gastoRepository, categoriaGastoRepository)
     )
     val dashboardViewModel: DashboardViewModel = viewModel(
-        factory = DashboardViewModel.Factory(viajeRepository, gastoRepository)
+        factory = DashboardViewModel.Factory(viajeRepository, gastoRepository, metaRepository)
     )
     val metaViewModel: MetaViewModel = viewModel(
         factory = MetaViewModel.Factory(metaRepository)
@@ -150,6 +150,9 @@ fun AppNavGraph(
                     },
                     onNavegarARegistrarGasto = {
                         navController.navigate(Rutas.REGISTRAR_GASTO)
+                    },
+                    onNavegarAConfigurarMeta = {
+                        navController.navigate(Rutas.CONFIGURAR_META)
                     }
                 )
             }

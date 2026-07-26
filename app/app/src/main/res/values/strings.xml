@@ -65,4 +65,10 @@
     <string name="meta_valor_objetivo">Valor objetivo</string>
     <string name="eliminar_meta">Eliminar meta</string>
     <string name="volver">Volver</string>
+
+    <!-- Progreso de meta en Dashboard -->
+    <string name="meta_progreso_titulo">Progreso de meta</string>
+    <string name="meta_configurar">Configurar meta</string>
+    <string name="meta_cumplida">¡Meta cumplida!</string>
+    <string name="meta_progreso_porcentaje">%1$d%% completado</string>
 </resources>

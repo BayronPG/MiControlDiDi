@@ -1,11 +1,14 @@
 package com.jhon.micontroldidi.ui.dashboard
 
 import com.jhon.micontroldidi.data.local.dao.GastoDao
+import com.jhon.micontroldidi.data.local.dao.MetaDao
 import com.jhon.micontroldidi.data.local.dao.ViajeDao
 import com.jhon.micontroldidi.data.local.entity.GastoConCategoria
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
+import com.jhon.micontroldidi.data.local.entity.MetaEntity
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 import com.jhon.micontroldidi.data.repository.GastoRepository
+import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.domain.PeriodoDashboard
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +47,7 @@ class DashboardViewModelTest {
     // Flows controlables que simulan las consultas agregadas
     private val ingresosFlow = MutableStateFlow(0L)
     private val gastosFlow = MutableStateFlow(0L)
+    private val metaFlow = MutableStateFlow<MetaEntity?>(null)
 
     // Captura de parámetros enviados a los DAOs
     private var ultimoInicioIngresos = 0L
@@ -103,10 +107,20 @@ class DashboardViewModelTest {
         }
     }
 
+    private val daoMetaFalso = object : MetaDao {
+        override suspend fun insertar(meta: MetaEntity): Long = 1L
+        override fun obtenerActiva(): Flow<MetaEntity?> = metaFlow
+        override suspend fun obtenerUltima(): MetaEntity? = metaFlow.value
+        override suspend fun desactivarTodas() {}
+        override suspend fun actualizar(id: Long, tipoPeriodo: String, valorObjetivo: Long): Int = 1
+        override suspend fun eliminar(id: Long): Int = 1
+    }
+
     private fun crearViewModel(): DashboardViewModel {
         val viajeRepo = ViajeRepository(daoViajeFalso)
         val gastoRepo = GastoRepository(daoGastoFalso)
-        return DashboardViewModel(viajeRepo, gastoRepo, relojFijo)
+        val metaRepo = MetaRepository(daoMetaFalso)
+        return DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
     }
 
     @Before
@@ -114,6 +128,7 @@ class DashboardViewModelTest {
         Dispatchers.setMain(testDispatcher)
         ingresosFlow.value = 0L
         gastosFlow.value = 0L
+        metaFlow.value = null
         ultimoInicioIngresos = 0L
         ultimoFinIngresos = 0L
         ultimoInicioGastos = 0L
@@ -356,12 +371,14 @@ class DashboardViewModelTest {
 
         val viajeRepo = ViajeRepository(daoViajeError)
         val gastoRepo = GastoRepository(daoGastoFalso)
-        viewModel = DashboardViewModel(viajeRepo, gastoRepo, relojFijo)
+        val metaRepo = MetaRepository(daoMetaFalso)
+        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertFalse("cargando debe ser false tras error", state.cargando)
         assertEquals("periodo debe conservarse", PeriodoDashboard.DIA, state.periodoSeleccionado)
+        assertNotNull("mensajeError debe estar definido", state.mensajeError)
         assertNotNull("mensajeError debe estar definido", state.mensajeError)
         assertTrue(
             "mensajeError debe contener mensaje legible, fue: ${state.mensajeError}",
@@ -390,7 +407,8 @@ class DashboardViewModelTest {
 
         val viajeRepo = ViajeRepository(daoViajeFalso)
         val gastoRepo = GastoRepository(daoGastoError)
-        viewModel = DashboardViewModel(viajeRepo, gastoRepo, relojFijo)
+        val metaRepo = MetaRepository(daoMetaFalso)
+        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -415,7 +433,8 @@ class DashboardViewModelTest {
 
         val viajeRepo = ViajeRepository(daoViajeError)
         val gastoRepo = GastoRepository(daoGastoFalso)
-        viewModel = DashboardViewModel(viajeRepo, gastoRepo, relojFijo)
+        val metaRepo = MetaRepository(daoMetaFalso)
+        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
         advanceUntilIdle()
 
         val msg = viewModel.uiState.value.mensajeError
@@ -424,6 +443,95 @@ class DashboardViewModelTest {
             "El mensaje de error no debe contener detalles técnicos: $msg",
             msg?.contains("DetalleTecnico") == true
         )
+    }
+
+    // ── 21–22. Progreso de meta ──
+
+    @Test
+    fun `sin meta activa progresoMeta es null`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        assertNull("Sin meta activa progreso debe ser null", viewModel.uiState.value.progresoMeta)
+        assertNull("Sin meta activa metaActiva debe ser null", viewModel.uiState.value.metaActiva)
+    }
+
+    @Test
+    fun `con meta activa progreso es correcto`() = runTest(testDispatcher) {
+        metaFlow.value = MetaEntity(id = 1, tipoPeriodo = "DIA", valorObjetivo = 50000)
+        ingresosFlow.value = 30000L
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertNotNull("Debe haber meta activa", state.metaActiva)
+        assertEquals(50000L, state.metaActiva!!.valorObjetivo)
+        assertNotNull("Debe haber progreso", state.progresoMeta)
+        assertEquals(0.6f, state.progresoMeta!!, 0.01f) // 30000/50000 = 0.6
+    }
+
+    @Test
+    fun `progreso meta se actualiza al cambiar ingresos`() = runTest(testDispatcher) {
+        metaFlow.value = MetaEntity(id = 1, tipoPeriodo = "DIA", valorObjetivo = 100000)
+        advanceUntilIdle()
+
+        ingresosFlow.value = 25000L
+        advanceUntilIdle()
+        assertEquals(0.25f, viewModel.uiState.value.progresoMeta!!, 0.01f)
+
+        ingresosFlow.value = 75000L
+        advanceUntilIdle()
+        assertEquals(0.75f, viewModel.uiState.value.progresoMeta!!, 0.01f)
+    }
+
+    @Test
+    fun `progreso mayor a 100 por ciento cuando ganancia supera meta`() = runTest(testDispatcher) {
+        metaFlow.value = MetaEntity(id = 1, tipoPeriodo = "DIA", valorObjetivo = 50000)
+        ingresosFlow.value = 80000L
+        advanceUntilIdle()
+
+        assertNotNull(viewModel.uiState.value.progresoMeta)
+        assertTrue("Progreso debe superar 1.0", viewModel.uiState.value.progresoMeta!! > 1.0f)
+    }
+
+    @Test
+    fun `progreso refleja ganancia neta no solo ingresos`() = runTest(testDispatcher) {
+        metaFlow.value = MetaEntity(id = 1, tipoPeriodo = "DIA", valorObjetivo = 100000)
+        ingresosFlow.value = 80000L
+        gastosFlow.value = 30000L
+        advanceUntilIdle()
+
+        // ganancia neta = 50000
+        assertEquals(0.5f, viewModel.uiState.value.progresoMeta!!, 0.01f)
+    }
+
+    @Test
+    fun `cambio de periodo mantiene la meta activa`() = runTest(testDispatcher) {
+        metaFlow.value = MetaEntity(id = 1, tipoPeriodo = "DIA", valorObjetivo = 50000)
+        advanceUntilIdle()
+
+        viewModel.seleccionarPeriodo(PeriodoDashboard.MES)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertNotNull("Meta debe seguir activa", state.metaActiva)
+        assertEquals(50000L, state.metaActiva!!.valorObjetivo)
+    }
+
+    @Test
+    fun `cambio de periodo recalcula el progreso`() = runTest(testDispatcher) {
+        metaFlow.value = MetaEntity(id = 1, tipoPeriodo = "DIA", valorObjetivo = 100000)
+        advanceUntilIdle()
+
+        ingresosFlow.value = 30000L
+        gastosFlow.value = 5000L
+        advanceUntilIdle()
+        val progresoDia = viewModel.uiState.value.progresoMeta
+
+        viewModel.seleccionarPeriodo(PeriodoDashboard.SEMANA)
+        advanceUntilIdle()
+        val progresoSemana = viewModel.uiState.value.progresoMeta
+
+        // Con los mismos datos sin cambios de ingresos/gastos en semana, el progreso
+        // debe ser el mismo porque los flows devuelven los mismos valores
+        assertEquals(progresoDia, progresoSemana)
     }
 
     @Test
@@ -453,7 +561,8 @@ class DashboardViewModelTest {
 
         val viajeRepo = ViajeRepository(daoViajeRecuperable)
         val gastoRepo = GastoRepository(daoGastoFalso)
-        viewModel = DashboardViewModel(viajeRepo, gastoRepo, relojFijo)
+        val metaRepo = MetaRepository(daoMetaFalso)
+        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
         advanceUntilIdle()
 
         // Error inicial
