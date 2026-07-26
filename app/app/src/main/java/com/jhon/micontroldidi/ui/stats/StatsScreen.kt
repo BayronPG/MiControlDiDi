@@ -1,6 +1,7 @@
 package com.jhon.micontroldidi.ui.stats
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -41,7 +42,22 @@ fun StatsScreen(
     viewModel: StatsViewModel
 ) {
     val state by viewModel.uiState.collectAsState()
+    StatsScreen(
+        state = state,
+        onPeriodoSeleccionado = viewModel::seleccionarPeriodo
+    )
+}
 
+/**
+ * Overload que recibe el estado directamente, útil para pruebas Compose
+ * sin dependencia del ViewModel.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StatsScreen(
+    state: StatsUiState,
+    onPeriodoSeleccionado: (StatsPeriodo) -> Unit = {}
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -53,57 +69,101 @@ fun StatsScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-                .testTag("stats_contenido"),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Selector de periodo
-            PeriodoStatsSelector(
-                periodoActual = state.periodoSeleccionado,
-                onPeriodoSeleccionado = viewModel::seleccionarPeriodo
-            )
+            when {
+                state.mensajeError != null -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                            .testTag("stats_error"),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = state.mensajeError!!,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
 
-            if (state.cargando) {
-                Text(
-                    text = stringResource(R.string.cargando),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.testTag("stats_cargando")
-                )
-                return@Column
+                state.cargando -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cargando),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.testTag("stats_cargando")
+                        )
+                    }
+                }
+
+                state.ingresosActual == 0L && state.gastosActual == 0L
+                    && state.ingresosAnterior == 0L && state.gastosAnterior == 0L -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                            .testTag("stats_sin_datos"),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.stats_sin_datos),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                else -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                            .verticalScroll(rememberScrollState())
+                            .testTag("stats_contenido"),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        PeriodoStatsSelector(
+                            periodoActual = state.periodoSeleccionado,
+                            onPeriodoSeleccionado = onPeriodoSeleccionado
+                        )
+
+                        StatsResumenCard(
+                            titulo = stringResource(R.string.stats_periodo_actual),
+                            ingresos = state.ingresosActual,
+                            gastos = state.gastosActual,
+                            ganancia = state.gananciaNetaActual,
+                            viajes = state.cantidadViajesActual,
+                            testTag = "stats_card_actual"
+                        )
+
+                        StatsResumenCard(
+                            titulo = stringResource(R.string.stats_periodo_anterior),
+                            ingresos = state.ingresosAnterior,
+                            gastos = state.gastosAnterior,
+                            ganancia = state.gananciaNetaAnterior,
+                            viajes = 0,
+                            testTag = "stats_card_anterior"
+                        )
+
+                        StatsDiferenciaCard(
+                            diferenciaIngresos = state.diferenciaIngresos,
+                            diferenciaGastos = state.diferenciaGastos,
+                            diferenciaGanancia = state.diferenciaGanancia,
+                            testTag = "stats_card_diferencia"
+                        )
+                    }
+                }
             }
-
-            // Resumen periodo actual
-            StatsResumenCard(
-                titulo = stringResource(R.string.stats_periodo_actual),
-                ingresos = state.ingresosActual,
-                gastos = state.gastosActual,
-                ganancia = state.gananciaNetaActual,
-                viajes = state.cantidadViajesActual,
-                testTag = "stats_card_actual"
-            )
-
-            // Resumen periodo anterior
-            StatsResumenCard(
-                titulo = stringResource(R.string.stats_periodo_anterior),
-                ingresos = state.ingresosAnterior,
-                gastos = state.gastosAnterior,
-                ganancia = state.gananciaNetaAnterior,
-                viajes = 0,
-                testTag = "stats_card_anterior"
-            )
-
-            // Diferencia
-            StatsDiferenciaCard(
-                diferenciaIngresos = state.diferenciaIngresos,
-                diferenciaGastos = state.diferenciaGastos,
-                diferenciaGanancia = state.diferenciaGanancia,
-                testTag = "stats_card_diferencia"
-            )
         }
     }
 }

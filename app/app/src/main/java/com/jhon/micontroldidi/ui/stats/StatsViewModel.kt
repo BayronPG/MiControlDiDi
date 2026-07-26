@@ -3,15 +3,18 @@ package com.jhon.micontroldidi.ui.stats
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.jhon.micontroldidi.data.local.entity.ViajeEntity
+import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.domain.CalculadorRangoPeriodo
 import com.jhon.micontroldidi.domain.RangoPeriodo
+import com.jhon.micontroldidi.util.ResourceProvider
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -23,7 +26,8 @@ import java.time.temporal.ChronoUnit
 class StatsViewModel(
     private val viajeRepository: ViajeRepository,
     private val gastoRepository: GastoRepository,
-    private val clock: Clock
+    private val clock: Clock,
+    private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
     private val _periodo = MutableStateFlow(StatsPeriodo.HOY)
@@ -62,6 +66,16 @@ class StatsViewModel(
                             gananciaNetaAnterior = ganAnt
                         )
                     }
+                    .catch { e ->
+                        if (e is CancellationException) throw e
+                        emit(
+                            StatsUiState(
+                                periodoSeleccionado = periodo,
+                                cargando = false,
+                                mensajeError = resourceProvider.getString(R.string.stats_error)
+                            )
+                        )
+                    }
                 }
                 .collect { nuevoEstado ->
                     _uiState.value = nuevoEstado
@@ -88,11 +102,12 @@ class StatsViewModel(
     class Factory(
         private val viajeRepository: ViajeRepository,
         private val gastoRepository: GastoRepository,
+        private val resourceProvider: ResourceProvider,
         private val clock: Clock = Clock.systemDefaultZone()
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return StatsViewModel(viajeRepository, gastoRepository, clock) as T
+            return StatsViewModel(viajeRepository, gastoRepository, clock, resourceProvider) as T
         }
     }
 }

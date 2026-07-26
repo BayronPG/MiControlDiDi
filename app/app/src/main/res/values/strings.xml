@@ -104,4 +104,8 @@
     <string name="error_propina_numerica">La propina debe ser numérica</string>
     <string name="error_propina_negativa">La propina no puede ser negativa</string>
     <string name="error_categoria_obligatoria">Debes seleccionar una categoría</string>
+
+    <!-- Estadísticas -->
+    <string name="stats_sin_datos">No hay datos estadísticos disponibles</string>
+    <string name="stats_error">Error al cargar las estadísticas</string>
 </resources>

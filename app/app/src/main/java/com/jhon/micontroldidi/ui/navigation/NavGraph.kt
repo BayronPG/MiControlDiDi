@@ -135,7 +135,7 @@ fun AppNavGraph(
         factory = MetaViewModel.Factory(metaRepository, resourceProvider)
     )
     val statsViewModel: StatsViewModel = viewModel(
-        factory = StatsViewModel.Factory(viajeRepository, gastoRepository)
+        factory = StatsViewModel.Factory(viajeRepository, gastoRepository, resourceProvider)
     )
 
     val mostrarBarra = navController.mostrarBarraInferior()
