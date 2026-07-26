@@ -3,14 +3,17 @@ package com.jhon.micontroldidi.ui.meta
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.MetaRepository
+import com.jhon.micontroldidi.util.ResourceProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MetaViewModel(
-    private val metaRepository: MetaRepository
+    private val metaRepository: MetaRepository,
+    private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MetaUiState())
@@ -113,17 +116,20 @@ class MetaViewModel(
     }
 
     private fun validarValor(texto: String): String? {
-        if (texto.isBlank()) return "El valor es obligatorio"
+        if (texto.isBlank()) return resourceProvider.getString(R.string.error_valor_obligatorio)
         val valor = texto.toLongOrNull()
-        if (valor == null) return "El valor debe ser numérico"
-        if (valor <= 0) return "El valor debe ser mayor que cero"
+        if (valor == null) return resourceProvider.getString(R.string.error_valor_numerico)
+        if (valor <= 0) return resourceProvider.getString(R.string.error_valor_positivo)
         return null
     }
 
-    class Factory(private val metaRepository: MetaRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val metaRepository: MetaRepository,
+        private val resourceProvider: ResourceProvider
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return MetaViewModel(metaRepository) as T
+            return MetaViewModel(metaRepository, resourceProvider) as T
         }
     }
 }

@@ -3,11 +3,13 @@ package com.jhon.micontroldidi.ui.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.domain.CalculadorRangoPeriodo
 import com.jhon.micontroldidi.domain.PeriodoDashboard
+import com.jhon.micontroldidi.util.ResourceProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +26,8 @@ class DashboardViewModel(
     private val viajeRepository: ViajeRepository,
     private val gastoRepository: GastoRepository,
     private val metaRepository: MetaRepository,
-    private val clock: Clock
+    private val clock: Clock,
+    private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
     private val _periodo = MutableStateFlow(PeriodoDashboard.DIA)
@@ -70,7 +73,7 @@ class DashboardViewModel(
                             DashboardUiState(
                                 periodoSeleccionado = periodo,
                                 cargando = false,
-                                mensajeError = "Error al cargar los datos del dashboard"
+                                mensajeError = resourceProvider.getString(R.string.dashboard_error)
                             )
                         )
                     }
@@ -95,11 +98,12 @@ class DashboardViewModel(
         private val viajeRepository: ViajeRepository,
         private val gastoRepository: GastoRepository,
         private val metaRepository: MetaRepository,
+        private val resourceProvider: ResourceProvider,
         private val clock: Clock = Clock.systemDefaultZone()
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return DashboardViewModel(viajeRepository, gastoRepository, metaRepository, clock) as T
+            return DashboardViewModel(viajeRepository, gastoRepository, metaRepository, clock, resourceProvider) as T
         }
     }
 }

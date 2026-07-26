@@ -18,6 +18,7 @@ import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.navigation.AppNavGraph
 import com.jhon.micontroldidi.ui.settings.ThemePreferenceManager
 import com.jhon.micontroldidi.ui.theme.MiControlDiDiTheme
+import com.jhon.micontroldidi.util.ResourceProvider
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
         val metaRepository = MetaRepository(database.metaDao())
 
         val themeManager = ThemePreferenceManager(applicationContext)
+        val resourceProvider = ResourceProvider { resId -> resources.getString(resId) }
 
         setContent {
             MiControlDiDiTheme(
@@ -47,7 +49,8 @@ class MainActivity : ComponentActivity() {
                         gastoRepository = gastoRepository,
                         categoriaGastoRepository = categoriaGastoRepository,
                         metaRepository = metaRepository,
-                        themeManager = themeManager
+                        themeManager = themeManager,
+                        resourceProvider = resourceProvider
                     )
                 }
             }

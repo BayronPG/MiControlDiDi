@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
+import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
+import com.jhon.micontroldidi.util.ResourceProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +19,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 class GastoViewModel(
     private val gastoRepository: GastoRepository,
-    private val categoriaGastoRepository: CategoriaGastoRepository
+    private val categoriaGastoRepository: CategoriaGastoRepository,
+    private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
     /**
@@ -48,7 +51,7 @@ class GastoViewModel(
             ) { gastos, categorias ->
                 val filtro = _filtro.value
                 val mensajeVacio = if (filtro != null && gastos.isEmpty()) {
-                    "No hay gastos en el rango seleccionado"
+                    resourceProvider.getString(R.string.gastos_sin_resultados)
                 } else {
                     null
                 }
@@ -103,7 +106,7 @@ class GastoViewModel(
     }
 
     fun seleccionarCategoria(categoriaId: Long?) {
-        val error = if (categoriaId == null) "Debes seleccionar una categoría" else null
+        val error = if (categoriaId == null) resourceProvider.getString(R.string.error_categoria_obligatoria) else null
         _uiState.value = _uiState.value.copy(
             categoriaSeleccionadaId = categoriaId,
             errorCategoria = error
@@ -151,7 +154,7 @@ class GastoViewModel(
             } else {
                 _uiState.value = _uiState.value.copy(
                     modoFormulario = ModoFormulario.ERROR_EDICION,
-                    errorEdicion = "Gasto no encontrado"
+                    errorEdicion = resourceProvider.getString(R.string.gasto_no_encontrado)
                 )
             }
         }
@@ -166,7 +169,7 @@ class GastoViewModel(
 
         if (estado.guardando) return
 
-        val errorC = if (estado.categoriaSeleccionadaId == null) "Debes seleccionar una categoría" else null
+        val errorC = if (estado.categoriaSeleccionadaId == null) resourceProvider.getString(R.string.error_categoria_obligatoria) else null
         val errorV = validarValor(estado.valorText)
         if (errorC != null || errorV != null) {
             _uiState.value = estado.copy(errorCategoria = errorC, errorValor = errorV)
@@ -265,20 +268,21 @@ class GastoViewModel(
     }
 
     private fun validarValor(texto: String): String? {
-        if (texto.isBlank()) return "El valor es obligatorio"
+        if (texto.isBlank()) return resourceProvider.getString(R.string.error_valor_obligatorio)
         val valor = texto.toLongOrNull()
-        if (valor == null) return "El valor debe ser numérico"
-        if (valor <= 0) return "El valor debe ser mayor que cero"
+        if (valor == null) return resourceProvider.getString(R.string.error_valor_numerico)
+        if (valor <= 0) return resourceProvider.getString(R.string.error_valor_positivo)
         return null
     }
 
     class Factory(
         private val gastoRepository: GastoRepository,
-        private val categoriaGastoRepository: CategoriaGastoRepository
+        private val categoriaGastoRepository: CategoriaGastoRepository,
+        private val resourceProvider: ResourceProvider
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return GastoViewModel(gastoRepository, categoriaGastoRepository) as T
+            return GastoViewModel(gastoRepository, categoriaGastoRepository, resourceProvider) as T
         }
     }
 }

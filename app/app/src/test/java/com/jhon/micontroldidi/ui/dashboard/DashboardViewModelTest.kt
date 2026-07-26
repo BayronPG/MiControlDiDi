@@ -11,6 +11,7 @@ import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.domain.PeriodoDashboard
+import com.jhon.micontroldidi.util.FakeResourceProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -123,7 +124,7 @@ class DashboardViewModelTest {
         val viajeRepo = ViajeRepository(daoViajeFalso)
         val gastoRepo = GastoRepository(daoGastoFalso)
         val metaRepo = MetaRepository(daoMetaFalso)
-        return DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
+        return DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo, FakeResourceProvider())
     }
 
     @Before
@@ -378,7 +379,7 @@ class DashboardViewModelTest {
         val viajeRepo = ViajeRepository(daoViajeError)
         val gastoRepo = GastoRepository(daoGastoFalso)
         val metaRepo = MetaRepository(daoMetaFalso)
-        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
+        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo, FakeResourceProvider())
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -414,7 +415,7 @@ class DashboardViewModelTest {
         val viajeRepo = ViajeRepository(daoViajeFalso)
         val gastoRepo = GastoRepository(daoGastoError)
         val metaRepo = MetaRepository(daoMetaFalso)
-        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
+        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo, FakeResourceProvider())
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -443,7 +444,7 @@ class DashboardViewModelTest {
         val viajeRepo = ViajeRepository(daoViajeError)
         val gastoRepo = GastoRepository(daoGastoFalso)
         val metaRepo = MetaRepository(daoMetaFalso)
-        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
+        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo, FakeResourceProvider())
         advanceUntilIdle()
 
         val msg = viewModel.uiState.value.mensajeError
@@ -574,7 +575,7 @@ class DashboardViewModelTest {
         val viajeRepo = ViajeRepository(daoViajeRecuperable)
         val gastoRepo = GastoRepository(daoGastoFalso)
         val metaRepo = MetaRepository(daoMetaFalso)
-        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo)
+        viewModel = DashboardViewModel(viajeRepo, gastoRepo, metaRepo, relojFijo, FakeResourceProvider())
         advanceUntilIdle()
 
         // Error inicial

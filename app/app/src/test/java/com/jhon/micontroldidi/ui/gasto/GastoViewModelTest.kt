@@ -7,6 +7,7 @@ import com.jhon.micontroldidi.data.local.entity.GastoConCategoria
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
+import com.jhon.micontroldidi.util.FakeResourceProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -125,7 +126,7 @@ class GastoViewModelTest {
         )
         val repo = GastoRepository(gastoDaoFalso)
         val catRepo = CategoriaGastoRepository(categoriaDaoFalso)
-        viewModel = GastoViewModel(repo, catRepo)
+        viewModel = GastoViewModel(repo, catRepo, FakeResourceProvider())
     }
 
     @After

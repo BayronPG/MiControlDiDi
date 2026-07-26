@@ -224,7 +224,7 @@ class DashboardScreenTest {
     }
 
     @Test
-    fun fabsDeAccesoRapidoEstanVisibles() {
+    fun botonesDeAccesoRapidoEstanVisibles() {
         composeTestRule.setContent {
             DashboardScreen(
                 uiState = DashboardUiState(
@@ -237,12 +237,12 @@ class DashboardScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithTag("fab_registrar_viaje_dashboard").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("fab_registrar_gasto_dashboard").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("btn_dashboard_viaje").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("btn_dashboard_gasto").assertIsDisplayed()
     }
 
     @Test
-    fun fabViajeInvocaCallbackAlPulsar() {
+    fun botonViajeInvocaCallbackAlPulsar() {
         var pulsado = false
         composeTestRule.setContent {
             DashboardScreen(
@@ -257,12 +257,12 @@ class DashboardScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithTag("fab_registrar_viaje_dashboard").performClick()
+        composeTestRule.onNodeWithTag("btn_dashboard_viaje").performClick()
         Assert.assertTrue(pulsado)
     }
 
     @Test
-    fun fabGastoInvocaCallbackAlPulsar() {
+    fun botonGastoInvocaCallbackAlPulsar() {
         var pulsado = false
         composeTestRule.setContent {
             DashboardScreen(
@@ -277,7 +277,7 @@ class DashboardScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithTag("fab_registrar_gasto_dashboard").performClick()
+        composeTestRule.onNodeWithTag("btn_dashboard_gasto").performClick()
         Assert.assertTrue(pulsado)
     }
 }

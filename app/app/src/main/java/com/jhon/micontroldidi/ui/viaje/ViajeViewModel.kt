@@ -3,8 +3,10 @@ package com.jhon.micontroldidi.ui.viaje
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 import com.jhon.micontroldidi.data.repository.ViajeRepository
+import com.jhon.micontroldidi.util.ResourceProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +16,8 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ViajeViewModel(
-    private val viajeRepository: ViajeRepository
+    private val viajeRepository: ViajeRepository,
+    private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
     /**
@@ -46,7 +49,7 @@ class ViajeViewModel(
                 val filtro = _filtro.value
 
                 val mensajeVacio = if (filtro != null && lista.isEmpty()) {
-                    "No hay viajes en el rango seleccionado"
+                    resourceProvider.getString(R.string.viajes_sin_resultados)
                 } else {
                     null
                 }
@@ -241,25 +244,28 @@ class ViajeViewModel(
     }
 
     private fun validarValor(texto: String): String? {
-        if (texto.isBlank()) return "El valor es obligatorio"
+        if (texto.isBlank()) return resourceProvider.getString(R.string.error_valor_obligatorio)
         val valor = texto.toLongOrNull()
-        if (valor == null) return "El valor debe ser numérico"
-        if (valor <= 0) return "El valor debe ser mayor que cero"
+        if (valor == null) return resourceProvider.getString(R.string.error_valor_numerico)
+        if (valor <= 0) return resourceProvider.getString(R.string.error_valor_positivo)
         return null
     }
 
     private fun validarPropina(texto: String): String? {
         if (texto.isBlank()) return null
         val propina = texto.toLongOrNull()
-        if (propina == null) return "La propina debe ser numérica"
-        if (propina < 0) return "La propina no puede ser negativa"
+        if (propina == null) return resourceProvider.getString(R.string.error_propina_numerica)
+        if (propina < 0) return resourceProvider.getString(R.string.error_propina_negativa)
         return null
     }
 
-    class Factory(private val viajeRepository: ViajeRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val viajeRepository: ViajeRepository,
+        private val resourceProvider: ResourceProvider
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ViajeViewModel(viajeRepository) as T
+            return ViajeViewModel(viajeRepository, resourceProvider) as T
         }
     }
 }

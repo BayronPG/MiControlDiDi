@@ -43,6 +43,7 @@ import com.jhon.micontroldidi.ui.stats.StatsViewModel
 import com.jhon.micontroldidi.ui.viaje.ListaViajesScreen
 import com.jhon.micontroldidi.ui.viaje.RegistrarViajeScreen
 import com.jhon.micontroldidi.ui.viaje.ViajeViewModel
+import com.jhon.micontroldidi.util.ResourceProvider
 
 object Rutas {
     const val DASHBOARD = "dashboard"
@@ -118,19 +119,20 @@ fun AppNavGraph(
     gastoRepository: GastoRepository,
     categoriaGastoRepository: CategoriaGastoRepository,
     metaRepository: MetaRepository,
-    themeManager: ThemePreferenceManager
+    themeManager: ThemePreferenceManager,
+    resourceProvider: ResourceProvider
 ) {
     val viajeViewModel: ViajeViewModel = viewModel(
-        factory = ViajeViewModel.Factory(viajeRepository)
+        factory = ViajeViewModel.Factory(viajeRepository, resourceProvider)
     )
     val gastoViewModel: GastoViewModel = viewModel(
-        factory = GastoViewModel.Factory(gastoRepository, categoriaGastoRepository)
+        factory = GastoViewModel.Factory(gastoRepository, categoriaGastoRepository, resourceProvider)
     )
     val dashboardViewModel: DashboardViewModel = viewModel(
-        factory = DashboardViewModel.Factory(viajeRepository, gastoRepository, metaRepository)
+        factory = DashboardViewModel.Factory(viajeRepository, gastoRepository, metaRepository, resourceProvider)
     )
     val metaViewModel: MetaViewModel = viewModel(
-        factory = MetaViewModel.Factory(metaRepository)
+        factory = MetaViewModel.Factory(metaRepository, resourceProvider)
     )
     val statsViewModel: StatsViewModel = viewModel(
         factory = StatsViewModel.Factory(viajeRepository, gastoRepository)

@@ -3,6 +3,7 @@ package com.jhon.micontroldidi.ui.viaje
 import com.jhon.micontroldidi.data.local.dao.ViajeDao
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 import com.jhon.micontroldidi.data.repository.ViajeRepository
+import com.jhon.micontroldidi.util.FakeResourceProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,7 +79,7 @@ class ViajeViewModelTest {
         errorSimulado = null
         viajesFlow.value = emptyList()
         val repo = ViajeRepository(daoFalso)
-        viewModel = ViajeViewModel(repo)
+        viewModel = ViajeViewModel(repo, FakeResourceProvider())
     }
 
     @After

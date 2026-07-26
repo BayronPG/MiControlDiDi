@@ -103,7 +103,7 @@ fun RegistrarGastoScreen(
                 ) {
                     Spacer(Modifier.height(48.dp))
                     Text(
-                        text = state.errorEdicion ?: "Gasto no encontrado",
+                        text = state.errorEdicion ?: stringResource(R.string.gasto_no_encontrado),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.error
                     )

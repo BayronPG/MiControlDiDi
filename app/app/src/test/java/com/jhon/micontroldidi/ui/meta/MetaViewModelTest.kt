@@ -3,6 +3,7 @@ package com.jhon.micontroldidi.ui.meta
 import com.jhon.micontroldidi.data.local.dao.MetaDao
 import com.jhon.micontroldidi.data.local.entity.MetaEntity
 import com.jhon.micontroldidi.data.repository.MetaRepository
+import com.jhon.micontroldidi.util.FakeResourceProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -72,7 +73,7 @@ class MetaViewModelTest {
         errorSimulado = null
         metaFlow.value = null
         val repo = MetaRepository(daoFalso)
-        viewModel = MetaViewModel(repo)
+        viewModel = MetaViewModel(repo, FakeResourceProvider())
     }
 
     @After
