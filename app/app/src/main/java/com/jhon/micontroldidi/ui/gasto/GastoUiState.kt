@@ -28,7 +28,15 @@ data class GastoUiState(
     val errorEdicion: String? = null,
     val eliminando: Boolean = false,
     val errorEliminacion: String? = null,
-    val gastoIdAEliminar: Long? = null
+    val gastoIdAEliminar: Long? = null,
+
+    // Estado del filtro por fecha y categoría
+    val filtroActivo: Boolean = false,
+    val filtroInicio: Long? = null,
+    val filtroFin: Long? = null,
+    val filtroCategoriaId: Long? = null,
+    val mostrarSelectorFecha: Boolean = false,
+    val mensajeFiltroVacio: String? = null
 ) {
     val editando: Boolean
         get() = modoFormulario == ModoFormulario.EDICION

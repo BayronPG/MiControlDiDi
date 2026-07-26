@@ -27,6 +27,10 @@ class GastoRepositoryTest {
         override suspend fun eliminar(id: Long): Int = 1
         override suspend fun obtenerPorId(id: Long): GastoConCategoria? = null
         override fun obtenerTodos(): Flow<List<GastoConCategoria>> = flowOf(emptyList())
+        override fun obtenerPorRango(
+            inicioInclusivo: Long, finExclusivo: Long, categoriaId: Long?
+        ): Flow<List<GastoConCategoria>> = flowOf(emptyList())
+
         override fun obtenerTotalGastosPorRango(
             inicioInclusivo: Long, finExclusivo: Long
         ): Flow<Long> {
@@ -130,5 +134,21 @@ class GastoRepositoryTest {
         var resultado: Long? = null
         flujo.collect { resultado = it }
         assertEquals(7777L, resultado)
+    }
+
+    @Test
+    fun `obtenerPorRango delega al DAO y expone el Flow`() = runTest {
+        val flujo = repository.obtenerPorRango(1000L, 9999L)
+        var resultado: List<GastoConCategoria>? = null
+        flujo.collect { resultado = it }
+        assertEquals(0, resultado?.size)
+    }
+
+    @Test
+    fun `obtenerPorRango con categoriaId delega al DAO`() = runTest {
+        val flujo = repository.obtenerPorRango(0L, 5000L, categoriaId = 1L)
+        var resultado: List<GastoConCategoria>? = null
+        flujo.collect { resultado = it }
+        assertTrue(resultado != null)
     }
 }

@@ -90,6 +90,10 @@ class DashboardViewModelTest {
 
         override fun obtenerTodos(): Flow<List<GastoConCategoria>> = flowOf(emptyList())
 
+        override fun obtenerPorRango(
+            inicioInclusivo: Long, finExclusivo: Long, categoriaId: Long?
+        ): Flow<List<GastoConCategoria>> = flowOf(emptyList())
+
         override fun obtenerTotalGastosPorRango(
             inicioInclusivo: Long, finExclusivo: Long
         ): Flow<Long> {
@@ -376,6 +380,9 @@ class DashboardViewModelTest {
             override suspend fun eliminar(id: Long): Int = 0
             override suspend fun obtenerPorId(id: Long): GastoConCategoria? = null
             override fun obtenerTodos(): Flow<List<GastoConCategoria>> = flowOf(emptyList())
+            override fun obtenerPorRango(
+                inicioInclusivo: Long, finExclusivo: Long, categoriaId: Long?
+            ): Flow<List<GastoConCategoria>> = flowOf(emptyList())
             override fun obtenerTotalGastosPorRango(
                 inicioInclusivo: Long, finExclusivo: Long
             ): Flow<Long> = flow { throw RuntimeException("Error BD gastos") }

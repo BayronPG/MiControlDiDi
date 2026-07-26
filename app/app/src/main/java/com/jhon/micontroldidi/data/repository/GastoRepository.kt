@@ -12,6 +12,17 @@ class GastoRepository(
     fun obtenerTodos(): Flow<List<GastoConCategoria>> = gastoDao.obtenerTodos()
 
     /**
+     * Obtiene los gastos dentro del rango semiabierto [inicioInclusivo, finExclusivo)
+     * ordenados por fecha descendente. Si [categoriaId] no es nulo, filtra por categoría.
+     */
+    fun obtenerPorRango(
+        inicioInclusivo: Long,
+        finExclusivo: Long,
+        categoriaId: Long? = null
+    ): Flow<List<GastoConCategoria>> =
+        gastoDao.obtenerPorRango(inicioInclusivo, finExclusivo, categoriaId)
+
+    /**
      * Obtiene la suma de gastos en el rango semiabierto
      * [inicioInclusivo, finExclusivo) mediante consulta agregada en SQLite.
      */

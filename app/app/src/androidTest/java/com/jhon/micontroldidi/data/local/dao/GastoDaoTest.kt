@@ -324,4 +324,106 @@ class GastoDaoTest {
         assertTrue(g2 != null)
         assertEquals(7000L, g2?.valor)
     }
+
+    // ─── obtenerPorRango ───
+
+    @Test
+    fun obtenerPorRango_sinRegistros_retornaListaVacia() = runBlocking {
+        val gastos = gastoDao.obtenerPorRango(0L, 9999L).first()
+        assertTrue("Debe retornar lista vacía", gastos.isEmpty())
+    }
+
+    @Test
+    fun obtenerPorRango_registrosDentroDelRango_aparecen() = runBlocking {
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 10000))
+        gastoDao.insertar(GastoEntity(fechaHora = 2000L, categoriaId = categoriaId, valor = 20000))
+
+        val gastos = gastoDao.obtenerPorRango(0L, 9999L).first()
+        assertEquals(2, gastos.size)
+    }
+
+    @Test
+    fun obtenerPorRango_registrosFueraDelRango_excluidos() = runBlocking {
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 10000))
+        gastoDao.insertar(GastoEntity(fechaHora = 9999L, categoriaId = categoriaId, valor = 20000))
+
+        val gastos = gastoDao.obtenerPorRango(0L, 5000L).first()
+        assertEquals(1, gastos.size)
+        assertEquals(10000L, gastos[0].valor)
+    }
+
+    @Test
+    fun obtenerPorRango_inicioIncluido_incluyeGasto() = runBlocking {
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 5000))
+
+        val gastos = gastoDao.obtenerPorRango(1000L, 9999L).first()
+        assertEquals(1, gastos.size)
+    }
+
+    @Test
+    fun obtenerPorRango_finExclusivo_excluyeGasto() = runBlocking {
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 5000))
+
+        val gastos = gastoDao.obtenerPorRango(0L, 1000L).first()
+        assertTrue("Debe excluir cuando fechaHora == finExclusivo", gastos.isEmpty())
+    }
+
+    @Test
+    fun obtenerPorRango_ordenDescendente() = runBlocking {
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 10000))
+        gastoDao.insertar(GastoEntity(fechaHora = 3000L, categoriaId = categoriaId, valor = 30000))
+        gastoDao.insertar(GastoEntity(fechaHora = 2000L, categoriaId = categoriaId, valor = 20000))
+
+        val gastos = gastoDao.obtenerPorRango(0L, 9999L).first()
+        assertEquals(3, gastos.size)
+        assertTrue("fechaHora[0] >= fechaHora[1]", gastos[0].fechaHora >= gastos[1].fechaHora)
+        assertTrue("fechaHora[1] >= fechaHora[2]", gastos[1].fechaHora >= gastos[2].fechaHora)
+    }
+
+    @Test
+    fun obtenerPorRango_filtraPorCategoria_cuandoEspecificada() = runBlocking {
+        val cat2Id = categoriaDao.insertar(CategoriaGastoEntity(nombre = "Lavado"))
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 10000))
+        gastoDao.insertar(GastoEntity(fechaHora = 2000L, categoriaId = cat2Id, valor = 20000))
+
+        val gastos = gastoDao.obtenerPorRango(0L, 9999L, cat2Id).first()
+        assertEquals(1, gastos.size)
+        assertEquals(cat2Id, gastos[0].categoriaId)
+        assertEquals("Lavado", gastos[0].nombreCategoria)
+    }
+
+    @Test
+    fun obtenerPorRango_sinCategoria_muestraTodas() = runBlocking {
+        val cat2Id = categoriaDao.insertar(CategoriaGastoEntity(nombre = "Lavado"))
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 10000))
+        gastoDao.insertar(GastoEntity(fechaHora = 2000L, categoriaId = cat2Id, valor = 20000))
+
+        val gastos = gastoDao.obtenerPorRango(0L, 9999L).first()
+        assertEquals(2, gastos.size)
+    }
+
+    @Test
+    fun obtenerPorRango_seActualizaAlInsertar() = runBlocking {
+        val flujo = gastoDao.obtenerPorRango(0L, 9999L)
+
+        val primeraRecibida = CompletableDeferred<Unit>()
+        val emisiones = async {
+            withTimeout(2000) {
+                flujo
+                    .onEach { if (!primeraRecibida.isCompleted) primeraRecibida.complete(Unit) }
+                    .take(2)
+                    .toList()
+            }
+        }
+
+        primeraRecibida.await()
+
+        gastoDao.insertar(GastoEntity(fechaHora = 1000L, categoriaId = categoriaId, valor = 15000))
+
+        val resultado = emisiones.await()
+        assertEquals(2, resultado.size)
+        assertEquals(0, resultado[0].size)
+        assertEquals(1, resultado[1].size)
+        assertEquals(15000L, resultado[1][0].valor)
+    }
 }

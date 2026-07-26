@@ -6,16 +6,36 @@ import androidx.lifecycle.viewModelScope
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class GastoViewModel(
     private val gastoRepository: GastoRepository,
     private val categoriaGastoRepository: CategoriaGastoRepository
 ) : ViewModel() {
+
+    /**
+     * Filtro activo: null significa "sin filtro" (todos los gastos).
+     */
+    private val _filtro = MutableStateFlow<FiltroGasto?>(null)
+
+    /**
+     * Gastos observados reactivamente: todos o filtrados,
+     * según el valor actual de [_filtro].
+     */
+    private val _gastosFiltrados = _filtro.flatMapLatest { filtro ->
+        if (filtro != null) {
+            gastoRepository.obtenerPorRango(filtro.inicio, filtro.fin, filtro.categoriaId)
+        } else {
+            gastoRepository.obtenerTodos()
+        }
+    }
 
     private val _uiState = MutableStateFlow(GastoUiState())
     val uiState: StateFlow<GastoUiState> = _uiState.asStateFlow()
@@ -23,18 +43,63 @@ class GastoViewModel(
     init {
         viewModelScope.launch {
             combine(
-                gastoRepository.obtenerTodos(),
+                _gastosFiltrados,
                 categoriaGastoRepository.obtenerActivas()
             ) { gastos, categorias ->
+                val filtro = _filtro.value
+                val mensajeVacio = if (filtro != null && gastos.isEmpty()) {
+                    "No hay gastos en el rango seleccionado"
+                } else {
+                    null
+                }
                 _uiState.value.copy(
                     gastos = gastos,
                     categorias = categorias,
-                    cargando = false
+                    cargando = false,
+                    mensajeFiltroVacio = mensajeVacio
                 )
             }.collect { nuevoEstado ->
                 _uiState.value = nuevoEstado
             }
         }
+    }
+
+    /**
+     * Aplica un filtro por rango de fechas y categoría opcional.
+     */
+    fun aplicarFiltro(inicio: Long, fin: Long, categoriaId: Long? = null) {
+        _filtro.value = FiltroGasto(inicio, fin, categoriaId)
+        _uiState.value = _uiState.value.copy(
+            filtroActivo = true,
+            filtroInicio = inicio,
+            filtroFin = fin,
+            filtroCategoriaId = categoriaId,
+            mostrarSelectorFecha = false
+        )
+    }
+
+    /**
+     * Limpia el filtro y restaura la lista completa.
+     */
+    fun limpiarFiltro() {
+        _filtro.value = null
+        _uiState.value = _uiState.value.copy(
+            filtroActivo = false,
+            filtroInicio = null,
+            filtroFin = null,
+            filtroCategoriaId = null,
+            mostrarSelectorFecha = false,
+            mensajeFiltroVacio = null
+        )
+    }
+
+    /**
+     * Muestra u oculta el selector de fechas.
+     */
+    fun toggleSelectorFecha() {
+        _uiState.value = _uiState.value.copy(
+            mostrarSelectorFecha = !_uiState.value.mostrarSelectorFecha
+        )
     }
 
     fun seleccionarCategoria(categoriaId: Long?) {
@@ -217,3 +282,13 @@ class GastoViewModel(
         }
     }
 }
+
+/**
+ * Filtro por rango de fechas y categoría para la lista de gastos.
+ * categoriaId nulo significa "todas las categorías".
+ */
+data class FiltroGasto(
+    val inicio: Long,
+    val fin: Long,
+    val categoriaId: Long? = null
+)

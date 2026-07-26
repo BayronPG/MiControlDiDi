@@ -81,6 +81,16 @@ class GastoViewModelTest {
 
         override fun obtenerTodos(): Flow<List<GastoConCategoria>> = gastosFlow
 
+        override fun obtenerPorRango(
+            inicioInclusivo: Long, finExclusivo: Long, categoriaId: Long?
+        ): Flow<List<GastoConCategoria>> {
+            val filtrados = gastosFlow.value.filter {
+                it.fechaHora >= inicioInclusivo && it.fechaHora < finExclusivo &&
+                (categoriaId == null || it.categoriaId == categoriaId)
+            }
+            return kotlinx.coroutines.flow.flowOf(filtrados)
+        }
+
         override fun obtenerTotalGastosPorRango(
             inicioInclusivo: Long,
             finExclusivo: Long
@@ -565,5 +575,89 @@ class GastoViewModelTest {
         viewModel.guardarGasto()
         advanceUntilIdle()
         assertEquals(llamadasAntes, insertarLlamadas)
+    }
+
+    // ─── Filtro de gastos ───
+
+    @Test
+    fun `sinFiltro devuelve todos los gastos`() = runTest(testDispatcher) {
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 1000L, categoriaId = 1, valor = 10000))
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 2000L, categoriaId = 2, valor = 20000))
+        advanceUntilIdle()
+
+        assertEquals(2, viewModel.uiState.value.gastos.size)
+        assertFalse("No debe tener filtro activo", viewModel.uiState.value.filtroActivo)
+    }
+
+    @Test
+    fun `conFiltroFecha devuelve solo los del rango`() = runTest(testDispatcher) {
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 1000L, categoriaId = 1, valor = 10000))
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 5000L, categoriaId = 2, valor = 20000))
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 9999L, categoriaId = 1, valor = 30000))
+        advanceUntilIdle()
+
+        viewModel.aplicarFiltro(0L, 6000L)
+        advanceUntilIdle()
+
+        assertEquals(2, viewModel.uiState.value.gastos.size)
+        assertTrue("Filtro debe estar activo", viewModel.uiState.value.filtroActivo)
+    }
+
+    @Test
+    fun `limpiarFiltro restaura todos los gastos`() = runTest(testDispatcher) {
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 1000L, categoriaId = 1, valor = 10000))
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 5000L, categoriaId = 2, valor = 20000))
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 9999L, categoriaId = 1, valor = 30000))
+        advanceUntilIdle()
+
+        viewModel.aplicarFiltro(0L, 6000L)
+        advanceUntilIdle()
+        assertEquals(2, viewModel.uiState.value.gastos.size)
+
+        viewModel.limpiarFiltro()
+        advanceUntilIdle()
+
+        assertEquals(3, viewModel.uiState.value.gastos.size)
+        assertFalse("Filtro debe estar inactivo", viewModel.uiState.value.filtroActivo)
+    }
+
+    @Test
+    fun `filtroPorCategoria solo muestra esa categoria`() = runTest(testDispatcher) {
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 1000L, categoriaId = 1, valor = 10000))
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 2000L, categoriaId = 2, valor = 20000))
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 3000L, categoriaId = 1, valor = 30000))
+        advanceUntilIdle()
+
+        viewModel.aplicarFiltro(0L, 9999L, categoriaId = 1)
+        advanceUntilIdle()
+
+        assertEquals(2, viewModel.uiState.value.gastos.size)
+        assertTrue("Filtro debe estar activo", viewModel.uiState.value.filtroActivo)
+        assertEquals(1L, viewModel.uiState.value.filtroCategoriaId)
+    }
+
+    @Test
+    fun `filtroSinCategoria muestra todas`() = runTest(testDispatcher) {
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 1000L, categoriaId = 1, valor = 10000))
+        gastoDaoFalso.insertar(GastoEntity(fechaHora = 2000L, categoriaId = 2, valor = 20000))
+        advanceUntilIdle()
+
+        viewModel.aplicarFiltro(0L, 9999L)
+        advanceUntilIdle()
+
+        assertEquals(2, viewModel.uiState.value.gastos.size)
+        assertNull(viewModel.uiState.value.filtroCategoriaId)
+    }
+
+    @Test
+    fun `toggleSelectorFecha alterna visibilidad`() = runTest(testDispatcher) {
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.mostrarSelectorFecha)
+
+        viewModel.toggleSelectorFecha()
+        assertTrue(viewModel.uiState.value.mostrarSelectorFecha)
+
+        viewModel.toggleSelectorFecha()
+        assertFalse(viewModel.uiState.value.mostrarSelectorFecha)
     }
 }

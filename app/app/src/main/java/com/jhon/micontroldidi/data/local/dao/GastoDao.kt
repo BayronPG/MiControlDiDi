@@ -42,6 +42,21 @@ interface GastoDao {
     suspend fun obtenerPorId(id: Long): GastoConCategoria?
 
     @Query("""
+        SELECT g.id, g.fechaHora, g.categoriaId, c.nombre AS nombreCategoria,
+               g.valor, g.descripcion
+        FROM gastos g
+        INNER JOIN categorias_gasto c ON g.categoriaId = c.id
+        WHERE g.fechaHora >= :inicioInclusivo AND g.fechaHora < :finExclusivo
+          AND (:categoriaId IS NULL OR g.categoriaId = :categoriaId)
+        ORDER BY g.fechaHora DESC
+    """)
+    fun obtenerPorRango(
+        inicioInclusivo: Long,
+        finExclusivo: Long,
+        categoriaId: Long? = null
+    ): Flow<List<GastoConCategoria>>
+
+    @Query("""
         SELECT COALESCE(SUM(valor), 0)
         FROM gastos
         WHERE fechaHora >= :inicioInclusivo AND fechaHora < :finExclusivo

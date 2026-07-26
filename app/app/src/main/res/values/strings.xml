@@ -45,4 +45,14 @@
     <string name="viajes_aplicar_filtro">Aplicar filtro</string>
     <string name="viajes_limpiar_filtro">Limpiar filtro</string>
     <string name="viajes_sin_resultados">No hay viajes en el rango seleccionado</string>
+
+    <!-- Filtro de gastos por fecha y categoría -->
+    <string name="gastos_filtrar">Filtrar por fecha</string>
+    <string name="gastos_filtro_activo">Filtro activo</string>
+    <string name="gastos_fecha_inicio">Fecha inicial</string>
+    <string name="gastos_fecha_fin">Fecha final</string>
+    <string name="gastos_aplicar_filtro">Aplicar filtro</string>
+    <string name="gastos_limpiar_filtro">Limpiar filtro</string>
+    <string name="gastos_sin_resultados">No hay gastos en el rango seleccionado</string>
+    <string name="gastos_todas_categorias">Todas las categorías</string>
 </resources>
