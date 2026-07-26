@@ -34,10 +34,18 @@ import com.jhon.micontroldidi.util.DateFormatter
 @Composable
 fun RegistrarViajeScreen(
     viewModel: ViajeViewModel,
+    viajeId: Long? = null,
     onGuardadoExitoso: () -> Unit,
     onCancelar: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    // Cargar datos para edición si se proporciona un ID
+    LaunchedEffect(viajeId) {
+        if (viajeId != null) {
+            viewModel.cargarViajeParaEditar(viajeId)
+        }
+    }
 
     // Navegar atrás cuando el guardado sea exitoso
     LaunchedEffect(state.guardadoExitoso) {
@@ -70,11 +78,11 @@ fun RegistrarViajeScreen(
             // Fecha y hora (solo informativa)
             Text(
                 text = DateFormatter.format(System.currentTimeMillis()),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
 
             // Valor del viaje
             OutlinedTextField(
@@ -83,14 +91,16 @@ fun RegistrarViajeScreen(
                 label = { Text(stringResource(R.string.valor_viaje)) },
                 isError = state.errorValor != null,
                 supportingText = state.errorValor?.let { error ->
-                    { Text(text = error, color = MaterialTheme.colorScheme.error) }
+                    { Text(text = error) }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth().testTag("campo_valor_viaje")
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("campo_valor_viaje")
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(16.dp))
 
             // Propina
             OutlinedTextField(
@@ -99,27 +109,32 @@ fun RegistrarViajeScreen(
                 label = { Text(stringResource(R.string.propina_opcional)) },
                 isError = state.errorPropina != null,
                 supportingText = state.errorPropina?.let { error ->
-                    { Text(text = error, color = MaterialTheme.colorScheme.error) }
+                    { Text(text = error) }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth().testTag("campo_propina_viaje")
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("campo_propina_viaje")
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(16.dp))
 
             // Observación
             OutlinedTextField(
                 value = state.observacionText,
                 onValueChange = { viewModel.actualizarObservacion(it) },
                 label = { Text(stringResource(R.string.observacion_opcional)) },
-                minLines = 2,
-                maxLines = 4,
+                minLines = 3,
+                maxLines = 5,
                 singleLine = false,
-                modifier = Modifier.fillMaxWidth().testTag("campo_observacion_viaje")
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("campo_observacion_viaje")
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(28.dp))
 
             // Botón Guardar
             Button(

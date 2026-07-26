@@ -371,8 +371,11 @@ private fun GastoCard(
     onEliminar: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().testTag("item_gasto_${gasto.id}"),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("item_gasto_${gasto.id}"),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -380,12 +383,18 @@ private fun GastoCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = gasto.nombreCategoria,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Column {
+                    Text(
+                        text = gasto.nombreCategoria,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = DateFormatter.format(gasto.fechaHora),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Text(
                     text = CurrencyFormatter.format(gasto.valor),
                     style = MaterialTheme.typography.titleMedium,
@@ -394,24 +403,22 @@ private fun GastoCard(
                 )
             }
 
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = DateFormatter.format(gasto.fechaHora),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
             if (gasto.descripcion.isNotBlank()) {
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(6.dp))
                 Text(
                     text = gasto.descripcion,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
                 IconButton(
                     onClick = onEditar,
                     modifier = Modifier.testTag("boton_editar_gasto_${gasto.id}")
@@ -422,7 +429,6 @@ private fun GastoCard(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-                Spacer(Modifier.width(4.dp))
                 IconButton(
                     onClick = onEliminar,
                     modifier = Modifier.testTag("boton_eliminar_gasto_${gasto.id}")

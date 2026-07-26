@@ -16,6 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -55,9 +58,43 @@ import java.util.Locale
 @Composable
 fun ListaViajesScreen(
     viewModel: ViajeViewModel,
-    onNavegarARegistrar: () -> Unit
+    onNavegarARegistrar: () -> Unit,
+    onNavegarAEditar: (Long) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    if (state.viajeIdAEliminar != null) {
+        AlertDialog(
+            onDismissRequest = {
+                if (!state.eliminando) viewModel.ocultarDialogoEliminar()
+            },
+            title = { Text(stringResource(R.string.confirmar_eliminacion_viaje)) },
+            text = { Text(stringResource(R.string.eliminacion_no_reversible)) },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.confirmarEliminacion() },
+                    enabled = !state.eliminando,
+                    modifier = Modifier.testTag("boton_confirmar_eliminar_viaje")
+                ) {
+                    Text(
+                        if (state.eliminando) stringResource(R.string.guardando)
+                        else stringResource(R.string.si_eliminar),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.ocultarDialogoEliminar() },
+                    enabled = !state.eliminando,
+                    modifier = Modifier.testTag("boton_cancelar_eliminar_viaje")
+                ) {
+                    Text(stringResource(R.string.cancelar))
+                }
+            },
+            modifier = Modifier.testTag("dialogo_confirmar_eliminar_viaje")
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -196,7 +233,11 @@ fun ListaViajesScreen(
                             items = state.viajes,
                             key = { it.id }
                         ) { viaje ->
-                            ViajeCard(viaje = viaje)
+                            ViajeCard(
+                                viaje = viaje,
+                                onEditar = { onNavegarAEditar(viaje.id) },
+                                onEliminar = { viewModel.mostrarDialogoEliminar(viaje.id) }
+                            )
                         }
                     }
                 }
@@ -293,22 +334,38 @@ private fun finDelDia(zona: ZoneId, epochMs: Long = System.currentTimeMillis()):
 }
 
 @Composable
-private fun ViajeCard(viaje: ViajeEntity) {
+private fun ViajeCard(
+    viaje: ViajeEntity,
+    onEditar: () -> Unit = {},
+    onEliminar: () -> Unit = {}
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = DateFormatter.format(viaje.fechaHora),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column {
+                    Text(
+                        text = DateFormatter.format(viaje.fechaHora),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (viaje.observacion.isNotBlank()) {
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = viaje.observacion,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2
+                        )
+                    }
+                }
                 Text(
                     text = CurrencyFormatter.format(viaje.ingresoTotal),
                     style = MaterialTheme.typography.titleMedium,
@@ -317,32 +374,51 @@ private fun ViajeCard(viaje: ViajeEntity) {
                 )
             }
 
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "${stringResource(R.string.valor_viaje)}: ${CurrencyFormatter.format(viaje.valor)}",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = "${stringResource(R.string.valor_viaje)} ${CurrencyFormatter.format(viaje.valor)}",
+                    style = MaterialTheme.typography.bodySmall
                 )
                 if (viaje.propina > 0) {
                     Text(
-                        text = "${stringResource(R.string.propina)}: ${CurrencyFormatter.format(viaje.propina)}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "${stringResource(R.string.propina)} ${CurrencyFormatter.format(viaje.propina)}",
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary
                     )
                 }
             }
 
-            if (viaje.observacion.isNotBlank()) {
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = viaje.observacion,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                IconButton(
+                    onClick = onEditar,
+                    modifier = Modifier.testTag("boton_editar_viaje_${viaje.id}")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.editar),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(
+                    onClick = onEliminar,
+                    modifier = Modifier.testTag("boton_eliminar_viaje_${viaje.id}")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.eliminar),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }

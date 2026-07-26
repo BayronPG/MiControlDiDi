@@ -37,6 +37,38 @@ class ViajeRepository(private val viajeDao: ViajeDao) {
         }
     }
 
+    suspend fun obtenerPorId(id: Long): ViajeEntity? = viajeDao.obtenerPorId(id)
+
+    suspend fun actualizar(viaje: ViajeEntity): Result<Unit> {
+        return try {
+            validarViaje(viaje)
+            val filas = viajeDao.actualizar(
+                viaje.id, viaje.fechaHora, viaje.valor,
+                viaje.propina, viaje.observacion
+            )
+            if (filas == 0) {
+                Result.failure(NoSuchElementException("El viaje no existe"))
+            } else {
+                Result.success(Unit)
+            }
+        } catch (e: IllegalArgumentException) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun eliminar(id: Long): Result<Unit> {
+        return try {
+            val filas = viajeDao.eliminar(id)
+            if (filas == 0) {
+                Result.failure(NoSuchElementException("El viaje no existe"))
+            } else {
+                Result.success(Unit)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private fun validarViaje(viaje: ViajeEntity) {
         require(viaje.valor > 0) { "El valor del viaje debe ser mayor que cero" }
         require(viaje.propina >= 0) { "La propina no puede ser negativa" }

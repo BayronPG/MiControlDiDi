@@ -39,6 +39,9 @@ class ViajeRepositoryTest {
             ultimoFin = finExclusivo
             return flowOf(9999L)
         }
+        override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
+        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 1
+        override suspend fun eliminar(id: Long): Int = 1
     }
 
     @Before
@@ -110,6 +113,9 @@ class ViajeRepositoryTest {
                 inicioInclusivo: Long,
                 finExclusivo: Long
             ): Flow<Long> = flowOf(0L)
+            override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
+            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 1
+            override suspend fun eliminar(id: Long): Int = 1
         }
         val repo = ViajeRepository(dao)
         var listaRecibida: List<ViajeEntity>? = null

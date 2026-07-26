@@ -170,23 +170,28 @@ private fun FormularioGasto(
             label = { Text(stringResource(R.string.valor_gasto)) },
             isError = state.errorValor != null,
             supportingText = state.errorValor?.let { error ->
-                { Text(text = error, color = MaterialTheme.colorScheme.error) }
+                { Text(text = error) }
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth().testTag("campo_valor_gasto")
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("campo_valor_gasto")
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
 
         OutlinedTextField(
             value = state.descripcionText,
             onValueChange = { viewModel.actualizarDescripcion(it) },
             label = { Text(stringResource(R.string.descripcion_opcional)) },
-            minLines = 2,
-            maxLines = 4,
+            minLines = 3,
+            maxLines = 5,
             singleLine = false,
-            modifier = Modifier.fillMaxWidth().testTag("campo_descripcion_gasto")
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("campo_descripcion_gasto")
         )
 
         if (state.errorGuardado != null) {
@@ -198,7 +203,7 @@ private fun FormularioGasto(
             )
         }
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(28.dp))
 
         Button(
             onClick = {

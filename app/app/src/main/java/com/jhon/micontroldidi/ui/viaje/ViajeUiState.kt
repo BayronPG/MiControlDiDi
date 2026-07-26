@@ -23,7 +23,14 @@ data class ViajeUiState(
     val filtroInicio: Long? = null,
     val filtroFin: Long? = null,
     val mostrarSelectorFecha: Boolean = false,
-    val mensajeFiltroVacio: String? = null
+    val mensajeFiltroVacio: String? = null,
+
+    // Estado de edición y eliminación
+    val viajeEditandoId: Long? = null,
+    val editando: Boolean = false,
+    val fechaHoraOriginal: Long = 0L,
+    val eliminando: Boolean = false,
+    val viajeIdAEliminar: Long? = null
 ) {
     val hayErrores: Boolean
         get() = errorValor != null || errorPropina != null

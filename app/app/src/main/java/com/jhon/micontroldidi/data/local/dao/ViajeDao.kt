@@ -29,4 +29,16 @@ interface ViajeDao {
         WHERE fechaHora >= :inicioInclusivo AND fechaHora < :finExclusivo
     """)
     fun obtenerIngresosPorRango(inicioInclusivo: Long, finExclusivo: Long): Flow<Long>
+
+    @Query("SELECT * FROM viajes WHERE id = :id")
+    suspend fun obtenerPorId(id: Long): ViajeEntity?
+
+    @Query("""
+        UPDATE viajes SET fechaHora = :fechaHora, valor = :valor,
+        propina = :propina, observacion = :observacion WHERE id = :id
+    """)
+    suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int
+
+    @Query("DELETE FROM viajes WHERE id = :id")
+    suspend fun eliminar(id: Long): Int
 }

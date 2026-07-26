@@ -48,6 +48,7 @@ object Rutas {
     const val DASHBOARD = "dashboard"
     const val LISTA_VIAJES = "lista_viajes"
     const val REGISTRAR_VIAJE = "registrar_viaje"
+    const val REGISTRAR_VIAJE_CON_ID = "registrar_viaje/{viajeId}"
     const val LISTA_GASTOS = "lista_gastos"
     const val REGISTRAR_GASTO = "registrar_gasto"
     const val REGISTRAR_GASTO_CON_ID = "registrar_gasto/{gastoId}"
@@ -192,6 +193,9 @@ fun AppNavGraph(
                     viewModel = viajeViewModel,
                     onNavegarARegistrar = {
                         navController.navigate(Rutas.REGISTRAR_VIAJE)
+                    },
+                    onNavegarAEditar = { viajeId ->
+                        navController.navigate("registrar_viaje/$viajeId")
                     }
                 )
             }
@@ -199,6 +203,25 @@ fun AppNavGraph(
             composable(Rutas.REGISTRAR_VIAJE) {
                 RegistrarViajeScreen(
                     viewModel = viajeViewModel,
+                    onGuardadoExitoso = {
+                        navController.popBackStack()
+                    },
+                    onCancelar = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = Rutas.REGISTRAR_VIAJE_CON_ID,
+                arguments = listOf(
+                    navArgument("viajeId") { type = NavType.LongType; defaultValue = -1L }
+                )
+            ) { backStackEntry ->
+                val viajeId = backStackEntry.arguments?.getLong("viajeId") ?: -1L
+                RegistrarViajeScreen(
+                    viewModel = viajeViewModel,
+                    viajeId = if (viajeId > 0) viajeId else null,
                     onGuardadoExitoso = {
                         navController.popBackStack()
                     },

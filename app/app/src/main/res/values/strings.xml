@@ -45,6 +45,7 @@
     <string name="viajes_aplicar_filtro">Aplicar filtro</string>
     <string name="viajes_limpiar_filtro">Limpiar filtro</string>
     <string name="viajes_sin_resultados">No hay viajes en el rango seleccionado</string>
+    <string name="confirmar_eliminacion_viaje">¿Eliminar este viaje?</string>
 
     <!-- Filtro de gastos por fecha y categoría -->
     <string name="gastos_filtrar">Filtrar por fecha</string>

@@ -155,7 +155,8 @@ private fun StatsResumenCard(
         modifier = Modifier
             .fillMaxWidth()
             .testTag(testTag),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(

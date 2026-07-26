@@ -65,6 +65,9 @@ class ViajeViewModelTest {
                 .sumOf { it.valor + it.propina }
             return flowOf(suma)
         }
+        override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
+        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 1
+        override suspend fun eliminar(id: Long): Int = 1
     }
 
     @Before

@@ -78,6 +78,9 @@ class DashboardViewModelTest {
             ultimoFinIngresos = finExclusivo
             return ingresosFlow
         }
+        override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
+        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 0
+        override suspend fun eliminar(id: Long): Int = 0
     }
 
     private val daoGastoFalso = object : GastoDao {
@@ -367,6 +370,9 @@ class DashboardViewModelTest {
             override fun obtenerIngresosPorRango(
                 inicioInclusivo: Long, finExclusivo: Long
             ): Flow<Long> = flow { throw RuntimeException("Error BD ingresos") }
+            override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
+            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 0
+            override suspend fun eliminar(id: Long): Int = 0
         }
 
         val viajeRepo = ViajeRepository(daoViajeError)
@@ -429,6 +435,9 @@ class DashboardViewModelTest {
             override fun obtenerIngresosPorRango(
                 inicioInclusivo: Long, finExclusivo: Long
             ): Flow<Long> = flow { throw RuntimeException("DetalleTecnicoNOdebeSalir") }
+            override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
+            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 0
+            override suspend fun eliminar(id: Long): Int = 0
         }
 
         val viajeRepo = ViajeRepository(daoViajeError)
@@ -557,6 +566,9 @@ class DashboardViewModelTest {
                     ingresosFlow
                 }
             }
+            override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
+            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 0
+            override suspend fun eliminar(id: Long): Int = 0
         }
 
         val viajeRepo = ViajeRepository(daoViajeRecuperable)
