@@ -8,10 +8,12 @@ import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.util.ResourceProvider
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -59,11 +61,22 @@ class GastoViewModel(
                     gastos = gastos,
                     categorias = categorias,
                     cargando = false,
-                    mensajeFiltroVacio = mensajeVacio
+                    mensajeFiltroVacio = mensajeVacio,
+                    mensajeErrorCarga = null
                 )
-            }.collect { nuevoEstado ->
-                _uiState.value = nuevoEstado
             }
+                .catch { e ->
+                    if (e is CancellationException) throw e
+                    emit(
+                        _uiState.value.copy(
+                            cargando = false,
+                            mensajeErrorCarga = resourceProvider.getString(R.string.gastos_error_carga)
+                        )
+                    )
+                }
+                .collect { nuevoEstado ->
+                    _uiState.value = nuevoEstado
+                }
         }
     }
 

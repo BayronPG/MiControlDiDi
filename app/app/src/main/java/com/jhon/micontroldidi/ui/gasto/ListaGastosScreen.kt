@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.local.entity.GastoConCategoria
@@ -184,6 +185,23 @@ fun ListaGastosScreen(
 
             // Contenido principal
             when {
+                state.mensajeErrorCarga != null -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                            .testTag("estado_error_gastos"),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = state.mensajeErrorCarga!!,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
                 state.cargando -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -443,3 +461,131 @@ private fun GastoCard(
         }
     }
 }
+
+/**
+ * Overload de ListaGastosScreen que recibe el estado directamente,
+ * útil para pruebas Compose sin dependencia del ViewModel.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun ListaGastosScreen(
+    state: GastoUiState,
+    onNavegarARegistrar: () -> Unit = {}
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.gastos_titulo)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onNavegarARegistrar,
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.testTag("boton_registrar_gasto")
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.registrar_gasto)
+                )
+            }
+        }
+    ) { innerPadding ->
+        ListaGastosContent(
+            state = state,
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
+}
+
+@Composable
+private fun ListaGastosContent(
+    state: GastoUiState,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxSize()) {
+        when {
+            state.mensajeErrorCarga != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .testTag("estado_error_gastos"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = state.mensajeErrorCarga!!,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            state.cargando -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.cargando),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+            state.mensajeFiltroVacio != null -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("estado_vacio_filtro_gastos"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = state.mensajeFiltroVacio!!,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            state.gastos.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("estado_vacio_gastos"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.sin_gastos),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .testTag("lista_gastos"),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(items = state.gastos, key = { it.id }) { gasto ->
+                        GastoCard(
+                            gasto = gasto,
+                            onEditar = {},
+                            onEliminar = {}
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
