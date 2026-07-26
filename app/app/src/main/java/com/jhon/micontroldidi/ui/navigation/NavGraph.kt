@@ -25,12 +25,15 @@ import androidx.navigation.navArgument
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
+import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.dashboard.DashboardScreen
 import com.jhon.micontroldidi.ui.dashboard.DashboardViewModel
 import com.jhon.micontroldidi.ui.gasto.GastoViewModel
 import com.jhon.micontroldidi.ui.gasto.ListaGastosScreen
 import com.jhon.micontroldidi.ui.gasto.RegistrarGastoScreen
+import com.jhon.micontroldidi.ui.meta.ConfigurarMetaScreen
+import com.jhon.micontroldidi.ui.meta.MetaViewModel
 import com.jhon.micontroldidi.ui.viaje.ListaViajesScreen
 import com.jhon.micontroldidi.ui.viaje.RegistrarViajeScreen
 import com.jhon.micontroldidi.ui.viaje.ViajeViewModel
@@ -42,6 +45,7 @@ object Rutas {
     const val LISTA_GASTOS = "lista_gastos"
     const val REGISTRAR_GASTO = "registrar_gasto"
     const val REGISTRAR_GASTO_CON_ID = "registrar_gasto/{gastoId}"
+    const val CONFIGURAR_META = "configurar_meta"
 }
 
 private val rutasConBarraInferior = setOf(Rutas.DASHBOARD, Rutas.LISTA_VIAJES, Rutas.LISTA_GASTOS)
@@ -85,7 +89,8 @@ fun AppNavGraph(
     navController: NavHostController,
     viajeRepository: ViajeRepository,
     gastoRepository: GastoRepository,
-    categoriaGastoRepository: CategoriaGastoRepository
+    categoriaGastoRepository: CategoriaGastoRepository,
+    metaRepository: MetaRepository
 ) {
     val viajeViewModel: ViajeViewModel = viewModel(
         factory = ViajeViewModel.Factory(viajeRepository)
@@ -95,6 +100,9 @@ fun AppNavGraph(
     )
     val dashboardViewModel: DashboardViewModel = viewModel(
         factory = DashboardViewModel.Factory(viajeRepository, gastoRepository)
+    )
+    val metaViewModel: MetaViewModel = viewModel(
+        factory = MetaViewModel.Factory(metaRepository)
     )
 
     val mostrarBarra = navController.mostrarBarraInferior()
@@ -206,6 +214,15 @@ fun AppNavGraph(
                         navController.popBackStack()
                     },
                     onCancelar = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Rutas.CONFIGURAR_META) {
+                ConfigurarMetaScreen(
+                    viewModel = metaViewModel,
+                    onNavegarAtras = {
                         navController.popBackStack()
                     }
                 )

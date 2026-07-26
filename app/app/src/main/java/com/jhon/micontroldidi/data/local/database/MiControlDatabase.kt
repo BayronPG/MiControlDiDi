@@ -9,17 +9,20 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.jhon.micontroldidi.data.local.dao.CategoriaGastoDao
 import com.jhon.micontroldidi.data.local.dao.GastoDao
 import com.jhon.micontroldidi.data.local.dao.ViajeDao
+import com.jhon.micontroldidi.data.local.dao.MetaDao
 import com.jhon.micontroldidi.data.local.entity.CategoriaGastoEntity
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
+import com.jhon.micontroldidi.data.local.entity.MetaEntity
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 
 @Database(
     entities = [
         ViajeEntity::class,
         CategoriaGastoEntity::class,
-        GastoEntity::class
+        GastoEntity::class,
+        MetaEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class MiControlDatabase : RoomDatabase() {
@@ -27,6 +30,7 @@ abstract class MiControlDatabase : RoomDatabase() {
     abstract fun viajeDao(): ViajeDao
     abstract fun categoriaGastoDao(): CategoriaGastoDao
     abstract fun gastoDao(): GastoDao
+    abstract fun metaDao(): MetaDao
 
     companion object {
         @Volatile
@@ -76,7 +80,21 @@ abstract class MiControlDatabase : RoomDatabase() {
             }
         }
 
-        private val PREPOBLAR_CATEGORIAS = object : Callback() {
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """CREATE TABLE IF NOT EXISTS `metas` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `tipoPeriodo` TEXT NOT NULL,
+                    `valorObjetivo` INTEGER NOT NULL,
+                    `activa` INTEGER NOT NULL DEFAULT 1,
+                    `createdAt` INTEGER NOT NULL
+                )"""
+            )
+        }
+    }
+
+    private val PREPOBLAR_CATEGORIAS = object : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 // La entidad declara @ColumnInfo(collate = ColumnInfo.NOCASE)
@@ -106,7 +124,7 @@ abstract class MiControlDatabase : RoomDatabase() {
                     MiControlDatabase::class.java,
                     "micontrol_didi.db"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .addCallback(PREPOBLAR_CATEGORIAS)
                     .build()
                 INSTANCIA = instancia

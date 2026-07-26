@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.jhon.micontroldidi.data.local.database.MiControlDatabase
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
+import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.navigation.AppNavGraph
 import com.jhon.micontroldidi.ui.theme.MiControlDiDiTheme
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
         val viajeRepository = ViajeRepository(database.viajeDao())
         val categoriaGastoRepository = CategoriaGastoRepository(database.categoriaGastoDao())
         val gastoRepository = GastoRepository(database.gastoDao())
+        val metaRepository = MetaRepository(database.metaDao())
 
         setContent {
             MiControlDiDiTheme {
@@ -37,7 +39,8 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         viajeRepository = viajeRepository,
                         gastoRepository = gastoRepository,
-                        categoriaGastoRepository = categoriaGastoRepository
+                        categoriaGastoRepository = categoriaGastoRepository,
+                        metaRepository = metaRepository
                     )
                 }
             }

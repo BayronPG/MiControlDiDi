@@ -55,4 +55,14 @@
     <string name="gastos_limpiar_filtro">Limpiar filtro</string>
     <string name="gastos_sin_resultados">No hay gastos en el rango seleccionado</string>
     <string name="gastos_todas_categorias">Todas las categorías</string>
+
+    <!-- Meta de ganancia -->
+    <string name="meta_titulo">Meta de ganancia</string>
+    <string name="meta_actual">Meta actual</string>
+    <string name="meta_periodo">Periodo</string>
+    <string name="meta_diaria">Diaria</string>
+    <string name="meta_mensual">Mensual</string>
+    <string name="meta_valor_objetivo">Valor objetivo</string>
+    <string name="eliminar_meta">Eliminar meta</string>
+    <string name="volver">Volver</string>
 </resources>
