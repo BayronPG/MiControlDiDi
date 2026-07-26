@@ -339,7 +339,7 @@ private fun MetaProgressCard(
             Spacer(Modifier.height(12.dp))
 
             LinearProgressIndicator(
-                progress = progreso.coerceIn(0f, 1f),
+                progress = { progreso.coerceIn(0f, 1f) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
