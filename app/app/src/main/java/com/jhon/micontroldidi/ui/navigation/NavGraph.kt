@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -35,6 +36,8 @@ import com.jhon.micontroldidi.ui.gasto.ListaGastosScreen
 import com.jhon.micontroldidi.ui.gasto.RegistrarGastoScreen
 import com.jhon.micontroldidi.ui.meta.ConfigurarMetaScreen
 import com.jhon.micontroldidi.ui.meta.MetaViewModel
+import com.jhon.micontroldidi.ui.settings.SettingsScreen
+import com.jhon.micontroldidi.ui.settings.ThemePreferenceManager
 import com.jhon.micontroldidi.ui.stats.StatsScreen
 import com.jhon.micontroldidi.ui.stats.StatsViewModel
 import com.jhon.micontroldidi.ui.viaje.ListaViajesScreen
@@ -50,9 +53,16 @@ object Rutas {
     const val REGISTRAR_GASTO_CON_ID = "registrar_gasto/{gastoId}"
     const val CONFIGURAR_META = "configurar_meta"
     const val ESTADISTICAS = "estadisticas"
+    const val CONFIGURACION = "configuracion"
 }
 
-private val rutasConBarraInferior = setOf(Rutas.DASHBOARD, Rutas.LISTA_VIAJES, Rutas.LISTA_GASTOS, Rutas.ESTADISTICAS)
+private val rutasConBarraInferior = setOf(
+    Rutas.DASHBOARD,
+    Rutas.LISTA_VIAJES,
+    Rutas.LISTA_GASTOS,
+    Rutas.ESTADISTICAS,
+    Rutas.CONFIGURACION
+)
 
 data class BottomNavItem(
     val ruta: String,
@@ -85,6 +95,12 @@ private val bottomNavItems = listOf(
         labelRes = R.string.stats_titulo,
         icon = Icons.Default.DateRange,
         testTag = "navegacion_estadisticas"
+    ),
+    BottomNavItem(
+        ruta = Rutas.CONFIGURACION,
+        labelRes = R.string.settings_titulo,
+        icon = Icons.Default.Settings,
+        testTag = "navegacion_configuracion"
     )
 )
 
@@ -100,7 +116,8 @@ fun AppNavGraph(
     viajeRepository: ViajeRepository,
     gastoRepository: GastoRepository,
     categoriaGastoRepository: CategoriaGastoRepository,
-    metaRepository: MetaRepository
+    metaRepository: MetaRepository,
+    themeManager: ThemePreferenceManager
 ) {
     val viajeViewModel: ViajeViewModel = viewModel(
         factory = ViajeViewModel.Factory(viajeRepository)
@@ -241,6 +258,12 @@ fun AppNavGraph(
                     onNavegarAtras = {
                         navController.popBackStack()
                     }
+                )
+            }
+
+            composable(Rutas.CONFIGURACION) {
+                SettingsScreen(
+                    themeManager = themeManager
                 )
             }
 

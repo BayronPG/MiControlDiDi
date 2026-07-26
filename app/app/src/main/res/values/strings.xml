@@ -84,4 +84,14 @@
     <string name="stats_ganancia">Ganancia neta</string>
     <string name="stats_viajes">Viajes</string>
     <string name="stats_diferencia">Diferencia</string>
+
+    <!-- Configuración / Ajustes -->
+    <string name="settings_titulo">Configuración</string>
+    <string name="settings_tema">Tema de la aplicación</string>
+    <string name="settings_tema_sistema">Usar tema del sistema</string>
+    <string name="settings_tema_claro">Modo claro</string>
+    <string name="settings_tema_oscuro">Modo oscuro</string>
+    <string name="settings_acerca">Acerca de</string>
+    <string name="settings_version">Versión %1$s</string>
+    <string name="settings_app_name">%1$s</string>
 </resources>

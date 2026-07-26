@@ -9,6 +9,8 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.jhon.micontroldidi.ui.settings.ThemeMode
+import com.jhon.micontroldidi.ui.settings.ThemePreferenceManager
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryLight,
@@ -44,12 +46,26 @@ private val DarkColorScheme = darkColorScheme(
     onError = OnErrorDark
 )
 
+private fun shouldUseDarkTheme(
+    themeMode: ThemeMode,
+    systemIsDark: Boolean
+): Boolean = when (themeMode) {
+    ThemeMode.SYSTEM -> systemIsDark
+    ThemeMode.LIGHT -> false
+    ThemeMode.DARK -> true
+}
+
 @Composable
 fun MiControlDiDiTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeManager: ThemePreferenceManager,
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = shouldUseDarkTheme(
+        themeMode = themeManager.getCurrent(),
+        systemIsDark = isSystemInDarkTheme()
+    )
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.jhon.micontroldidi.data.local.database.MiControlDatabase
@@ -15,6 +16,7 @@ import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.navigation.AppNavGraph
+import com.jhon.micontroldidi.ui.settings.ThemePreferenceManager
 import com.jhon.micontroldidi.ui.theme.MiControlDiDiTheme
 
 class MainActivity : ComponentActivity() {
@@ -28,8 +30,12 @@ class MainActivity : ComponentActivity() {
         val gastoRepository = GastoRepository(database.gastoDao())
         val metaRepository = MetaRepository(database.metaDao())
 
+        val themeManager = ThemePreferenceManager(applicationContext)
+
         setContent {
-            MiControlDiDiTheme {
+            MiControlDiDiTheme(
+                themeManager = themeManager
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -40,7 +46,8 @@ class MainActivity : ComponentActivity() {
                         viajeRepository = viajeRepository,
                         gastoRepository = gastoRepository,
                         categoriaGastoRepository = categoriaGastoRepository,
-                        metaRepository = metaRepository
+                        metaRepository = metaRepository,
+                        themeManager = themeManager
                     )
                 }
             }
