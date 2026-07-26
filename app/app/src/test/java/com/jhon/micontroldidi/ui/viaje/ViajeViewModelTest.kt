@@ -5,15 +5,16 @@ import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.util.FakeResourceProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -29,7 +30,6 @@ class ViajeViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var viewModel: ViajeViewModel
 
-    /** Contador de llamadas a insertar */
     private var insertarLlamadas = 0
     private var ultimoViajeInsertado: ViajeEntity? = null
     private var errorSimulado: Exception? = null
@@ -46,12 +46,16 @@ class ViajeViewModelTest {
             return insertarLlamadas.toLong()
         }
 
-        override fun obtenerTodos(): Flow<List<ViajeEntity>> = viajesFlow
+        override fun obtenerTodos(): Flow<List<ViajeEntity>> {
+            if (errorSimulado != null) return flow { throw errorSimulado!! }
+            return viajesFlow
+        }
 
         override fun obtenerPorRango(
             inicioInclusivo: Long,
             finExclusivo: Long
         ): Flow<List<ViajeEntity>> {
+            if (errorSimulado != null) return flow { throw errorSimulado!! }
             val filtrados = viajesFlow.value
                 .filter { it.fechaHora >= inicioInclusivo && it.fechaHora < finExclusivo }
             return flowOf(filtrados)
@@ -66,6 +70,7 @@ class ViajeViewModelTest {
                 .sumOf { it.valor + it.propina }
             return flowOf(suma)
         }
+
         override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
         override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 1
         override suspend fun eliminar(id: Long): Int = 1
@@ -104,7 +109,7 @@ class ViajeViewModelTest {
     fun valorVacio_produceError() {
         viewModel.actualizarValor("")
         val error = viewModel.uiState.value.errorValor
-        assertNotNull("Valor vac�o debe producir error", error)
+        assertNotNull(error)
         assertTrue(error?.contains("obligatorio") == true)
     }
 
@@ -112,7 +117,7 @@ class ViajeViewModelTest {
     fun valorCero_produceError() {
         viewModel.actualizarValor("0")
         val error = viewModel.uiState.value.errorValor
-        assertNotNull("Valor cero debe producir error", error)
+        assertNotNull(error)
         assertTrue(error?.contains("mayor que cero") == true)
     }
 
@@ -120,7 +125,7 @@ class ViajeViewModelTest {
     fun valorNegativo_produceError() {
         viewModel.actualizarValor("-5000")
         val error = viewModel.uiState.value.errorValor
-        assertNotNull("Valor negativo debe producir error", error)
+        assertNotNull(error)
         assertTrue(error?.contains("mayor que cero") == true)
     }
 
@@ -128,7 +133,7 @@ class ViajeViewModelTest {
     fun propinaNegativa_produceError() {
         viewModel.actualizarPropina("-1000")
         val error = viewModel.uiState.value.errorPropina
-        assertNotNull("Propina negativa debe producir error", error)
+        assertNotNull(error)
         assertTrue(error?.contains("no puede ser negativa") == true)
     }
 
@@ -137,11 +142,9 @@ class ViajeViewModelTest {
         viewModel.actualizarValor("15000")
         viewModel.actualizarPropina("2000")
         advanceUntilIdle()
-
         viewModel.guardarViaje()
         advanceUntilIdle()
-
-        assertEquals("El repositorio debe ser llamado exactamente 1 vez", 1, insertarLlamadas)
+        assertEquals(1, insertarLlamadas)
         assertTrue(viewModel.uiState.value.guardadoExitoso)
     }
 
@@ -150,9 +153,8 @@ class ViajeViewModelTest {
         viewModel.actualizarValor("20000")
         viewModel.guardarViaje()
         advanceUntilIdle()
-
         val state = viewModel.uiState.value
-        assertTrue("guardadoExitoso debe ser true", state.guardadoExitoso)
+        assertTrue(state.guardadoExitoso)
         assertEquals("", state.valorText)
         assertEquals("", state.propinaText)
     }
@@ -160,20 +162,10 @@ class ViajeViewModelTest {
     @Test
     fun listaExpuesta_conservaOrdenDescendente() = runTest(testDispatcher) {
         advanceUntilIdle()
-        viewModel.actualizarValor("10000")
-        viewModel.guardarViaje()
-        advanceUntilIdle()
-
-        viewModel.actualizarValor("20000")
-        viewModel.guardarViaje()
-        advanceUntilIdle()
-
-        viewModel.actualizarValor("15000")
-        viewModel.guardarViaje()
-        advanceUntilIdle()
-
-        val viajes = viewModel.uiState.value.viajes
-        assertEquals(3, viajes.size)
+        viewModel.actualizarValor("10000"); viewModel.guardarViaje(); advanceUntilIdle()
+        viewModel.actualizarValor("20000"); viewModel.guardarViaje(); advanceUntilIdle()
+        viewModel.actualizarValor("15000"); viewModel.guardarViaje(); advanceUntilIdle()
+        assertEquals(3, viewModel.uiState.value.viajes.size)
     }
 
     @Test
@@ -182,24 +174,21 @@ class ViajeViewModelTest {
         viewModel.actualizarValor("12000")
         viewModel.guardarViaje()
         advanceUntilIdle()
-
         val state = viewModel.uiState.value
-        assertFalse("guardadoExitoso debe ser false tras error", state.guardadoExitoso)
-        assertFalse("no debe estar guardando tras el error", state.guardando)
-        assertNotNull("debe haber un mensaje de error", state.errorValor)
+        assertFalse(state.guardadoExitoso)
+        assertFalse(state.guardando)
+        assertNotNull(state.errorValor)
     }
 
     @Test
     fun pulsacionesRepetidas_noInsertanDuplicados() = runTest(testDispatcher) {
         viewModel.actualizarValor("10000")
         advanceUntilIdle()
-
         viewModel.guardarViaje()
         viewModel.guardarViaje()
         viewModel.guardarViaje()
         advanceUntilIdle()
-
-        assertEquals("Solo debe haber una inserci�n", 1, insertarLlamadas)
+        assertEquals(1, insertarLlamadas)
     }
 
     // --- Filtro por fecha ---
@@ -209,9 +198,8 @@ class ViajeViewModelTest {
         daoFalso.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000))
         daoFalso.insertar(ViajeEntity(fechaHora = 2000L, valor = 20000))
         advanceUntilIdle()
-
         assertEquals(2, viewModel.uiState.value.viajes.size)
-        assertFalse("No debe tener filtro activo", viewModel.uiState.value.filtroActivo)
+        assertFalse(viewModel.uiState.value.filtroActivo)
     }
 
     @Test
@@ -220,12 +208,10 @@ class ViajeViewModelTest {
         daoFalso.insertar(ViajeEntity(fechaHora = 5000L, valor = 20000))
         daoFalso.insertar(ViajeEntity(fechaHora = 9999L, valor = 30000))
         advanceUntilIdle()
-
         viewModel.aplicarFiltroFecha(0L, 6000L)
         advanceUntilIdle()
-
         assertEquals(2, viewModel.uiState.value.viajes.size)
-        assertTrue("Filtro debe estar activo", viewModel.uiState.value.filtroActivo)
+        assertTrue(viewModel.uiState.value.filtroActivo)
     }
 
     @Test
@@ -234,16 +220,13 @@ class ViajeViewModelTest {
         daoFalso.insertar(ViajeEntity(fechaHora = 5000L, valor = 20000))
         daoFalso.insertar(ViajeEntity(fechaHora = 9999L, valor = 30000))
         advanceUntilIdle()
-
         viewModel.aplicarFiltroFecha(0L, 6000L)
         advanceUntilIdle()
         assertEquals(2, viewModel.uiState.value.viajes.size)
-
         viewModel.limpiarFiltro()
         advanceUntilIdle()
-
         assertEquals(3, viewModel.uiState.value.viajes.size)
-        assertFalse("Filtro debe estar inactivo", viewModel.uiState.value.filtroActivo)
+        assertFalse(viewModel.uiState.value.filtroActivo)
     }
 
     @Test
@@ -252,13 +235,31 @@ class ViajeViewModelTest {
         daoFalso.insertar(ViajeEntity(fechaHora = 5000L, valor = 20000))
         daoFalso.insertar(ViajeEntity(fechaHora = 9999L, valor = 30000))
         advanceUntilIdle()
-
         viewModel.aplicarFiltroFecha(0L, 6000L)
         advanceUntilIdle()
         assertEquals(2, viewModel.uiState.value.viajes.size)
-
         viewModel.aplicarFiltroFecha(0L, 3000L)
         advanceUntilIdle()
         assertEquals(1, viewModel.uiState.value.viajes.size)
+    }
+
+    // --- Error handling ---
+
+    @Test
+    fun errorEnFlow_estableceMensajeError() = runTest(testDispatcher) {
+        errorSimulado = RuntimeException("Error")
+        val repo = ViajeRepository(daoFalso)
+        viewModel = ViajeViewModel(repo, FakeResourceProvider())
+        advanceUntilIdle()
+        assertNotNull("mensajeError esperado", viewModel.uiState.value.mensajeError)
+    }
+
+    @Test
+    fun errorEnFlow_dejaCargandoEnFalse() = runTest(testDispatcher) {
+        errorSimulado = RuntimeException("Error")
+        val repo = ViajeRepository(daoFalso)
+        viewModel = ViajeViewModel(repo, FakeResourceProvider())
+        advanceUntilIdle()
+        assertFalse("cargando debe ser false tras error", viewModel.uiState.value.cargando)
     }
 }

@@ -47,6 +47,9 @@
     <string name="viajes_sin_resultados">No hay viajes en el rango seleccionado</string>
     <string name="confirmar_eliminacion_viaje">¿Eliminar este viaje?</string>
 
+    <!-- Error de lista de viajes -->
+    <string name="viajes_error">Error al cargar los viajes</string>
+
     <!-- Filtro de gastos por fecha y categoría -->
     <string name="gastos_filtrar">Filtrar por fecha</string>
     <string name="gastos_filtro_activo">Filtro activo</string>
