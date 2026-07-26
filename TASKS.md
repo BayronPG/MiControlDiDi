@@ -337,17 +337,21 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 ---
 
 ## Fase 8 — Calidad y cierre del MVP (Sprint 4)
-| Tarea | Prioridad | Dependencias |
+
+### Progreso
+
+| Sub-tarea | Estado | Fecha |
 |---|---|---|
-| 8.1 Revisar estados vacío, error y carga en todas las pantallas | [H] | Fases 3–7 |
-| 8.2 Verificar mensajes de error descriptivos en formularios | [H] | Fases 3–7 |
-| 8.3 Probar todos los flujos principales sin conexión a Internet | [H] | Fases 3–7 |
-| 8.4 Ejecutar suite completa de pruebas unitarias | [H] | Fases 3–7 |
-| 8.5 Revisar accesibilidad: contraste, etiquetas, áreas táctiles | [M] | Fases 3–7 |
-| 8.6 Verificar que no hay strings hardcodeadas (todo en resources) | [H] | Fases 3–7 |
-| 8.7 Probar persistencia: cerrar y abrir app, datos intactos | [H] | Fases 3–7 |
-| 8.8 Corregir errores críticos encontrados | [H] | 8.1–8.7 |
-| 8.9 Preparar APK de demostración para usuario piloto | [M] | 8.8 |
+| 8.0 — Corregir 3 tests Compose obsoletos por cambio a botones en dashboard | ✅ | 26-jul-2026 |
+| 8.1 — Revisar estados vacío, error y carga en todas las pantallas | ⏳ | — |
+| 8.2 — Verificar mensajes de error descriptivos en formularios | ⏳ | — |
+| 8.3 — Probar flujos sin conexión a Internet | ⏳ | — |
+| 8.4 — Persistencia automatizada (BD Room temporal) | ⏳ | — |
+| 8.5 — Revisar accesibilidad (contraste, etiquetas, áreas táctiles) | ⏳ | — |
+| 8.6 — Verificar strings hardcodeadas | ✅ | 26-jul-2026 |
+| 8.7 — Probar persistencia cerrar/abrir | ⏳ | — |
+| 8.8 — Corregir errores críticos encontrados | ⏳ | — |
+| 8.9 — Preparar APK de demostración | ⏳ | — |
 
 ### Criterios de aceptación — Fase 8
 - No hay defectos críticos ni bloqueantes en los flujos principales del MVP.

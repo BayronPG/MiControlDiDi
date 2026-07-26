@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 25-jul-2026 — Tarea 6.6+6.7 completada en main.
+> Actualizado: 26-jul-2026 — Fase 8.6 completada (strings hardcodeadas trasladadas a resources).
 
 ---
 
@@ -205,6 +205,53 @@ class Factory(
 > - Instrumentadas vigentes desde la validación del Incremento 1B: **65/65** (`connectedDebugAndroidTest` en HONOR ALT-LX3).
 > - 3 nuevas pruebas Compose para los FABs de acceso rápido. Pendiente `connectedDebugAndroidTest`.
 
+## Fase 8 — Calidad y cierre del MVP (en progreso)
+
+### 8.0 — Corrección de pruebas obsoletas por cambio de UI (26-jul-2026)
+
+El commit `7fe7648` reemplazó los FABs del dashboard por botones con texto claro, pero **3 pruebas Compose** (`fabGastoInvocaCallbackAlPulsar`, `fabViajeInvocaCallbackAlPulsar`, `fabsDeAccesoRapidoEstanVisibles`) seguían referenciando los test tags antiguos (`fab_registrar_gasto_dashboard`, `fab_registrar_viaje_dashboard`).
+
+#### Cambio realizado
+- `DashboardScreenTest.kt`: test tags actualizados a `btn_dashboard_viaje` y `btn_dashboard_gasto`.
+- Nombres de pruebas renombrados: `fabsDeAccesoRapidoEstanVisibles` → `botonesDeAccesoRapidoEstanVisibles`, `fabViajeInvocaCallbackAlPulsar` → `botonViajeInvocaCallbackAlPulsar`, `fabGastoInvocaCallbackAlPulsar` → `botonGastoInvocaCallbackAlPulsar`.
+
+#### Validación
+| Suite | Resultado |
+|-------|:---------:|
+| `testDebugUnitTest` | BUILD SUCCESSFUL (~150 tests) |
+| `connectedDebugAndroidTest` en ALT‑LX3 | **98/98 tests, 0 fallos** |
+
+---
+
+### 8.6 — Strings hardcodeadas trasladadas a resources (26-jul-2026)
+
+Se identificaron y corrigieron 7 cadenas de error/validación hardcodeadas en los ViewModels:
+
+| String | ViewModels afectados | Recurso añadido |
+|---|---|---|
+| "El valor es obligatorio" | Viaje, Gasto, Meta | `error_valor_obligatorio` |
+| "El valor debe ser numérico" | Viaje, Gasto, Meta | `error_valor_numerico` |
+| "El valor debe ser mayor que cero" | Viaje, Gasto, Meta | `error_valor_positivo` |
+| "La propina debe ser numérica" | Viaje | `error_propina_numerica` |
+| "La propina no puede ser negativa" | Viaje | `error_propina_negativa` |
+| "Debes seleccionar una categoría" | Gasto | `error_categoria_obligatoria` |
+| "Gasto no encontrado" (fallback) | RegistrarGastoScreen | Recurso existente `gasto_no_encontrado` |
+
+#### Cambios estructurales
+- Creado `ResourceProvider` (fun interface) para desacoplar ViewModels de Android.
+- Creado `FakeResourceProvider` para tests unitarios.
+- ViewModels actualizados: `ViajeViewModel`, `GastoViewModel`, `MetaViewModel`, `DashboardViewModel`.
+- Factorys y `NavGraph` actualizados para inyectar el provider.
+- `MainActivity` crea el provider vía lambda.
+
+#### Validación
+| Suite | Resultado |
+|-------|:---------:|
+| `testDebugUnitTest` | BUILD SUCCESSFUL (~150 tests) |
+| `connectedDebugAndroidTest` en ALT‑LX3 | **98/98 tests, 0 fallos** |
+
+---
+
 ### Estado funcional de gastos
 
 | Funcionalidad | Implementado | Compilado | Pruebas unitarias | Pruebas DAO | Pruebas Compose | Verificación manual |
@@ -281,8 +328,7 @@ class Factory(
 - [ ] Verificación manual en HONOR ALT-LX3.
 
 ### Otras fases
-- [ ] Editar y eliminar viajes (UI pendiente; backend listo).
+- [x] Editar y eliminar viajes (completado).
 - [x] **Fase 6: Filtros, metas, dashboard y estadísticas — Completada ✅**
-- [ ] Fase 7: Preferencias (tema claro/oscuro).
-- [ ] Fase 8: Calidad y cierre del MVP.
-- [ ] Fase 8: Calidad y cierre del MVP.
+- [x] Fase 7: Preferencias (tema claro/oscuro) — Completada ✅
+- [ ] Fase 8: Calidad y cierre del MVP (en progreso).
