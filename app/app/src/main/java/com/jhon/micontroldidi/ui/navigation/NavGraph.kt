@@ -286,7 +286,10 @@ fun AppNavGraph(
 
             composable(Rutas.CONFIGURACION) {
                 SettingsScreen(
-                    themeManager = themeManager
+                    themeManager = themeManager,
+                    onNavegarAConfigurarMeta = {
+                        navController.navigate(Rutas.CONFIGURAR_META)
+                    }
                 )
             }
 

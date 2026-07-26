@@ -8,6 +8,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import com.jhon.micontroldidi.ui.settings.ThemeMode
 import com.jhon.micontroldidi.ui.settings.ThemePreferenceManager
@@ -61,8 +63,9 @@ fun MiControlDiDiTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val themeMode by themeManager.themeModeFlow.collectAsState(initial = themeManager.getCurrent())
     val darkTheme = shouldUseDarkTheme(
-        themeMode = themeManager.getCurrent(),
+        themeMode = themeMode,
         systemIsDark = isSystemInDarkTheme()
     )
 

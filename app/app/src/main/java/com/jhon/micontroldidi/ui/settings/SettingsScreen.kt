@@ -12,6 +12,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -29,7 +30,8 @@ import com.jhon.micontroldidi.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    themeManager: ThemePreferenceManager
+    themeManager: ThemePreferenceManager,
+    onNavegarAConfigurarMeta: () -> Unit = {}
 ) {
     val themeMode by themeManager.themeModeFlow.collectAsState(initial = ThemeMode.SYSTEM)
 
@@ -81,6 +83,23 @@ fun SettingsScreen(
                         testTag = "tema_oscuro"
                     )
                 }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                text = stringResource(R.string.meta_titulo),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            Button(
+                onClick = onNavegarAConfigurarMeta,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("boton_ir_a_meta")
+            ) {
+                Text(stringResource(R.string.meta_configurar))
             }
 
             Spacer(Modifier.height(24.dp))
