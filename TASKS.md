@@ -346,7 +346,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | 8.1 — Revisar estados vacío, error y carga en todas las pantallas | ✅ (8.1B viajes, 8.1C gastos; stats/dashboard/meta ya cubiertos) | 26-jul-2026 |
 | 8.2 — Verificar mensajes de error descriptivos en formularios | ✅ | 01-ago-2026 |
 | 8.3 — Probar flujos sin conexión a Internet | ✅ (sin hallazgos: app 100% local, sin INTERNET ni libs de red) | 01-ago-2026 |
-| 8.4 — Persistencia automatizada (BD Room temporal) | ⏳ (requiere dispositivo ALT-LX3) | — |
+| 8.4 — Persistencia automatizada (BD Room temporal) | ✅ | 01-ago-2026 |
 | 8.5 — Revisar accesibilidad (contraste, etiquetas, áreas táctiles) | ✅ (2 correcciones: icono meta navegable, filas de tema seleccionables) | 01-ago-2026 |
 | 8.6 — Verificar strings hardcodeadas | ✅ | 26-jul-2026 |
 | 8.7 — Probar persistencia cerrar/abrir | ⏳ (verificación manual en dispositivo) | — |
@@ -370,7 +370,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | Enum `PeriodoMeta` | Type-safety para `"DIA"`/`"MES"` en meta; sin cambios de BD | ✅ Commit `f989047` |
 | Índices `fechaHora` | `@Index` en `ViajeEntity`/`GastoEntity` + `MIGRATION_3_4` (BD v3→v4) | ✅ Commit `0af17a6` |
 
-> Instrumentadas validadas en ALT-LX3: **124/124** (01-ago-2026).
+> Instrumentadas validadas en ALT-LX3: **128/128** (01-ago-2026), incluye PersistenciaTest (8.4).
 
 ## Resumen de sprints
 

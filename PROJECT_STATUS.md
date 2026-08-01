@@ -196,8 +196,8 @@ class Factory(
 | Tipo | Cantidad | Estado |
 |------|---:|---:|
 | Unitarias | **179** | 179/179 (0 fallos) |
-| Instrumentadas | **124** | 124/124 en ALT-LX3 (0 fallos) — incluye migración v3→v4 |
-| **Total** | **303** | 0 fallos |
+| Instrumentadas | **128** | 128/128 en ALT-LX3 (0 fallos) — incluye PersistenciaTest (8.4) y migración v3→v4 |
+| **Total** | **307** | 0 fallos |
 
 > **Nota (25-jul-2026):**
 >
@@ -249,6 +249,25 @@ Se identificaron y corrigieron 7 cadenas de error/validación hardcodeadas en lo
 |-------|:---------:|
 | `testDebugUnitTest` | BUILD SUCCESSFUL (~150 tests) |
 | `connectedDebugAndroidTest` en ALT‑LX3 | **98/98 tests, 0 fallos** |
+
+---
+
+### 8.4 — Persistencia automatizada con BD Room temporal (01-ago-2026)
+
+Se creó `PersistenciaTest` (instrumentado): a diferencia de los DAO tests (que usan `inMemoryDatabaseBuilder` y no prueban persistencia real), este test usa una **BD temporal en archivo** y verifica el ciclo cierre → reapertura con una instancia NUEVA de Room.
+
+| Test | Verifica |
+|---|---|
+| `cerrarYReabrir_conservaViaje` | Viaje sobrevive al reabrir (valores, propina, observación, ingresoTotal) |
+| `cerrarYReabrir_conservaGastoYCategorias` | Gasto + nombre de categoría sobreviven al reabrir |
+| `cerrarYReabrir_conservaMetaActiva` | Meta activa sobrevive al reabrir |
+| `cerrarYReabrir_conservaTodoElConjuntoDeDatos` | Viaje + gasto + meta + consulta agregada de ingresos tras reabrir |
+
+- La BD temporal se limpia en `tearDown` (`deleteDatabase`).
+- Se usan las migraciones 1→2→3→4 y el callback de prepoblado de categorías (misma configuración que la app real).
+- Corrección en el camino: el test de gastos asumía que la primera categoría era "Gasolina", pero las categorías prepobladas no tienen orden garantizado; ahora compara contra el nombre de la categoría realmente usada.
+
+**Validación:** `connectedDebugAndroidTest` en ALT-LX3 — clase PersistenciaTest 4/4; suite completa **128/128, 0 fallos**.
 
 ---
 
