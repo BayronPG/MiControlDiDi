@@ -252,6 +252,35 @@ Se identificaron y corrigieron 7 cadenas de error/validación hardcodeadas en lo
 
 ---
 
+### Backend — Enum PeriodoMeta (01-ago-2026)
+
+Refactor de type-safety: se eliminaron las strings crudas `"DIA"`/`"MES"` del dominio de meta.
+
+- Nuevo `domain/PeriodoMeta` (enum con `DIA`, `MES` y `fromNombre()`).
+- `MetaEntity` conserva la columna `tipoPeriodo` TEXT (contrato de BD sin cambios) y expone la propiedad tipada `periodo` (degrada a `DIA` ante datos desconocidos).
+- `MetaRepository.guardar/actualizar` ahora reciben `PeriodoMeta` y mapean a `nombre` al persistir.
+- `MetaUiState.tipoPeriodo`, `MetaViewModel.seleccionarPeriodo`, `ConfigurarMetaScreen` y `DashboardScreen` usan el enum.
+- Se eliminó la validación `require(periodo == "DIA" || "MES")` del repositorio (ahora garantizada por el tipo).
+- Pruebas: 179 unitarias (2 nuevas: propiedad `periodo` de la entidad; test `fromNombre`).
+
+**Validación:** `assembleDebug` BUILD SUCCESSFUL · `testDebugUnitTest` 179/179. Commit `f989047`.
+
+---
+
+### Backend — Índices de fechaHora + migración v3→v4 (01-ago-2026)
+
+Optimización de consultas por rango de fechas (dashboard y filtros).
+
+- `ViajeEntity` y `GastoEntity` declaran `@Index(value = ["fechaHora"])`.
+- `MiControlDatabase` sube a versión 4 con `MIGRATION_3_4` que crea `index_viajes_fechaHora` e `index_gastos_fechaHora` (nombres exactos que Room genera, para que el identity hash coincida).
+- `MigracionTest`: los tests v1→v2 y v2→v3 ahora incluyen `MIGRATION_3_4`; nuevo test v3→v4 que verifica datos conservados (viajes, gastos, meta) y existencia de ambos índices.
+
+**Validación:** `assembleDebug` BUILD SUCCESSFUL · `testDebugUnitTest` 179/179 · `compileDebugAndroidTestKotlin` OK (el test de migración compila; pendiente ejecución en ALT-LX3). Commit `0af17a6`.
+
+**Corrección respecto al plan inicial:** la BD ya estaba en versión 3 (la v2→v3 creó `metas`), así que los índices implicaron v3→v4, no v2→v3.
+
+---
+
 ### 8.5 — Revisión de accesibilidad (01-ago-2026)
 
 Auditoría de contraste, etiquetas y áreas táctiles en todas las pantallas.
@@ -401,6 +430,11 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 |---|---|
 | `exportSchema` | `false` — Room 2.8.4 incompatible con Kotlin 2.1.20 |
 | Persistencia en HONOR | Verificada manualmente (no automatizada) |
+
+## Mejoras backend (01-ago-2026)
+- ✅ Enum `PeriodoMeta` (type-safety en meta, sin cambios de BD) — commit `f989047`.
+- ✅ Índices `fechaHora` en viajes/gastos + `MIGRATION_3_4` — commit `0af17a6`.
+- Pendiente: ejecutar instrumentadas (incl. `migracionTresACuatro`) en ALT-LX3.
 
 ## Pendiente
 
