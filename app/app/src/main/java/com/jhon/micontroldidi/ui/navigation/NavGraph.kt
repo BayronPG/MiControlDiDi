@@ -6,6 +6,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
@@ -69,6 +71,7 @@ private val rutasConBarraInferior = setOf(
 data class BottomNavItem(
     val ruta: String,
     val labelRes: Int,
+    val labelCortoRes: Int,
     val icon: ImageVector,
     val testTag: String
 )
@@ -77,30 +80,35 @@ private val bottomNavItems = listOf(
     BottomNavItem(
         ruta = Rutas.DASHBOARD,
         labelRes = R.string.dashboard_titulo,
+        labelCortoRes = R.string.nav_inicio,
         icon = Icons.AutoMirrored.Filled.List,
         testTag = "navegacion_dashboard"
     ),
     BottomNavItem(
         ruta = Rutas.LISTA_VIAJES,
         labelRes = R.string.viajes,
+        labelCortoRes = R.string.nav_viajes,
         icon = Icons.AutoMirrored.Filled.List,
         testTag = "navegacion_viajes"
     ),
     BottomNavItem(
         ruta = Rutas.LISTA_GASTOS,
         labelRes = R.string.gastos,
+        labelCortoRes = R.string.nav_gastos,
         icon = Icons.AutoMirrored.Filled.List,
         testTag = "navegacion_gastos"
     ),
     BottomNavItem(
         ruta = Rutas.ESTADISTICAS,
         labelRes = R.string.stats_titulo,
+        labelCortoRes = R.string.nav_datos,
         icon = Icons.Default.DateRange,
         testTag = "navegacion_estadisticas"
     ),
     BottomNavItem(
         ruta = Rutas.CONFIGURACION,
         labelRes = R.string.settings_titulo,
+        labelCortoRes = R.string.nav_ajustes,
         icon = Icons.Default.Settings,
         testTag = "navegacion_configuracion"
     )
@@ -162,7 +170,14 @@ fun AppNavGraph(
                                 }
                             },
                             icon = { Icon(item.icon, contentDescription = null) },
-                            label = { Text(stringResource(item.labelRes)) },
+                            label = {
+                                Text(
+                                    text = stringResource(item.labelCortoRes),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
                             modifier = Modifier.testTag(item.testTag)
                         )
                     }

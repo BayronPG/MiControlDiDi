@@ -103,6 +103,13 @@
     <string name="settings_app_name">%1$s</string>
     <string name="meta_descripcion">Establece una meta diaria o mensual de ganancia</string>
 
+    <!-- Labels cortos de la barra de navegación inferior -->
+    <string name="nav_inicio">Inicio</string>
+    <string name="nav_viajes">Viajes</string>
+    <string name="nav_gastos">Gastos</string>
+    <string name="nav_datos">Datos</string>
+    <string name="nav_ajustes">Ajustes</string>
+
     <!-- Validación de formularios -->
     <string name="error_valor_obligatorio">El valor es obligatorio</string>
     <string name="error_valor_numerico">El valor debe ser numérico</string>
