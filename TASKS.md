@@ -346,14 +346,12 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | 8.1 — Revisar estados vacío, error y carga en todas las pantallas | ✅ (8.1B viajes, 8.1C gastos; stats/dashboard/meta ya cubiertos) | 26-jul-2026 |
 | 8.2 — Verificar mensajes de error descriptivos en formularios | ✅ | 01-ago-2026 |
 | 8.3 — Probar flujos sin conexión a Internet | ✅ (sin hallazgos: app 100% local, sin INTERNET ni libs de red) | 01-ago-2026 |
+| 8.4 — Persistencia automatizada (BD Room temporal) | ⏳ (requiere dispositivo ALT-LX3) | — |
 | 8.5 — Revisar accesibilidad (contraste, etiquetas, áreas táctiles) | ✅ (2 correcciones: icono meta navegable, filas de tema seleccionables) | 01-ago-2026 |
-| 8.3 — Probar flujos sin conexión a Internet | ⏳ | — |
-| 8.4 — Persistencia automatizada (BD Room temporal) | ⏳ | — |
-| 8.5 — Revisar accesibilidad (contraste, etiquetas, áreas táctiles) | ⏳ | — |
 | 8.6 — Verificar strings hardcodeadas | ✅ | 26-jul-2026 |
-| 8.7 — Probar persistencia cerrar/abrir | ⏳ | — |
+| 8.7 — Probar persistencia cerrar/abrir | ⏳ (verificación manual en dispositivo) | — |
 | 8.8 — Corregir errores críticos encontrados | ⏳ | — |
-| 8.9 — Preparar APK de demostración | ⏳ | — |
+| 8.9 — Preparar APK de demostración | ✅ (`dist/MiControlDiDi-v1.0.0-demo.apk`; `assembleRelease` OK) | 01-ago-2026 |
 
 ### Criterios de aceptación — Fase 8
 - No hay defectos críticos ni bloqueantes en los flujos principales del MVP.

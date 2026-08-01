@@ -8,6 +8,9 @@ build/
 .externalNativeBuild/
 .cxx/
 
+# Artefactos de distribución local (APK de demo)
+dist/
+
 # Secrets
 .env
 *.jks

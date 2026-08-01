@@ -252,6 +252,18 @@ Se identificaron y corrigieron 7 cadenas de error/validación hardcodeadas en lo
 
 ---
 
+### 8.9 — Preparación de APK de demostración (01-ago-2026)
+
+- `assembleRelease` BUILD SUCCESSFUL (valida R8/ProGuard con todo el código actual).
+- APK de demo generado: `dist/MiControlDiDi-v1.0.0-demo.apk` (10.44 MB, firmado con debug key → instalable directamente).
+- Verificado: estructura válida (135 entradas, `classes.dex`, `AndroidManifest.xml`, `resources.arsc` presentes).
+- `dist/` agregado a `.gitignore` (artefacto de distribución, no se commitea).
+- Nota: el APK release (`app-release-unsigned.apk`) requiere configuración de firma para producción; para prueba piloto se usa el APK de debug firmado.
+
+**Validación:** `assembleRelease` BUILD SUCCESSFUL. Sin cambios de código en esta tarea.
+
+---
+
 ### Backend — Enum PeriodoMeta (01-ago-2026)
 
 Refactor de type-safety: se eliminaron las strings crudas `"DIA"`/`"MES"` del dominio de meta.
