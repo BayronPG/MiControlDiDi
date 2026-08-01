@@ -22,7 +22,7 @@ import com.jhon.micontroldidi.data.local.entity.ViajeEntity
         GastoEntity::class,
         MetaEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class MiControlDatabase : RoomDatabase() {
@@ -94,6 +94,22 @@ abstract class MiControlDatabase : RoomDatabase() {
         }
     }
 
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Índices para acelerar las consultas por rango de fechas
+                // (dashboard y filtros). Los nombres coinciden con los que
+                // Room genera automáticamente desde @Index en las entidades.
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_viajes_fechaHora` " +
+                    "ON `viajes` (`fechaHora`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_gastos_fechaHora` " +
+                    "ON `gastos` (`fechaHora`)"
+                )
+            }
+        }
+
     private val PREPOBLAR_CATEGORIAS = object : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
@@ -124,7 +140,7 @@ abstract class MiControlDatabase : RoomDatabase() {
                     MiControlDatabase::class.java,
                     "micontrol_didi.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .addCallback(PREPOBLAR_CATEGORIAS)
                     .build()
                 INSTANCIA = instancia

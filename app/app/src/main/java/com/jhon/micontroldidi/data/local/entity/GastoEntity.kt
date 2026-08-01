@@ -16,7 +16,8 @@ import androidx.room.PrimaryKey
         )
     ],
     indices = [
-        Index(value = ["categoriaId"])
+        Index(value = ["categoriaId"]),
+        Index(value = ["fechaHora"])
     ]
 )
 data class GastoEntity(

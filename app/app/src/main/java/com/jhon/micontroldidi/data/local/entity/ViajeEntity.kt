@@ -1,9 +1,15 @@
 package com.jhon.micontroldidi.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "viajes")
+@Entity(
+    tableName = "viajes",
+    indices = [
+        Index(value = ["fechaHora"])
+    ]
+)
 data class ViajeEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
