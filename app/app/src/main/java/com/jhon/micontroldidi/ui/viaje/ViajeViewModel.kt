@@ -145,7 +145,8 @@ class ViajeViewModel(
                     propinaText = viaje.propina.toString(),
                     observacionText = viaje.observacion,
                     errorValor = null,
-                    errorPropina = null
+                    errorPropina = null,
+                    errorGuardado = null
                 )
             }
         }
@@ -186,13 +187,14 @@ class ViajeViewModel(
                         observacionText = "",
                         errorValor = null,
                         errorPropina = null,
+                        errorGuardado = null,
                         guardando = false,
                         guardadoExitoso = true
                     )
                 } else {
                     _uiState.value = _uiState.value.copy(
                         guardando = false,
-                        errorValor = resultado.exceptionOrNull()?.message
+                        errorGuardado = resourceProvider.getString(R.string.error_guardar_viaje)
                     )
                 }
             } else {
@@ -210,13 +212,14 @@ class ViajeViewModel(
                         observacionText = "",
                         errorValor = null,
                         errorPropina = null,
+                        errorGuardado = null,
                         guardando = false,
                         guardadoExitoso = true
                     )
                 } else {
                     _uiState.value = _uiState.value.copy(
                         guardando = false,
-                        errorValor = resultado.exceptionOrNull()?.message
+                        errorGuardado = resourceProvider.getString(R.string.error_guardar_viaje)
                     )
                 }
             }
@@ -228,23 +231,25 @@ class ViajeViewModel(
     }
 
     fun ocultarDialogoEliminar() {
-        _uiState.value = _uiState.value.copy(viajeIdAEliminar = null)
+        _uiState.value = _uiState.value.copy(viajeIdAEliminar = null, errorEliminacion = null)
     }
 
     fun confirmarEliminacion() {
         val viajeId = _uiState.value.viajeIdAEliminar ?: return
         if (_uiState.value.eliminando) return
-        _uiState.value = _uiState.value.copy(eliminando = true)
+        _uiState.value = _uiState.value.copy(eliminando = true, errorEliminacion = null)
         viewModelScope.launch {
             val resultado = viajeRepository.eliminar(viajeId)
             if (resultado.isSuccess) {
                 _uiState.value = _uiState.value.copy(
                     viajeIdAEliminar = null,
-                    eliminando = false
+                    eliminando = false,
+                    errorEliminacion = null
                 )
             } else {
                 _uiState.value = _uiState.value.copy(
-                    eliminando = false
+                    eliminando = false,
+                    errorEliminacion = resourceProvider.getString(R.string.error_eliminar_viaje)
                 )
             }
         }

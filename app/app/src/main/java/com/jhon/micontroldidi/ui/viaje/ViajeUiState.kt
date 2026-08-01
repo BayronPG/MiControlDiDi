@@ -15,6 +15,7 @@ data class ViajeUiState(
     val observacionText: String = "",
     val errorValor: String? = null,
     val errorPropina: String? = null,
+    val errorGuardado: String? = null,
     val guardando: Boolean = false,
     val guardadoExitoso: Boolean = false,
 
@@ -31,6 +32,7 @@ data class ViajeUiState(
     val fechaHoraOriginal: Long = 0L,
     val eliminando: Boolean = false,
     val viajeIdAEliminar: Long? = null,
+    val errorEliminacion: String? = null,
 
     // Estado de error global
     val mensajeError: String? = null

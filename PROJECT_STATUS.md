@@ -252,6 +252,32 @@ Se identificaron y corrigieron 7 cadenas de error/validación hardcodeadas en lo
 
 ---
 
+### 8.2 — Verificación de mensajes de error descriptivos en formularios (01-ago-2026)
+
+Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas:
+
+| Problema | Corrección |
+|---|---|
+| String visible hardcodeada `"Registrado: …"` en `RegistrarGastoScreen` | Movida a `strings.xml` como `gasto_registrado_en` con formato `%1$s` |
+| Mensajes de excepción crudos (`exceptionOrNull()?.message`) expuestos al usuario en `ViajeViewModel`, `GastoViewModel` y `MetaViewModel` | Reemplazados por 6 mensajes descriptivos de recursos: `error_guardar_viaje`, `error_eliminar_viaje`, `error_guardar_gasto`, `error_eliminar_gasto`, `error_guardar_meta`, `error_eliminar_meta` |
+| `errorEliminacion` de Gasto se seteaba pero nunca se mostraba en el diálogo | Ahora se muestra dentro del diálogo de confirmación de eliminación |
+| Fallo de eliminación de Viaje era silencioso (sin campo ni mensaje) | Nuevo campo `errorEliminacion` en `ViajeUiState`, mensaje descriptivo y renderizado en el diálogo de confirmación |
+
+#### Cambios estructurales
+- `ViajeUiState`: nuevos campos `errorGuardado` y `errorEliminacion`.
+- `RegistrarViajeScreen`: muestra `errorGuardado` (antes solo había validación de campo).
+- `FakeResourceProvider`: 6 nuevos IDs mapeados para pruebas unitarias.
+- `ViajeViewModelTest`: test `errorDeGuardado_noCierraFormulario` ajustado a `errorGuardado`; nuevo test `falloDeEliminacion_estableceMensajeDeError`; fake DAO ahora puede simular fallo en `eliminar`.
+
+#### Validación
+| Suite | Resultado |
+|-------|:---------:|
+| `assembleDebug` | BUILD SUCCESSFUL |
+| `testDebugUnitTest` | **177/177, 0 fallos** |
+| `connectedDebugAndroidTest` | No ejecutada (sin dispositivo conectado en esta sesión) |
+
+---
+
 ### Estado funcional de gastos
 
 | Funcionalidad | Implementado | Compilado | Pruebas unitarias | Pruebas DAO | Pruebas Compose | Verificación manual |

@@ -73,7 +73,10 @@ class ViajeViewModelTest {
 
         override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
         override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 1
-        override suspend fun eliminar(id: Long): Int = 1
+        override suspend fun eliminar(id: Long): Int {
+            errorSimulado?.let { throw it }
+            return 1
+        }
     }
 
     @Before
@@ -177,7 +180,23 @@ class ViajeViewModelTest {
         val state = viewModel.uiState.value
         assertFalse(state.guardadoExitoso)
         assertFalse(state.guardando)
-        assertNotNull(state.errorValor)
+        assertNotNull("Debe haber mensaje descriptivo de guardado", state.errorGuardado)
+    }
+
+    @Test
+    fun falloDeEliminacion_estableceMensajeDeError() = runTest(testDispatcher) {
+        daoFalso.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000))
+        advanceUntilIdle()
+        viewModel.mostrarDialogoEliminar(1L)
+        advanceUntilIdle()
+
+        errorSimulado = RuntimeException("Error al eliminar")
+        viewModel.confirmarEliminacion()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertNotNull("Debe haber mensaje descriptivo de eliminación", state.errorEliminacion)
+        assertFalse("No debe seguir eliminando", state.eliminando)
     }
 
     @Test

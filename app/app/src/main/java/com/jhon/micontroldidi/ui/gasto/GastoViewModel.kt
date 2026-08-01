@@ -216,7 +216,7 @@ class GastoViewModel(
                 } else {
                     _uiState.value = _uiState.value.copy(
                         guardando = false,
-                        errorGuardado = resultado.exceptionOrNull()?.message
+                        errorGuardado = resourceProvider.getString(R.string.error_guardar_gasto)
                     )
                 }
             } else {
@@ -240,7 +240,7 @@ class GastoViewModel(
                 } else {
                     _uiState.value = _uiState.value.copy(
                         guardando = false,
-                        errorGuardado = resultado.exceptionOrNull()?.message
+                        errorGuardado = resourceProvider.getString(R.string.error_guardar_gasto)
                     )
                 }
             }
@@ -270,7 +270,7 @@ class GastoViewModel(
             } else {
                 _uiState.value = _uiState.value.copy(
                     eliminando = false,
-                    errorEliminacion = resultado.exceptionOrNull()?.message
+                    errorEliminacion = resourceProvider.getString(R.string.error_eliminar_gasto)
                 )
             }
         }

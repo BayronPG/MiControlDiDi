@@ -141,7 +141,7 @@ private fun FormularioGasto(
 
         Text(
             text = if (state.editando && state.fechaHoraOriginal > 0)
-                "Registrado: ${DateFormatter.format(state.fechaHoraOriginal)}"
+                stringResource(R.string.gasto_registrado_en, DateFormatter.format(state.fechaHoraOriginal))
             else DateFormatter.format(System.currentTimeMillis()),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant

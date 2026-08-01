@@ -111,6 +111,15 @@
     <string name="error_propina_negativa">La propina no puede ser negativa</string>
     <string name="error_categoria_obligatoria">Debes seleccionar una categoría</string>
 
+    <!-- Errores de guardado y eliminación (mensajes descriptivos, sin detalles técnicos) -->
+    <string name="gasto_registrado_en">Registrado: %1$s</string>
+    <string name="error_guardar_viaje">No se pudo guardar el viaje. Inténtalo de nuevo.</string>
+    <string name="error_eliminar_viaje">No se pudo eliminar el viaje. Inténtalo de nuevo.</string>
+    <string name="error_guardar_gasto">No se pudo guardar el gasto. Inténtalo de nuevo.</string>
+    <string name="error_eliminar_gasto">No se pudo eliminar el gasto. Inténtalo de nuevo.</string>
+    <string name="error_guardar_meta">No se pudo guardar la meta. Inténtalo de nuevo.</string>
+    <string name="error_eliminar_meta">No se pudo eliminar la meta. Inténtalo de nuevo.</string>
+
     <!-- Estadísticas -->
     <string name="stats_sin_datos">No hay datos estadísticos disponibles</string>
     <string name="stats_error">Error al cargar las estadísticas</string>

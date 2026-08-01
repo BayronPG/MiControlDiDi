@@ -74,7 +74,19 @@ fun ListaGastosScreen(
                 if (!state.eliminando) viewModel.ocultarDialogoEliminar()
             },
             title = { Text(stringResource(R.string.confirmar_eliminacion)) },
-            text = { Text(stringResource(R.string.eliminacion_no_reversible)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.eliminacion_no_reversible))
+                    if (state.errorEliminacion != null) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = state.errorEliminacion!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(
                     onClick = { viewModel.confirmarEliminacion() },
@@ -464,7 +476,7 @@ private fun GastoCard(
 
 /**
  * Overload de ListaGastosScreen que recibe el estado directamente,
- * útil para pruebas Compose sin dependencia del ViewModel.
+ * ï¿½til para pruebas Compose sin dependencia del ViewModel.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable

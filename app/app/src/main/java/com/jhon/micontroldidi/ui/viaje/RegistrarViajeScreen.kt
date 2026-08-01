@@ -136,6 +136,17 @@ fun RegistrarViajeScreen(
 
             Spacer(Modifier.height(28.dp))
 
+            // Error de guardado (no es validación de campo)
+            if (state.errorGuardado != null) {
+                Text(
+                    text = state.errorGuardado!!,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("error_guardado_viaje")
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+
             // Botón Guardar
             Button(
                 onClick = { viewModel.guardarViaje() },

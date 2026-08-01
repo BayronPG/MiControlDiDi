@@ -82,7 +82,7 @@ class MetaViewModel(
             } else {
                 _uiState.value = _uiState.value.copy(
                     guardando = false,
-                    mensajeError = resultado.exceptionOrNull()?.message
+                    mensajeError = resourceProvider.getString(R.string.error_guardar_meta)
                 )
             }
         }
@@ -101,7 +101,7 @@ class MetaViewModel(
             } else {
                 _uiState.value = _uiState.value.copy(
                     guardando = false,
-                    mensajeError = resultado.exceptionOrNull()?.message
+                    mensajeError = resourceProvider.getString(R.string.error_eliminar_meta)
                 )
             }
         }

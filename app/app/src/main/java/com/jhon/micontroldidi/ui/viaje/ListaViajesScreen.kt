@@ -193,7 +193,19 @@ fun ListaViajesScreen(
                 if (!state.eliminando) viewModel.ocultarDialogoEliminar()
             },
             title = { Text(stringResource(R.string.confirmar_eliminacion_viaje)) },
-            text = { Text(stringResource(R.string.eliminacion_no_reversible)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.eliminacion_no_reversible))
+                    if (state.errorEliminacion != null) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = state.errorEliminacion!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            },
             confirmButton = {
                 TextButton(
                     onClick = { viewModel.confirmarEliminacion() },

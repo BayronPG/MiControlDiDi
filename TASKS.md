@@ -343,8 +343,8 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | Sub-tarea | Estado | Fecha |
 |---|---|---|
 | 8.0 — Corregir 3 tests Compose obsoletos por cambio a botones en dashboard | ✅ | 26-jul-2026 |
-| 8.1 — Revisar estados vacío, error y carga en todas las pantallas | ⏳ | — |
-| 8.2 — Verificar mensajes de error descriptivos en formularios | ⏳ | — |
+| 8.1 — Revisar estados vacío, error y carga en todas las pantallas | ✅ (8.1B viajes, 8.1C gastos; stats/dashboard/meta ya cubiertos) | 26-jul-2026 |
+| 8.2 — Verificar mensajes de error descriptivos en formularios | ✅ | 01-ago-2026 |
 | 8.3 — Probar flujos sin conexión a Internet | ⏳ | — |
 | 8.4 — Persistencia automatizada (BD Room temporal) | ⏳ | — |
 | 8.5 — Revisar accesibilidad (contraste, etiquetas, áreas táctiles) | ⏳ | — |
