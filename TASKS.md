@@ -370,7 +370,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | Enum `PeriodoMeta` | Type-safety para `"DIA"`/`"MES"` en meta; sin cambios de BD | ✅ Commit `f989047` |
 | Índices `fechaHora` | `@Index` en `ViajeEntity`/`GastoEntity` + `MIGRATION_3_4` (BD v3→v4) | ✅ Commit `0af17a6` |
 
-> Pendiente: ejecutar instrumentadas (incl. `migracionTresACuatro`) en ALT-LX3.
+> Instrumentadas validadas en ALT-LX3: **124/124** (01-ago-2026).
 
 ## Resumen de sprints
 

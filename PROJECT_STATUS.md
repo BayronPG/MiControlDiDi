@@ -193,11 +193,11 @@ class Factory(
 
 ## Batería de pruebas
 
-| Tipo | Existentes | Superadas (última ejecución) | Flaky/fallidas |
-|------|---:|---:|---:|
-| Unitarias | **113** | **113** | 0 |
-| Instrumentadas | **68** (65 ant. + 3 nuevas) | **65** (pendiente ejecución) | 0 |
-| **Total** | **~181** | **178+** | 0 |
+| Tipo | Cantidad | Estado |
+|------|---:|---:|
+| Unitarias | **179** | 179/179 (0 fallos) |
+| Instrumentadas | **124** | 124/124 en ALT-LX3 (0 fallos) — incluye migración v3→v4 |
+| **Total** | **303** | 0 fallos |
 
 > **Nota (25-jul-2026):**
 >
@@ -287,7 +287,7 @@ Optimización de consultas por rango de fechas (dashboard y filtros).
 - `MiControlDatabase` sube a versión 4 con `MIGRATION_3_4` que crea `index_viajes_fechaHora` e `index_gastos_fechaHora` (nombres exactos que Room genera, para que el identity hash coincida).
 - `MigracionTest`: los tests v1→v2 y v2→v3 ahora incluyen `MIGRATION_3_4`; nuevo test v3→v4 que verifica datos conservados (viajes, gastos, meta) y existencia de ambos índices.
 
-**Validación:** `assembleDebug` BUILD SUCCESSFUL · `testDebugUnitTest` 179/179 · `compileDebugAndroidTestKotlin` OK (el test de migración compila; pendiente ejecución en ALT-LX3). Commit `0af17a6`.
+**Validación:** `assembleDebug` BUILD SUCCESSFUL · `testDebugUnitTest` 179/179 · `connectedDebugAndroidTest` en ALT-LX3 **124/124, 0 fallos** (incluye `migracionTresACuatro_creaIndicesFechaYConservaDatos`). Commits `f989047`, `0af17a6`.
 
 **Corrección respecto al plan inicial:** la BD ya estaba en versión 3 (la v2→v3 creó `metas`), así que los índices implicaron v3→v4, no v2→v3.
 
