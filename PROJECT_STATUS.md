@@ -252,6 +252,26 @@ Se identificaron y corrigieron 7 cadenas de error/validación hardcodeadas en lo
 
 ---
 
+### 8.3 — Verificación de flujos sin conexión a Internet (01-ago-2026)
+
+Auditoría pasiva: el MVP es 100% local y **no se encontró ningún punto que requiera Internet**.
+
+| Verificación | Resultado |
+|---|---|
+| `AndroidManifest.xml` (main) | Sin permiso `INTERNET` ni `ACCESS_NETWORK_STATE` — sin permisos declarados |
+| Manifest fusionado (debug/release) | Solo `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (añadido por AndroidX, no es de red) |
+| Dependencias Gradle | Sin Firebase, Retrofit, OkHttp, Volley ni WebView — solo Room, Compose, Navigation, Lifecycle, Coroutines |
+| Código Kotlin (barrido de APIs de red) | 0 hits: HttpURLConnection, OkHttp, URL(, Socket, WebView, ktor, http(s)://, ConnectivityManager, NetworkInfo, java.net, InetAddress, DownloadManager, WorkManager, JobScheduler |
+| Intents / navegador / fuentes descargables | 0 hits: sin ACTION_VIEW, sin FontProvider, sin network_security_config |
+| Persistencia | `SharedPreferences` local (tema) + Room local — sin DataStore remoto |
+| `proguard-rules.pro` | Sin reglas de red |
+
+**Conclusión:** la app funciona completa sin conexión a Internet; no hay código que corregir ni permisos que quitar. El único requisito de red del proyecto es el `push` a GitHub (desarrollo, no runtime).
+
+**Validación:** sin cambios de código en esta tarea; el estado verde vigente es el de 8.2 (`assembleDebug` BUILD SUCCESSFUL + `testDebugUnitTest` 177/177).
+
+---
+
 ### 8.2 — Verificación de mensajes de error descriptivos en formularios (01-ago-2026)
 
 Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas:
