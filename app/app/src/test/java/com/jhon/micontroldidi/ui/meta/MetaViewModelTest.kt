@@ -3,6 +3,7 @@ package com.jhon.micontroldidi.ui.meta
 import com.jhon.micontroldidi.data.local.dao.MetaDao
 import com.jhon.micontroldidi.data.local.entity.MetaEntity
 import com.jhon.micontroldidi.data.repository.MetaRepository
+import com.jhon.micontroldidi.domain.PeriodoMeta
 import com.jhon.micontroldidi.util.FakeResourceProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -86,7 +87,7 @@ class MetaViewModelTest {
         advanceUntilIdle()
         val state = viewModel.uiState.value
         assertNull("No debe haber meta activa", state.metaActiva)
-        assertEquals("DIA", state.tipoPeriodo)
+        assertEquals(PeriodoMeta.DIA, state.tipoPeriodo)
         assertEquals("", state.valorText)
         assertFalse(state.cargando)
     }
@@ -98,23 +99,23 @@ class MetaViewModelTest {
 
         val state = viewModel.uiState.value
         assertNotNull("Debe haber meta activa", state.metaActiva)
-        assertEquals("MES", state.tipoPeriodo)
+        assertEquals(PeriodoMeta.MES, state.tipoPeriodo)
         assertEquals("1000000", state.valorText)
     }
 
     @Test
     fun `seleccionarPeriodo cambia a MES`() = runTest(testDispatcher) {
         advanceUntilIdle()
-        viewModel.seleccionarPeriodo("MES")
-        assertEquals("MES", viewModel.uiState.value.tipoPeriodo)
+        viewModel.seleccionarPeriodo(PeriodoMeta.MES)
+        assertEquals(PeriodoMeta.MES, viewModel.uiState.value.tipoPeriodo)
     }
 
     @Test
     fun `seleccionarPeriodo cambia a DIA`() = runTest(testDispatcher) {
         advanceUntilIdle()
-        viewModel.seleccionarPeriodo("MES")
-        viewModel.seleccionarPeriodo("DIA")
-        assertEquals("DIA", viewModel.uiState.value.tipoPeriodo)
+        viewModel.seleccionarPeriodo(PeriodoMeta.MES)
+        viewModel.seleccionarPeriodo(PeriodoMeta.DIA)
+        assertEquals(PeriodoMeta.DIA, viewModel.uiState.value.tipoPeriodo)
     }
 
     @Test

@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.jhon.micontroldidi.R
+import com.jhon.micontroldidi.domain.PeriodoMeta
 import com.jhon.micontroldidi.util.CurrencyFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,7 +95,7 @@ fun ConfigurarMetaScreen(
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Text(
-                            text = if (meta.tipoPeriodo == "DIA")
+                            text = if (meta.periodo == PeriodoMeta.DIA)
                                 stringResource(R.string.meta_diaria)
                             else
                                 stringResource(R.string.meta_mensual),
@@ -114,15 +115,15 @@ fun ConfigurarMetaScreen(
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.testTag("selector_periodo_meta")) {
                 FilterChip(
-                    selected = state.tipoPeriodo == "DIA",
-                    onClick = { viewModel.seleccionarPeriodo("DIA") },
+                    selected = state.tipoPeriodo == PeriodoMeta.DIA,
+                    onClick = { viewModel.seleccionarPeriodo(PeriodoMeta.DIA) },
                     label = { Text(stringResource(R.string.meta_diaria)) },
                     modifier = Modifier.testTag("chip_meta_dia")
                 )
                 Spacer(Modifier.width(8.dp))
                 FilterChip(
-                    selected = state.tipoPeriodo == "MES",
-                    onClick = { viewModel.seleccionarPeriodo("MES") },
+                    selected = state.tipoPeriodo == PeriodoMeta.MES,
+                    onClick = { viewModel.seleccionarPeriodo(PeriodoMeta.MES) },
                     label = { Text(stringResource(R.string.meta_mensual)) },
                     modifier = Modifier.testTag("chip_meta_mes")
                 )

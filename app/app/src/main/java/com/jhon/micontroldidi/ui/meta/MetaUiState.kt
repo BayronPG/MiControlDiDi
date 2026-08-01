@@ -1,6 +1,7 @@
 package com.jhon.micontroldidi.ui.meta
 
 import com.jhon.micontroldidi.data.local.entity.MetaEntity
+import com.jhon.micontroldidi.domain.PeriodoMeta
 
 /**
  * Estado de la pantalla de configuración de meta.
@@ -11,7 +12,7 @@ data class MetaUiState(
     val cargando: Boolean = true,
 
     // Formulario
-    val tipoPeriodo: String = "DIA",
+    val tipoPeriodo: PeriodoMeta = PeriodoMeta.DIA,
     val valorText: String = "",
     val errorValor: String? = null,
     val errorPeriodo: String? = null,

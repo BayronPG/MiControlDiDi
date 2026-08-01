@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.domain.PeriodoDashboard
+import com.jhon.micontroldidi.domain.PeriodoMeta
 import com.jhon.micontroldidi.util.CurrencyFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -287,7 +288,7 @@ private fun MetaProgressCard(
     else
         MaterialTheme.colorScheme.tertiary
 
-    val textoPeriodo = if (metaActiva.tipoPeriodo == "DIA")
+    val textoPeriodo = if (metaActiva.periodo == PeriodoMeta.DIA)
         stringResource(R.string.meta_diaria)
     else
         stringResource(R.string.meta_mensual)

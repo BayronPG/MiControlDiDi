@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.MetaRepository
+import com.jhon.micontroldidi.domain.PeriodoMeta
 import com.jhon.micontroldidi.util.ResourceProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +27,7 @@ class MetaViewModel(
                     _uiState.value.copy(
                         metaActiva = meta,
                         cargando = false,
-                        tipoPeriodo = meta.tipoPeriodo,
+                        tipoPeriodo = meta.periodo,
                         valorText = meta.valorObjetivo.toString()
                     )
                 } else {
@@ -39,7 +40,7 @@ class MetaViewModel(
         }
     }
 
-    fun seleccionarPeriodo(periodo: String) {
+    fun seleccionarPeriodo(periodo: PeriodoMeta) {
         _uiState.value = _uiState.value.copy(
             tipoPeriodo = periodo,
             errorPeriodo = null
