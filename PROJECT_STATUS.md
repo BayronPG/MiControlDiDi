@@ -252,6 +252,47 @@ Se identificaron y corrigieron 7 cadenas de error/validación hardcodeadas en lo
 
 ---
 
+### 8.5 — Revisión de accesibilidad (01-ago-2026)
+
+Auditoría de contraste, etiquetas y áreas táctiles en todas las pantallas.
+
+#### Contraste (WCAG AA ≥ 4.5:1) — todo pasa ✅
+
+| Par | Claro | Oscuro |
+|---|---|---|
+| Primary / OnPrimary | 6.42:1 | 7.75:1 |
+| PrimaryContainer / OnPC | 13.21:1 | 7.24:1 |
+| Secondary / OnSecondary | 6.49:1 | 7.69:1 |
+| OnBackground / Background | 16.79:1 | 13.30:1 |
+| Error / OnError | 6.46:1 | 7.72:1 |
+| Error sobre Background | 6.31:1 | 10.12:1 |
+| onSurfaceVariant (M3) sobre Surface | 9.13:1 | 10.08:1 |
+| tertiaryContainer / onTertiaryContainer (M3 default) | 13.32:1 | 7.23:1 |
+
+#### Correcciones aplicadas (2 hallazgos)
+
+1. **Dashboard — tarjeta de progreso de meta**: el icono de ajustes anunciaba "Configurar meta" (contentDescription) pero **no era clickable** (16dp, sin acción). Además, `onNavegarAConfigurarMeta` estaba cableado en `NavGraph` pero **nunca se pasaba** a `DashboardContent` (código muerto).
+   - `DashboardContent` ahora recibe y propaga `onNavegarAConfigurarMeta` a `MetaProgressCard`.
+   - El icono ahora es un `IconButton` (48dp de área táctil mínima) con `testTag` `boton_configurar_meta` que navega a `CONFIGURAR_META`.
+
+2. **Settings — opciones de tema**: solo el `RadioButton` era clickable; el texto de la etiqueta no estaba asociado ni era parte del área táctil.
+   - La fila completa ahora usa `Modifier.selectable(role = Role.RadioButton)` (48dp), el `RadioButton` pasa a `onClick = null` (la fila maneja el clic) y el texto queda dentro de la fila seleccionable.
+
+#### Verificación adicional
+- Todos los `Icon` con contenido informativo tienen `contentDescription`; el único `contentDescription = null` es el icono de `NavigationBarItem`, que ya tiene `label` (correcto por guía de Material 3).
+- Sin colores hardcodeados en composables (todo vía `MaterialTheme.colorScheme`).
+- Tipografía en `sp` (respeta escala de fuente del sistema).
+- Observación (no bloqueante): el tema no define colores `tertiary`; se usan los default de M3, que pasan contraste, pero convendría alinearlos a la paleta verde en una tarea futura de identidad visual.
+
+#### Validación
+| Suite | Resultado |
+|-------|:---------:|
+| `assembleDebug` | BUILD SUCCESSFUL |
+| `testDebugUnitTest` | **177/177, 0 fallos** |
+| `connectedDebugAndroidTest` | No ejecutada (sin dispositivo conectado en esta sesión) |
+
+---
+
 ### 8.3 — Verificación de flujos sin conexión a Internet (01-ago-2026)
 
 Auditoría pasiva: el MVP es 100% local y **no se encontró ningún punto que requiera Internet**.

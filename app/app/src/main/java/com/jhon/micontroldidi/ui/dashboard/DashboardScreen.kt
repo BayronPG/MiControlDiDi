@@ -117,6 +117,7 @@ fun DashboardScreen(
                     onPeriodoSeleccionado = onPeriodoSeleccionado,
                     onNavegarARegistrarViaje = onNavegarARegistrarViaje,
                     onNavegarARegistrarGasto = onNavegarARegistrarGasto,
+                    onNavegarAConfigurarMeta = onNavegarAConfigurarMeta,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
@@ -151,6 +152,7 @@ private fun DashboardContent(
     onPeriodoSeleccionado: (PeriodoDashboard) -> Unit,
     onNavegarARegistrarViaje: () -> Unit = {},
     onNavegarARegistrarGasto: () -> Unit = {},
+    onNavegarAConfigurarMeta: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -196,6 +198,7 @@ private fun DashboardContent(
             MetaProgressCard(
                 metaActiva = state.metaActiva!!,
                 progreso = state.progresoMeta!!,
+                onConfigurar = onNavegarAConfigurarMeta,
                 modifier = Modifier.testTag("dashboard_tarjeta_meta")
             )
         }
@@ -274,6 +277,7 @@ private fun PeriodoSelector(
 private fun MetaProgressCard(
     metaActiva: com.jhon.micontroldidi.data.local.entity.MetaEntity,
     progreso: Float,
+    onConfigurar: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val porcentaje = (progreso * 100).toInt().coerceAtLeast(0)
@@ -310,12 +314,17 @@ private fun MetaProgressCard(
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onTertiaryContainer
                 )
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.meta_configurar),
-                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                    modifier = Modifier.size(16.dp)
-                )
+                IconButton(
+                    onClick = onConfigurar,
+                    modifier = Modifier.testTag("boton_configurar_meta")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.meta_configurar),
+                        tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
 
             Spacer(Modifier.height(8.dp))
