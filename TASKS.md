@@ -353,9 +353,26 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | 8.4 — Persistencia automatizada (BD Room temporal) | ✅ | 01-ago-2026 |
 | 8.5 — Revisar accesibilidad (contraste, etiquetas, áreas táctiles) | ✅ (2 correcciones: icono meta navegable, filas de tema seleccionables) | 01-ago-2026 |
 | 8.6 — Verificar strings hardcodeadas | ✅ | 26-jul-2026 |
-| 8.7 — Probar persistencia cerrar/abrir | ⏳ (verificación manual en dispositivo) | — |
-| 8.8 — Corregir errores críticos encontrados | ⏳ | — |
+| 8.7 — Probar persistencia cerrar/abrir | ✅ Completada (persistencia manual aprobada en ALT-LX3, 3 ciclos; ver detalle abajo) | 02-ago-2026 |
+| 8.8 — Corregir errores críticos encontrados | ⏳ Pendiente de autorización (recomendada por H-8.7-01 y H-8.7-02) | — |
 | 8.9 — Preparar APK de demostración | ✅ (`dist/MiControlDiDi-v1.0.0-demo.apk`; `assembleRelease` OK) | 01-ago-2026 |
+
+### 8.7 — Verificación manual de persistencia (02-ago-2026)
+
+**Formulación de cierre:** Fase 8.7 completada: persistencia manual aprobada. Se detectaron dos hallazgos funcionales ajenos a la persistencia que quedan pendientes de decisión para la Fase 8.8.
+
+**Persistencia manual APROBADA** en dispositivo físico ALT-LX3 (`APMDBB5616100336`), sin emulador, instalación no reemplazada (`com.jhon.micontroldidi` 1.0.0 / code 1), sin borrado de datos, sin `pm clear`. Datos de control: viaje 1× (02/08/2026 09:18, $25.000 + $5.000 propina = $30.000, “Viaje control 8.7”), gasto 1× (Gasolina, 02/08/2026 09:24, $20.000, “Gasto control 8.7”), meta 1 activa ($50.000, Diaria, progreso 20%). Valores comprobados: ingresos $30.000, gastos $20.000, ganancia $10.000; dashboard correcto en DÍA/SEMANA/MES; estadísticas correctas. Sin pérdidas, duplicados, campos alterados, registros inesperados, cierres inesperados ni pantalla vacía permanente.
+
+**Tres ciclos aprobados:** (1) segundo plano y regreso (PID 26138 → 26138); (2) retirada de recientes (PID 26138 → vacío → 5184, muerte real del proceso); (3) `adb -s APMDBB5616100336 shell am force-stop com.jhon.micontroldidi` (PID 5184 → vacío → 17877, reconstrucción correcta desde Room y sus Flows).
+
+**Hallazgos abiertos (sin corregir, ajenos a la persistencia):**
+
+| ID | Título | Clasificación | Gravedad | Estado de causa |
+|---|---|---|---|---|
+| H-8.7-01 | El filtro de gastos por fecha excluye el día seleccionado (fecha inicial y final 02/08/2026 no mostró el gasto del 02/08 09:24; al limpiar reaparece intacto) | Fallo funcional | MEDIA | No confirmada (hipótesis: conversión UTC/zona local del DatePicker — **no confirmada**) |
+| H-8.7-02 | El panel de filtros de gastos queda recortado en ALT-LX3 (chips de categoría no visibles; Aplicar/Cancelar recortados; filtro por categoría no validable desde la UI) | Defecto de UI/accesibilidad/usabilidad | MEDIA | Reproducido en ALT-LX3 (otros dispositivos no comprobados) |
+
+**Fase 8.8:** estado pendiente de autorización · activación recomendada por H-8.7-01 y H-8.7-02 (candidatos bloqueantes para el cierre funcional del MVP, pese a gravedad individual MEDIA) · **no iniciada** · ninguna corrección implementada · ninguna causa raíz confirmada · requiere auditoría técnica antes de modificar código.
 
 ### Criterios de aceptación — Fase 8
 - No hay defectos críticos ni bloqueantes en los flujos principales del MVP.

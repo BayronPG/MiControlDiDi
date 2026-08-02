@@ -399,6 +399,29 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 
 ---
 
+### 8.7 — Verificación manual de persistencia (02-ago-2026)
+
+**Formulación de cierre:** Fase 8.7 completada: persistencia manual aprobada. Se detectaron dos hallazgos funcionales ajenos a la persistencia que quedan pendientes de decisión para la Fase 8.8.
+
+**Persistencia manual APROBADA** en ALT-LX3 (`APMDBB5616100336`, físico, sin emulador; `com.jhon.micontroldidi` 1.0.0/code 1, instalación no reemplazada, sin `pm clear` ni borrado de datos).
+
+**Datos de control:** viaje 1× (02/08/2026 09:18 · $25.000 + $5.000 = $30.000 · “Viaje control 8.7”) · gasto 1× (Gasolina · 02/08/2026 09:24 · $20.000 · “Gasto control 8.7”) · meta 1 activa ($50.000 · Diaria · progreso 20%).
+
+**Tres ciclos aprobados:** ① segundo plano/regreso (PID 26138→26138) · ② retirada de recientes (26138→vacío→5184; muerte real del proceso) · ③ force-stop `adb -s APMDBB5616100336 shell am force-stop com.jhon.micontroldidi` (5184→vacío→17877; reconstrucción correcta desde Room/Flows).
+
+**Resultado:** viaje, gasto (con categoría Gasolina), meta y cálculos (dashboard DÍA/SEMANA/MES: $30.000/$20.000/$10.000; estadísticas correctas) íntegros tras los tres ciclos. Sin pérdidas, duplicados, campos alterados, registros inesperados, cierres inesperados ni pantallas vacías permanentes.
+
+**Hallazgos abiertos (ajenos a la persistencia, sin corregir):**
+
+- **H-8.7-01 — Filtro por fecha (gravedad MEDIA, fallo funcional):** con fecha inicial y final 02/08/2026 el gasto del 02/08 09:24 no apareció; al limpiar el filtro reaparece intacto. Causa raíz **no confirmada** (hipótesis de conversión UTC/zona local del DatePicker, expresamente no definitiva).
+- **H-8.7-02 — Panel de filtros recortado en ALT-LX3 (gravedad MEDIA, defecto de UI):** los DatePicker expandidos ocupan la pantalla; chips de categoría no visibles; Aplicar/Cancelar recortados; filtro por categoría Gasolina no validable desde la UI. Reproducido solo en ALT-LX3.
+
+**Fase 8.8:** pendiente de autorización · recomendada (ambos hallazgos son candidatos bloqueantes para el cierre funcional del MVP) · **no iniciada** · sin correcciones implementadas · requiere auditoría técnica antes de modificar código.
+
+**Evidencias (fuera del repositorio):** `C:\Proyectos\MiControlDiDi_Evidencia_8.7\` — 8.7-C_linea_base (18) · 8.7-D_viaje_previo (11) · 8.7-E_gasto_previo (18) · 8.7-F_meta_estado_previo (19) · 8.7-G_cierres_reaperturas (44) = **110 evidencias**, inventariadas con SHA-256.
+
+---
+
 ### Estado funcional de gastos
 
 | Funcionalidad | Implementado | Compilado | Pruebas unitarias | Pruebas DAO | Pruebas Compose | Verificación manual |
