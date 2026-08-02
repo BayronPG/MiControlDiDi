@@ -2,34 +2,49 @@ package com.jhon.micontroldidi.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Tema claro
-val PrimaryLight = Color(0xFF1A6B52)
-val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFFA5F2D3)
-val OnPrimaryContainerLight = Color(0xFF002117)
-val SecondaryLight = Color(0xFF4C6359)
-val OnSecondaryLight = Color(0xFFFFFFFF)
-val SecondaryContainerLight = Color(0xFFCEE9DB)
-val OnSecondaryContainerLight = Color(0xFF092018)
-val BackgroundLight = Color(0xFFFBFDF9)
-val OnBackgroundLight = Color(0xFF191C1A)
-val SurfaceLight = Color(0xFFFBFDF9)
-val OnSurfaceLight = Color(0xFF191C1A)
-val ErrorLight = Color(0xFFBA1A1A)
-val OnErrorLight = Color(0xFFFFFFFF)
+// ============================================================
+// Paleta fintech MiControlDiDi — modo claro únicamente.
+// Semántica: azul = balance/acciones · verde = ingresos ·
+// rojo = gastos/errores · neutros = fondo y superficies.
+// ============================================================
 
-// Tema oscuro
-val PrimaryDark = Color(0xFF8AD6B8)
-val OnPrimaryDark = Color(0xFF00382A)
-val PrimaryContainerDark = Color(0xFF00513D)
-val OnPrimaryContainerDark = Color(0xFFA5F2D3)
-val SecondaryDark = Color(0xFFB3CCBF)
-val OnSecondaryDark = Color(0xFF1E352C)
-val SecondaryContainerDark = Color(0xFF344B42)
-val OnSecondaryContainerDark = Color(0xFFCEE9DB)
-val BackgroundDark = Color(0xFF191C1A)
-val OnBackgroundDark = Color(0xFFE1E3DF)
-val SurfaceDark = Color(0xFF191C1A)
-val OnSurfaceDark = Color(0xFFE1E3DF)
-val ErrorDark = Color(0xFFFFB4AB)
-val OnErrorDark = Color(0xFF690005)
+// Azul principal (balance, acciones, navegación)
+val PrimaryLight = Color(0xFF2563EB)
+val OnPrimaryLight = Color(0xFFFFFFFF)
+val PrimaryContainerLight = Color(0xFFDBEAFE)
+val OnPrimaryContainerLight = Color(0xFF1E3A8A)
+
+// Verde (ingresos)
+val TertiaryLight = Color(0xFF15803D)
+val OnTertiaryLight = Color(0xFFFFFFFF)
+val TertiaryContainerLight = Color(0xFFBBF7D0)
+val OnTertiaryContainerLight = Color(0xFF14532D)
+
+// Rojo (gastos y errores)
+val ErrorLight = Color(0xFFDC2626)
+val OnErrorLight = Color(0xFFFFFFFF)
+val ErrorContainerLight = Color(0xFFFEE2E2)
+val OnErrorContainerLight = Color(0xFF7F1D1D)
+
+// Neutros
+val BackgroundLight = Color(0xFFF8FAFC)
+val OnBackgroundLight = Color(0xFF0F172A)
+val SurfaceLight = Color(0xFFFFFFFF)
+val OnSurfaceLight = Color(0xFF0F172A)
+val SurfaceVariantLight = Color(0xFFF1F5F9)
+val OnSurfaceVariantLight = Color(0xFF475569)
+val OutlineLight = Color(0xFF64748B)
+val OutlineVariantLight = Color(0xFFE2E8F0)
+
+// Superficies elevadas (NavigationBar, Cards, diálogos, sheets)
+val SurfaceContainerLowestLight = Color(0xFFFFFFFF)
+val SurfaceContainerLowLight = Color(0xFFF8FAFC)
+val SurfaceContainerLight = Color(0xFFF1F5F9)
+val SurfaceContainerHighLight = Color(0xFFE2E8F0)
+val SurfaceContainerHighestLight = Color(0xFFCBD5E1)
+
+// Secundario (apoyo, sin carga semántica)
+val SecondaryLight = Color(0xFF475569)
+val OnSecondaryLight = Color(0xFFFFFFFF)
+val SecondaryContainerLight = Color(0xFFE2E8F0)
+val OnSecondaryContainerLight = Color(0xFF1E293B)

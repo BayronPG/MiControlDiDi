@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 26-jul-2026 — Fase 8.6 completada (strings hardcodeadas trasladadas a resources).
+> Actualizado: 02-ago-2026 — Mejora 2 validada: rediseño del dashboard con identidad fintech y modo claro únicamente (307/307, 0 fallos).
 
 ---
 
@@ -467,6 +467,23 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - ✅ Índices `fechaHora` en viajes/gastos + `MIGRATION_3_4` — commit `0af17a6`.
 - Pendiente: ejecutar instrumentadas (incl. `migracionTresACuatro`) en ALT-LX3.
 
+## Mejora 2 — Rediseño del Dashboard y modo claro únicamente (02-ago-2026)
+
+- **Identidad visual fintech aplicada al dashboard**: paleta semántica (azul = balance/acciones, verde = ingresos, rojo = gastos/errores, neutros = fondo/superficies), `GananciaHeroCard`, `ResumenCard` con iconos, tarjetas sin elevación, `FilterChip` con borde, `MetaProgressCard` reestilizada.
+- **Esquema de color claro exclusivamente**: solo `lightColorScheme`; la app no responde al modo oscuro del sistema ni a colores dinámicos.
+- **Eliminación de la selección y gestión de tema**: retirados `ThemePreferenceManager.kt`, `ThemeMode` (persistencia, StateFlow y propagación) y el selector de tema en Configuración; eliminados 4 recursos `settings_tema_*`.
+- Fase 7 retirada del alcance por decisión de producto. Se eliminó la funcionalidad de selección de tema y la aplicación conserva únicamente el esquema claro.
+
+### Validación (02-ago-2026)
+
+| Verificación | Resultado |
+|---|---|
+| `assembleDebug` | ✅ Correcto |
+| `assembleRelease` con R8 | ✅ Correcto |
+| `testDebugUnitTest` | ✅ 179/179 |
+| `connectedDebugAndroidTest` en ALT-LX3 | ✅ 128/128 |
+| **Total** | **307/307, 0 fallos y 0 pruebas omitidas** |
+
 ## Pendiente
 
 ### Fase 5 — Dashboard y balance (completa)
@@ -482,5 +499,5 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 ### Otras fases
 - [x] Editar y eliminar viajes (completado).
 - [x] **Fase 6: Filtros, metas, dashboard y estadísticas — Completada ✅**
-- [x] Fase 7: Preferencias (tema claro/oscuro) — Completada ✅
+- [x] Fase 7: Preferencias (tema claro/oscuro) — **Retirada del alcance por decisión de producto. Se eliminó la funcionalidad de selección de tema y la aplicación conserva únicamente el esquema claro.**
 - [ ] Fase 8: Calidad y cierre del MVP (en progreso).

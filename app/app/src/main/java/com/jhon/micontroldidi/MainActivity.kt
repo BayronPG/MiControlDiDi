@@ -16,7 +16,6 @@ import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.navigation.AppNavGraph
-import com.jhon.micontroldidi.ui.settings.ThemePreferenceManager
 import com.jhon.micontroldidi.ui.theme.MiControlDiDiTheme
 import com.jhon.micontroldidi.util.ResourceProvider
 
@@ -31,13 +30,10 @@ class MainActivity : ComponentActivity() {
         val gastoRepository = GastoRepository(database.gastoDao())
         val metaRepository = MetaRepository(database.metaDao())
 
-        val themeManager = ThemePreferenceManager(applicationContext)
         val resourceProvider = ResourceProvider { resId -> resources.getString(resId) }
 
         setContent {
-            MiControlDiDiTheme(
-                themeManager = themeManager
-            ) {
+            MiControlDiDiTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -49,7 +45,6 @@ class MainActivity : ComponentActivity() {
                         gastoRepository = gastoRepository,
                         categoriaGastoRepository = categoriaGastoRepository,
                         metaRepository = metaRepository,
-                        themeManager = themeManager,
                         resourceProvider = resourceProvider
                     )
                 }

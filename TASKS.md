@@ -323,16 +323,20 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 ---
 
 ## Fase 7 — Preferencias (Sprint 3 — Semana 2)
-| Tarea | Prioridad | Dependencias |
-|---|---|---|
-| 7.1 Crear pantalla de configuración con cambio de tema (claro/oscuro) | [B] | 2.5 |
-| 7.2 Leer y persistir preferencia de tema usando DataStore o ConfiguracionEntity | [B] | 7.1 |
-| 7.3 Aplicar tema seleccionado al iniciar la app | [B] | 7.2 |
+
+> **Fase 7 retirada del alcance por decisión de producto.** Se eliminó la funcionalidad de selección de tema y la aplicación conserva únicamente el esquema claro.
+
+| Tarea | Prioridad | Dependencias | Estado |
+|---|---|---|---|
+| 7.1 Crear pantalla de configuración con cambio de tema (claro/oscuro) | [B] | 2.5 | ❌ Retirada (decisión de producto, 02-ago-2026) |
+| 7.2 Leer y persistir preferencia de tema usando DataStore o ConfiguracionEntity | [B] | 7.1 | ❌ Retirada (decisión de producto, 02-ago-2026) |
+| 7.3 Aplicar tema seleccionado al iniciar la app | [B] | 7.2 | ❌ Retirada (decisión de producto, 02-ago-2026) |
 
 ### Criterios de aceptación — Fase 7
-- El tema claro/oscuro se cambia desde Configuración.
-- La preferencia persiste al reiniciar la app.
-- Todos los componentes respetan el tema seleccionado.
+- ~~El tema claro/oscuro se cambia desde Configuración.~~
+- ~~La preferencia persiste al reiniciar la app.~~
+- ~~Todos los componentes respetan el tema seleccionado.~~
+- La aplicación funciona únicamente en esquema de color claro, sin selector de tema.
 
 ---
 
@@ -372,13 +376,23 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 
 > Instrumentadas validadas en ALT-LX3: **128/128** (01-ago-2026), incluye PersistenciaTest (8.4).
 
+## Mejora 2 — Rediseño del Dashboard + modo claro únicamente (02-ago-2026)
+
+| Mejora | Detalle | Estado |
+|---|---|---|
+| Identidad visual fintech | Paleta semántica: azul = balance/acciones, verde = ingresos, rojo = gastos/errores, neutros = fondo/superficies. Dashboard rediseñado (GananciaHeroCard, ResumenCard con iconos, tarjetas sin elevación, chips con borde). | ✅ Validada |
+| Modo claro únicamente | Solo `lightColorScheme`; la app no responde al modo oscuro del sistema ni a colores dinámicos. | ✅ Validada |
+| Retiro de selección y gestión de tema | Eliminados `ThemePreferenceManager.kt`, `ThemeMode` (persistencia, StateFlow y propagación), el selector de tema en Configuración y 4 recursos `settings_tema_*`. Fase 7 retirada del alcance por decisión de producto. | ✅ Validada |
+
+**Validación (02-ago-2026):** `assembleDebug` correcto · `assembleRelease` con R8 correcto · `testDebugUnitTest` **179/179** · `connectedDebugAndroidTest` en ALT-LX3 **128/128** · **Total 307/307, 0 fallos y 0 pruebas omitidas**.
+
 ## Resumen de sprints
 
 | Sprint | Semana | Fases | Historias de usuario |
 |---|---|---|---|
 | Sprint 1 | Semana 1–2 | Fase 1 + Fase 2 + Fase 3 | HU-01, HU-03 |
 | Sprint 2 | Semana 3–4 | Fase 4 + Fase 5 | HU-02, HU-05, HU-08 |
-| Sprint 3 | Semana 5–6 | Fase 6 + Fase 7 | HU-04, HU-06, HU-07 |
+| Sprint 3 | Semana 5–6 | Fase 6 + Fase 7 (retirada) | HU-04, HU-06, HU-07 |
 | Sprint 4 | Semana 7 | Fase 8 | Todas (validación final) |
 
 ## Detalles de implementación técnica

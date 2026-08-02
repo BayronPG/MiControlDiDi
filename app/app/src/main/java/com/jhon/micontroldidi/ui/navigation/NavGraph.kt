@@ -39,7 +39,6 @@ import com.jhon.micontroldidi.ui.gasto.RegistrarGastoScreen
 import com.jhon.micontroldidi.ui.meta.ConfigurarMetaScreen
 import com.jhon.micontroldidi.ui.meta.MetaViewModel
 import com.jhon.micontroldidi.ui.settings.SettingsScreen
-import com.jhon.micontroldidi.ui.settings.ThemePreferenceManager
 import com.jhon.micontroldidi.ui.stats.StatsScreen
 import com.jhon.micontroldidi.ui.stats.StatsViewModel
 import com.jhon.micontroldidi.ui.viaje.ListaViajesScreen
@@ -127,7 +126,6 @@ fun AppNavGraph(
     gastoRepository: GastoRepository,
     categoriaGastoRepository: CategoriaGastoRepository,
     metaRepository: MetaRepository,
-    themeManager: ThemePreferenceManager,
     resourceProvider: ResourceProvider
 ) {
     val viajeViewModel: ViajeViewModel = viewModel(
@@ -303,7 +301,6 @@ fun AppNavGraph(
 
             composable(Rutas.CONFIGURACION) {
                 SettingsScreen(
-                    themeManager = themeManager,
                     onNavegarAConfigurarMeta = {
                         navController.navigate(Rutas.CONFIGURAR_META)
                     }
