@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 16-ago-2026 — 8.8 validada en ALT-LX3: instrumentadas 128/128 (0 fallos) tras corrección de filtros por fecha y paneles con scroll.
+> Actualizado: 16-ago-2026 — Fase 8 cerrada: APK demo regenerado con el código vigente; 322/322 pruebas; push a origin/main completado.
 
 ---
 
@@ -205,7 +205,7 @@ class Factory(
 > - Instrumentadas vigentes desde la validación del Incremento 1B: **65/65** (`connectedDebugAndroidTest` en HONOR ALT-LX3).
 > - 3 nuevas pruebas Compose para los FABs de acceso rápido. Pendiente `connectedDebugAndroidTest`.
 
-## Fase 8 — Calidad y cierre del MVP (en progreso)
+## Fase 8 — Calidad y cierre del MVP (cerrada 16-ago-2026 ✅)
 
 ### 8.0 — Corrección de pruebas obsoletas por cambio de UI (26-jul-2026)
 
@@ -271,13 +271,13 @@ Se creó `PersistenciaTest` (instrumentado): a diferencia de los DAO tests (que 
 
 ---
 
-### 8.9 — Preparación de APK de demostración (01-ago-2026)
+### 8.9 — Preparación de APK de demostración (01-ago-2026 · regenerado 16-ago-2026)
 
 - `assembleRelease` BUILD SUCCESSFUL (valida R8/ProGuard con todo el código actual).
-- APK de demo generado: `dist/MiControlDiDi-v1.0.0-demo.apk` (10.44 MB, firmado con debug key → instalable directamente).
-- Verificado: estructura válida (135 entradas, `classes.dex`, `AndroidManifest.xml`, `resources.arsc` presentes).
-- `dist/` agregado a `.gitignore` (artefacto de distribución, no se commitea).
-- Nota: el APK release (`app-release-unsigned.apk`) requiere configuración de firma para producción; para prueba piloto se usa el APK de debug firmado.
+- APK de demo regenerado: `dist/MiControlDiDi-v1.0.0-demo.apk` (4.36 MB, firmado con debug key → instalable directamente; verificado: 130 entradas, `classes.dex`, `AndroidManifest.xml`, `resources.arsc`, firma META-INF presentes).
+- Incluye el código vigente: Mejora 2 (dashboard fintech, modo claro) y correcciones 8.8 (filtros por fecha, paneles con scroll).
+- `dist/` en `.gitignore` (artefacto de distribución, no se commitea).
+- Nota: el APK release sin firmar requiere configuración de firma para producción; para prueba piloto se usa el APK de debug firmado.
 
 **Validación:** `assembleRelease` BUILD SUCCESSFUL. Sin cambios de código en esta tarea.
 
@@ -416,7 +416,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - **H-8.7-01 — Filtro por fecha (gravedad MEDIA, fallo funcional):** con fecha inicial y final 02/08/2026 el gasto del 02/08 09:24 no apareció; al limpiar el filtro reaparece intacto. Causa raíz **no confirmada** (hipótesis de conversión UTC/zona local del DatePicker, expresamente no definitiva).
 - **H-8.7-02 — Panel de filtros recortado en ALT-LX3 (gravedad MEDIA, defecto de UI):** los DatePicker expandidos ocupan la pantalla; chips de categoría no visibles; Aplicar/Cancelar recortados; filtro por categoría Gasolina no validable desde la UI. Reproducido solo en ALT-LX3.
 
-**Fase 8.8:** pendiente de autorización · recomendada (ambos hallazgos son candidatos bloqueantes para el cierre funcional del MVP) · **no iniciada** · sin correcciones implementadas · requiere auditoría técnica antes de modificar código.
+**Fase 8.8:** ~~pendiente de autorización · recomendada · no iniciada~~ — **autorizada, implementada y validada el 16-ago-2026** (ver sección 8.8; instrumentadas 128/128 en ALT-LX3).
 
 **Evidencias (fuera del repositorio):** `C:\Proyectos\MiControlDiDi_Evidencia_8.7\` — 8.7-C_linea_base (18) · 8.7-D_viaje_previo (11) · 8.7-E_gasto_previo (18) · 8.7-F_meta_estado_previo (19) · 8.7-G_cierres_reaperturas (44) = **110 evidencias**, inventariadas con SHA-256.
 
@@ -450,7 +450,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 | `testDebugUnitTest` | ✅ **194/194** (179 previas + 15 nuevas de `CalculadorRangoFiltroTest`) |
 | `connectedDebugAndroidTest` en ALT-LX3 | ✅ **128/128, 0 fallos, 0 omitidas** (16-ago-2026) |
 
-**Pendiente:** verificación manual en el físico del filtro por fecha (H-8.7-01) y del panel con scroll (H-8.7-02), pendiente de sesión con el dispositivo a mano.
+**Pendiente:** ~~verificación manual en el físico del filtro por fecha (H-8.7-01) y del panel con scroll (H-8.7-02)~~ — descartada por decisión del usuario (16-ago-2026); la validación automatizada en ALT-LX3 (128/128) es la vigente.
 
 ---
 
@@ -555,4 +555,4 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - [x] Editar y eliminar viajes (completado).
 - [x] **Fase 6: Filtros, metas, dashboard y estadísticas — Completada ✅**
 - [x] Fase 7: Preferencias (tema claro/oscuro) — **Retirada del alcance por decisión de producto. Se eliminó la funcionalidad de selección de tema y la aplicación conserva únicamente el esquema claro.**
-- [ ] Fase 8: Calidad y cierre del MVP (en progreso).
+- [x] **Fase 8: Calidad y cierre del MVP — Cerrada el 16-ago-2026 ✅** (322/322 pruebas; APK demo regenerado; push a origin/main; verificación manual descartada por decisión del usuario).

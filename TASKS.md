@@ -355,7 +355,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | 8.6 — Verificar strings hardcodeadas | ✅ | 26-jul-2026 |
 | 8.7 — Probar persistencia cerrar/abrir | ✅ Completada (persistencia manual aprobada en ALT-LX3, 3 ciclos; ver detalle abajo) | 02-ago-2026 |
 | 8.8 — Corregir errores críticos encontrados | ✅ Implementado (03-ago-2026): H-8.7-01 fecha UTC→local, H-8.7-02 panel con scroll, H-8.8-03 validación inicio≤fin. Unitarias 194/194 + assembleDebug OK. ✅ `connectedDebugAndroidTest` en ALT-LX3: **128/128, 0 fallos** (16-ago-2026). ⏳ Pendiente: verificación manual en físico del filtro por fecha (H-8.7-01) y del panel con scroll (H-8.7-02) | 03-ago-2026 |
-| 8.9 — Preparar APK de demostración | ✅ (`dist/MiControlDiDi-v1.0.0-demo.apk`; `assembleRelease` OK) | 01-ago-2026 |
+| 8.9 — Preparar APK de demostración | ✅ (`dist/MiControlDiDi-v1.0.0-demo.apk`; `assembleRelease` OK) | 01-ago-2026 · **regenerado 16-ago-2026** con Mejora 2 + 8.8 |
 
 ### 8.7 — Verificación manual de persistencia (02-ago-2026)
 
@@ -375,12 +375,14 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 **Fase 8.8:** estado pendiente de autorización · activación recomendada por H-8.7-01 y H-8.7-02 (candidatos bloqueantes para el cierre funcional del MVP, pese a gravedad individual MEDIA) · **no iniciada** · ninguna corrección implementada · ninguna causa raíz confirmada · requiere auditoría técnica antes de modificar código.
 
 ### Criterios de aceptación — Fase 8
-- No hay defectos críticos ni bloqueantes en los flujos principales del MVP.
-- Todas las pruebas unitarias pasan.
-- La app funciona completamente sin conexión a Internet.
-- Los datos persisten después de cerrar y reabrir la app.
-- No hay textos visibles hardcodeados en el código Kotlin.
-- Se genera un APK funcional para prueba piloto.
+- ✅ No hay defectos críticos ni bloqueantes en los flujos principales del MVP (H-8.7-01, H-8.7-02 y H-8.8-03 corregidos en 8.8 y validados en ALT-LX3: 128/128 instrumentadas).
+- ✅ Todas las pruebas unitarias pasan (194/194).
+- ✅ La app funciona completamente sin conexión a Internet.
+- ✅ Los datos persisten después de cerrar y reabrir la app (8.4 automatizado + 8.7 manual).
+- ✅ No hay textos visibles hardcodeados en el código Kotlin (8.2, 8.6).
+- ✅ Se genera un APK funcional para prueba piloto (`dist/MiControlDiDi-v1.0.0-demo.apk`, regenerado 16-ago-2026 con el código actual).
+
+> **Fase 8 cerrada el 16-ago-2026.** Verificación manual en físico de 5.19/5.27 y de los filtros 8.8 descartada por decisión del usuario (16-ago-2026); la validación automatizada en ALT-LX3 (322/322) es la vigente.
 
 ---
 
