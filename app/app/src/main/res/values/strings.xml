@@ -60,6 +60,9 @@
     <string name="gastos_sin_resultados">No hay gastos en el rango seleccionado</string>
     <string name="gastos_todas_categorias">Todas las categorías</string>
 
+    <!-- Error de rango de fechas inválido en filtros -->
+    <string name="error_filtro_rango_invalido">La fecha inicial debe ser anterior o igual a la fecha final</string>
+
     <!-- Error de carga de lista de gastos -->
     <string name="gastos_error_carga">Error al cargar los gastos</string>
 

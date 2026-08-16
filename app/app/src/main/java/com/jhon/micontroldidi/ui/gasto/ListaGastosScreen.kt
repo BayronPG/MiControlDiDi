@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
@@ -53,11 +55,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.local.entity.GastoConCategoria
+import com.jhon.micontroldidi.util.CalculadorRangoFiltro
 import com.jhon.micontroldidi.util.CurrencyFormatter
 import com.jhon.micontroldidi.util.DateFormatter
-import java.time.Instant
 import java.time.ZoneId
-import java.time.ZonedDateTime
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -289,19 +290,25 @@ private fun FiltroGastosContent(
     onCancelar: () -> Unit
 ) {
     val zona = ZoneId.systemDefault()
+    val errorRangoInvalido = stringResource(R.string.error_filtro_rango_invalido)
 
+    // El DatePicker de Material 3 expone la fecha seleccionada como medianoche UTC.
     val inicioPickerState = rememberDatePickerState(
-        initialSelectedDateMillis = filtroInicio ?: inicioDelDia(zona)
+        initialSelectedDateMillis = filtroInicio?.let { CalculadorRangoFiltro.aUtcMedianoche(it, zona) }
+            ?: CalculadorRangoFiltro.aUtcMedianoche(System.currentTimeMillis(), zona)
     )
     val finPickerState = rememberDatePickerState(
-        initialSelectedDateMillis = filtroFin ?: finDelDia(zona)
+        initialSelectedDateMillis = filtroFin?.let { CalculadorRangoFiltro.aUtcMedianoche(it, zona) }
+            ?: CalculadorRangoFiltro.aUtcMedianoche(System.currentTimeMillis(), zona)
     )
 
     var categoriaSeleccionadaId by remember { mutableStateOf(filtroCategoriaId) }
+    var errorRango by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
             .testTag("selector_filtro_gastos_container"),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -355,6 +362,14 @@ private fun FiltroGastosContent(
             }
         }
 
+        errorRango?.let { mensajeRangoError ->
+            Text(
+                text = mensajeRangoError,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -368,9 +383,13 @@ private fun FiltroGastosContent(
                     val inicioMs = inicioPickerState.selectedDateMillis
                     val finMs = finPickerState.selectedDateMillis
                     if (inicioMs != null && finMs != null) {
-                        val inicio = inicioDelDia(zona, inicioMs)
-                        val fin = inicioDelDia(zona, finMs) + 86_400_000L
-                        onAplicar(inicio, fin, categoriaSeleccionadaId)
+                        val rango = CalculadorRangoFiltro.rangoFiltro(inicioMs, finMs, zona)
+                        if (rango != null) {
+                            errorRango = null
+                            onAplicar(rango.inicioInclusivo, rango.finExclusivo, categoriaSeleccionadaId)
+                        } else {
+                            errorRango = errorRangoInvalido
+                        }
                     }
                 },
                 modifier = Modifier.testTag("boton_aplicar_filtro_gastos")
@@ -379,19 +398,6 @@ private fun FiltroGastosContent(
             }
         }
     }
-}
-
-/** Devuelve el timestamp de las 00:00:00.000 del día que contiene [epochMs]. */
-private fun inicioDelDia(zona: ZoneId, epochMs: Long = System.currentTimeMillis()): Long {
-    val zdt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMs), zona)
-    return zdt.toLocalDate().atStartOfDay(zona).toInstant().toEpochMilli()
-}
-
-/** Devuelve el timestamp de las 23:59:59.999 del día que contiene [epochMs]. */
-@Suppress("unused")
-private fun finDelDia(zona: ZoneId, epochMs: Long = System.currentTimeMillis()): Long {
-    val zdt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMs), zona)
-    return zdt.toLocalDate().plusDays(1).atStartOfDay(zona).toInstant().toEpochMilli() - 1
 }
 
 @Composable

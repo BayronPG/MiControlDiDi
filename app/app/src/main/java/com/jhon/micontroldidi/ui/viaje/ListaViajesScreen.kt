@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
@@ -39,6 +41,9 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -48,11 +53,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
+import com.jhon.micontroldidi.util.CalculadorRangoFiltro
 import com.jhon.micontroldidi.util.CurrencyFormatter
 import com.jhon.micontroldidi.util.DateFormatter
-import java.time.Instant
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -407,17 +411,24 @@ private fun SelectorFechaContent(
     onCancelar: () -> Unit
 ) {
     val zona = ZoneId.systemDefault()
+    val errorRangoInvalido = stringResource(R.string.error_filtro_rango_invalido)
 
+    // El DatePicker de Material 3 expone la fecha seleccionada como medianoche UTC.
     val inicioPickerState = rememberDatePickerState(
-        initialSelectedDateMillis = filtroInicio ?: inicioDelDia(zona)
+        initialSelectedDateMillis = filtroInicio?.let { CalculadorRangoFiltro.aUtcMedianoche(it, zona) }
+            ?: CalculadorRangoFiltro.aUtcMedianoche(System.currentTimeMillis(), zona)
     )
     val finPickerState = rememberDatePickerState(
-        initialSelectedDateMillis = filtroFin ?: finDelDia(zona)
+        initialSelectedDateMillis = filtroFin?.let { CalculadorRangoFiltro.aUtcMedianoche(it, zona) }
+            ?: CalculadorRangoFiltro.aUtcMedianoche(System.currentTimeMillis(), zona)
     )
+
+    var errorRango by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
             .testTag("selector_fecha_container"),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -446,6 +457,14 @@ private fun SelectorFechaContent(
             )
         )
 
+        errorRango?.let { mensajeRangoError ->
+            Text(
+                text = mensajeRangoError,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -459,9 +478,13 @@ private fun SelectorFechaContent(
                     val inicioMs = inicioPickerState.selectedDateMillis
                     val finMs = finPickerState.selectedDateMillis
                     if (inicioMs != null && finMs != null) {
-                        val inicio = inicioDelDia(zona, inicioMs)
-                        val fin = inicioDelDia(zona, finMs) + 86_400_000L // +1 día
-                        onAplicar(inicio, fin)
+                        val rango = CalculadorRangoFiltro.rangoFiltro(inicioMs, finMs, zona)
+                        if (rango != null) {
+                            errorRango = null
+                            onAplicar(rango.inicioInclusivo, rango.finExclusivo)
+                        } else {
+                            errorRango = errorRangoInvalido
+                        }
                     }
                 },
                 modifier = Modifier.testTag("boton_aplicar_filtro")
@@ -470,19 +493,6 @@ private fun SelectorFechaContent(
             }
         }
     }
-}
-
-/** Devuelve el timestamp de las 00:00:00.000 del día que contiene [epochMs]. */
-private fun inicioDelDia(zona: ZoneId, epochMs: Long = System.currentTimeMillis()): Long {
-    val zdt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMs), zona)
-    return zdt.toLocalDate().atStartOfDay(zona).toInstant().toEpochMilli()
-}
-
-/** Devuelve el timestamp de las 23:59:59.999 del día que contiene [epochMs]. */
-@Suppress("UNUSED_PRIVATE_PARAMETER")
-private fun finDelDia(zona: ZoneId, epochMs: Long = System.currentTimeMillis()): Long {
-    val zdt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMs), zona)
-    return zdt.toLocalDate().plusDays(1).atStartOfDay(zona).toInstant().toEpochMilli() - 1
 }
 
 @Composable
