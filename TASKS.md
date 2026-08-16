@@ -354,7 +354,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | 8.5 — Revisar accesibilidad (contraste, etiquetas, áreas táctiles) | ✅ (2 correcciones: icono meta navegable, filas de tema seleccionables) | 01-ago-2026 |
 | 8.6 — Verificar strings hardcodeadas | ✅ | 26-jul-2026 |
 | 8.7 — Probar persistencia cerrar/abrir | ✅ Completada (persistencia manual aprobada en ALT-LX3, 3 ciclos; ver detalle abajo) | 02-ago-2026 |
-| 8.8 — Corregir errores críticos encontrados | ⏳ Pendiente de autorización (recomendada por H-8.7-01 y H-8.7-02) | — |
+| 8.8 — Corregir errores críticos encontrados | ✅ Implementado (03-ago-2026): H-8.7-01 fecha UTC→local, H-8.7-02 panel con scroll, H-8.8-03 validación inicio≤fin. Unitarias 194/194 + assembleDebug OK. ✅ `connectedDebugAndroidTest` en ALT-LX3: **128/128, 0 fallos** (16-ago-2026). ⏳ Pendiente: verificación manual en físico del filtro por fecha (H-8.7-01) y del panel con scroll (H-8.7-02) | 03-ago-2026 |
 | 8.9 — Preparar APK de demostración | ✅ (`dist/MiControlDiDi-v1.0.0-demo.apk`; `assembleRelease` OK) | 01-ago-2026 |
 
 ### 8.7 — Verificación manual de persistencia (02-ago-2026)

@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 02-ago-2026 — Mejora 2 validada: rediseño del dashboard con identidad fintech y modo claro únicamente (307/307, 0 fallos).
+> Actualizado: 16-ago-2026 — 8.8 validada en ALT-LX3: instrumentadas 128/128 (0 fallos) tras corrección de filtros por fecha y paneles con scroll.
 
 ---
 
@@ -419,6 +419,38 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 **Fase 8.8:** pendiente de autorización · recomendada (ambos hallazgos son candidatos bloqueantes para el cierre funcional del MVP) · **no iniciada** · sin correcciones implementadas · requiere auditoría técnica antes de modificar código.
 
 **Evidencias (fuera del repositorio):** `C:\Proyectos\MiControlDiDi_Evidencia_8.7\` — 8.7-C_linea_base (18) · 8.7-D_viaje_previo (11) · 8.7-E_gasto_previo (18) · 8.7-F_meta_estado_previo (19) · 8.7-G_cierres_reaperturas (44) = **110 evidencias**, inventariadas con SHA-256.
+
+---
+
+### 8.8 — Corrección de errores críticos: H-8.7-01, H-8.7-02 y H-8.8-03 (03-ago-2026)
+
+**Auditoría técnica completada** (autorizada el 03-ago-2026): causa raíz confirmada en ambos hallazgos de la 8.7.
+
+#### H-8.7-01 — Filtro por fecha excluye el día seleccionado (CONFIRMADO y CORREGIDO)
+
+**Causa raíz:** `DatePickerState.selectedDateMillis` de Material 3 expone la fecha seleccionada como **medianoche UTC**. El código lo interpretaba como hora local del dispositivo (Bogotá, UTC-5), desplazando el día seleccionado un día hacia atrás: con inicial y final 02/08/2026 el rango real era `[01/08 00:00, 02/08 00:00)` y el gasto del 02/08 09:24 quedaba fuera.
+
+**Corrección:** nuevo `util/CalculadorRangoFiltro.kt` que interpreta la selección como UTC (`Instant.ofEpochMilli(ms).atZone(ZoneOffset.UTC).toLocalDate()`) y calcula `atStartOfDay(zona)` en la zona del dispositivo. Aplicado en `FiltroGastosContent` (gastos) y `SelectorFechaContent` (viajes), eliminando la duplicación de `inicioDelDia`/`finDelDia` y la inicialización incorrecta del picker con filtros ya aplicados (`aUtcMedianoche`).
+
+#### H-8.7-02 — Panel de filtros recortado en ALT-LX3 (CONFIRMADO y CORREGIDO)
+
+**Causa raíz:** `FiltroGastosContent`/`SelectorFechaContent` eran `Column` fijos sin scroll con dos `DatePicker` expandidos + chips + botones, excediendo la altura de pantalla del ALT-LX3 (chips y Aplicar/Cancelar inaccesibles).
+
+**Corrección:** ambos paneles ahora usan `Modifier.verticalScroll(rememberScrollState())`, dejando todo el contenido alcanzable por desplazamiento.
+
+#### H-8.8-03 — Sin validación de rango inicio ≤ fin (NUEVO, CORREGIDO)
+
+`CalculadorRangoFiltro.rangoFiltro()` devuelve `null` si la fecha inicial es posterior a la final; la UI muestra `error_filtro_rango_invalido` ("La fecha inicial debe ser anterior o igual a la fecha final") y no aplica el filtro. Aplicado en gastos y viajes.
+
+#### Validación (03-ago-2026, sin dispositivo)
+
+| Verificación | Resultado |
+|---|---|
+| `assembleDebug` | ✅ Correcto |
+| `testDebugUnitTest` | ✅ **194/194** (179 previas + 15 nuevas de `CalculadorRangoFiltroTest`) |
+| `connectedDebugAndroidTest` en ALT-LX3 | ✅ **128/128, 0 fallos, 0 omitidas** (16-ago-2026) |
+
+**Pendiente:** verificación manual en el físico del filtro por fecha (H-8.7-01) y del panel con scroll (H-8.7-02), pendiente de sesión con el dispositivo a mano.
 
 ---
 
