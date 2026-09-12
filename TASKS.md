@@ -93,8 +93,8 @@
 | **3.6** Crear útiles: CurrencyFormatter, DateFormatter | [H] | — | ✅ Creados |
 | **3.7** Actualizar MainActivity con NavGraph | [H] | 3.5 | ✅ Actualizada |
 | **3.8** Pruebas unitarias del ViewModel (10 tests) | [H] | 3.1 | ✅ Creadas y pasan |
-| **—** Editar viaje | [H] | — | ⏳ Pendiente |
-| **—** Eliminar viaje | [H] | — | ⏳ Pendiente |
+| **—** Editar viaje | [H] | — | ✅ Completado |
+| **—** Eliminar viaje | [H] | — | ✅ Completado |
 
 ### Criterios de aceptación — Fase 3 (cierre)
 - ✅ `ViajeViewModel` con StateFlow, validación, Factory y protección contra doble clic.
@@ -111,8 +111,8 @@
   - Valor $12.500 + Propina $1.500 = Total $14.000
   - Cerrada y reabierta → viaje visible.
 - ⚠️ `exportSchema = false` — deuda técnica: Room 2.8.4 incompatible con Kotlin 2.1.20.
-- ❌ Editar viaje: pendiente.
-- ❌ Eliminar viaje: pendiente.
+- ✅ Editar viaje: completado.
+- ✅ Eliminar viaje: completado.
 
 ---
 
@@ -147,7 +147,7 @@
 
 ## Fase 5 — Dashboard y balance (Sprint 2 — Semana 2)
 
-> **Estado:** Completado. Incrementos 1A, 1B, 1C y 1D completados, validados e integrados en `main`. Fase lista para cierre técnico.
+> **Estado:** Completada (cerrada). Incrementos 1A, 1B, 1C y 1D completados, validados e integrados en `main`.
 
 ### Incremento 1A: Cálculo de periodos del Dashboard ✅
 
@@ -225,7 +225,7 @@ Integrado y publicado en `main`.
 | 5.16 Implementar selector visual de periodo (día / semana / mes) | [H] | 5.9 | ✅ Implementado |
 | 5.17 Aplicar formato monetario COP (`$ #,##0`) a los valores | [H] | 5.9 | ✅ Aplicado |
 | 5.18 Pruebas Compose del DashboardScreen | [H] | 5.9 | ✅ 17 pruebas |
-| 5.19 Verificación manual en HONOR ALT-LX3 | [H] | 5.18 | ⏳ Pendiente |
+| 5.19 Verificación manual en HONOR ALT-LX3 | [H] | 5.18 | — Descartada por decisión del usuario (16-ago-2026) |
 
 ---
 
@@ -240,17 +240,17 @@ Integrado y publicado en `main`.
 | 5.24 Acceso rápido "Registrar viaje" desde Dashboard | [H] | 5.9 | ✅ FAB con callback |
 | 5.25 Acceso rápido "Registrar gasto" desde Dashboard | [H] | 5.9 | ✅ FAB con callback |
 | 5.26 Pruebas Compose de FABs y navegación | [H] | 5.24–5.25 | ✅ 3 pruebas añadidas |
-| 5.27 Verificación manual de navegación en HONOR ALT-LX3 | [H] | 5.26 | ⏳ Pendiente |
+| 5.27 Verificación manual de navegación en HONOR ALT-LX3 | [H] | 5.26 | — Descartada por decisión del usuario (16-ago-2026) |
 
 ---
 
-### Conteos y trazabilidad — Fase 5
+### Conteos y trazabilidad — Fase 5 (instantánea al 25-jul-2026)
 
 | Métrica | Valor |
 |---|---|
-| Unitarias vigentes | **113** |
-| Instrumentadas vigentes | **65** (+3 nuevas de FABs) |
-| **Total** | **178 unitarias + 68 instrumentadas (~181 total)** |
+| Unitarias (25-jul-2026) | **113** |
+| Instrumentadas (25-jul-2026) | **65** (+3 nuevas de FABs) |
+| **Total en esa fecha** | **113 unitarias + 68 instrumentadas (181)** |
 
 - `testDebugUnitTest` posterior al Incremento 1D: **113/113** (BUILD SUCCESSFUL).
 - Última validación `connectedDebugAndroidTest` aplicable: **65/65** (Incremento 1B).
@@ -277,7 +277,7 @@ Integrado y publicado en `main`.
 - ✅ Accesos rápidos a registro de viaje y gasto (FABs).
 - ✅ Navegación desde/hacia Dashboard (barra inferior + startDestination).
 - ✅ 17 pruebas Compose del DashboardScreen (incl. 3 de FABs).
-- ⏳ Verificación manual en HONOR ALT-LX3.
+- — Verificación manual en ALT-LX3: descartada por decisión del usuario (16-ago-2026).
 
 ---
 
@@ -300,7 +300,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 
 ---
 
-## Fase 6 — Edición global, filtros y metas (Sprint 3 — Semana 1)
+## Fase 6 — Edición global, filtros y metas (Sprint 3 — Semana 1) — ✅ Completada
 | Tarea | Prioridad | Dependencias |
 |---|---|---|
 | 6.1 Implementar filtro por rango de fechas en listado de viajes | [M] | 3.2 | ✅ Implementado, validado e integrado en main |
@@ -316,9 +316,9 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 - ✅ Filtrar viajes por fecha: solo muestra los del rango.
 - ✅ Filtrar gastos por fecha y categoría: solo muestra los del rango y categoría.
 - ✅ Meta guardada persiste entre reinicios de app.
-- ⏳ Progreso de meta = (ganancia neta / meta) × 100.
-- ⏳ Estadísticas muestran cifras verificables contra los datos guardados.
-- ⏳ Pruebas pasan.
+- ✅ Progreso de meta = (ganancia neta / meta) × 100 (verificado manualmente en ALT-LX3, 8.7: meta $50.000 diaria → 20%).
+- ✅ Estadísticas muestran cifras verificables contra los datos guardados (verificado en ALT-LX3, 8.7).
+- ✅ Pruebas pasan (322/322).
 
 ---
 
@@ -354,7 +354,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | 8.5 — Revisar accesibilidad (contraste, etiquetas, áreas táctiles) | ✅ (2 correcciones: icono meta navegable, filas de tema seleccionables) | 01-ago-2026 |
 | 8.6 — Verificar strings hardcodeadas | ✅ | 26-jul-2026 |
 | 8.7 — Probar persistencia cerrar/abrir | ✅ Completada (persistencia manual aprobada en ALT-LX3, 3 ciclos; ver detalle abajo) | 02-ago-2026 |
-| 8.8 — Corregir errores críticos encontrados | ✅ Implementado (03-ago-2026): H-8.7-01 fecha UTC→local, H-8.7-02 panel con scroll, H-8.8-03 validación inicio≤fin. Unitarias 194/194 + assembleDebug OK. ✅ `connectedDebugAndroidTest` en ALT-LX3: **128/128, 0 fallos** (16-ago-2026). ⏳ Pendiente: verificación manual en físico del filtro por fecha (H-8.7-01) y del panel con scroll (H-8.7-02) | 03-ago-2026 |
+| 8.8 — Corregir errores críticos encontrados | ✅ Implementado (03-ago-2026): H-8.7-01 fecha UTC→local, H-8.7-02 panel con scroll, H-8.8-03 validación inicio≤fin. Unitarias 194/194 + assembleDebug OK. ✅ `connectedDebugAndroidTest` en ALT-LX3: **128/128, 0 fallos** (16-ago-2026). Verificación manual en físico descartada por decisión del usuario (16-ago-2026) | 03-ago-2026 |
 | 8.9 — Preparar APK de demostración | ✅ (`dist/MiControlDiDi-v1.0.0-demo.apk`; `assembleRelease` OK) | 01-ago-2026 · **regenerado 16-ago-2026** con Mejora 2 + 8.8 |
 
 ### 8.7 — Verificación manual de persistencia (02-ago-2026)

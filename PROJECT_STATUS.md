@@ -10,11 +10,11 @@ Capa de datos completa. Interfaz de viajes funcional. Gastos CRUD completo con e
 
 **Fase 5 completada.** Incrementos 1A–1D (dominio de periodos, consultas agregadas, DashboardViewModel y DashboardScreen con navegación) completados, validados e integrados en `main`.
 
-- **113 pruebas unitarias** (testDebugUnitTest BUILD SUCCESSFUL).
-- **68 pruebas instrumentadas** (65 anteriores + 3 nuevas de FABs en DashboardScreen).
+- **113 pruebas unitarias** — instantánea histórica al 25-jul-2026 (valores vigentes: ver «Batería de pruebas»).
+- **68 pruebas instrumentadas** — instantánea histórica al 25-jul-2026 (65 anteriores + 3 nuevas de FABs en DashboardScreen).
 - **0 flaky pendientes.**
 
-> **Las fases 1 a 5 están cerradas. La Fase 6 es la siguiente: filtros, metas y estadísticas.**
+> **Las fases 1 a 6 y la Fase 8 están cerradas; la Fase 7 fue retirada del alcance por decisión de producto. El MVP está completo (ver «Fase 8 — Calidad y cierre del MVP», cerrada el 16-ago-2026).**
 
 ## Completado
 
@@ -195,14 +195,14 @@ class Factory(
 
 | Tipo | Cantidad | Estado |
 |------|---:|---:|
-| Unitarias | **179** | 179/179 (0 fallos) |
+| Unitarias | **194** | 194/194 (0 fallos) |
 | Instrumentadas | **128** | 128/128 en ALT-LX3 (0 fallos) — incluye PersistenciaTest (8.4) y migración v3→v4 |
-| **Total** | **307** | 0 fallos |
+| **Total** | **322** | 0 fallos |
 
 > **Nota (25-jul-2026):**
 >
 > - Unitarias validadas tras integrar Incremento 1D: **113/113** (`testDebugUnitTest`, BUILD SUCCESSFUL).
-> - Instrumentadas vigentes desde la validación del Incremento 1B: **65/65** (`connectedDebugAndroidTest` en HONOR ALT-LX3).
+> - Instrumentadas de esa fecha (Incremento 1B): **65/65** (`connectedDebugAndroidTest` en HONOR ALT-LX3).
 > - 3 nuevas pruebas Compose para los FABs de acceso rápido. Pendiente `connectedDebugAndroidTest`.
 
 ## Fase 8 — Calidad y cierre del MVP (cerrada 16-ago-2026 ✅)
@@ -464,7 +464,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 | Eliminar gastos | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | ID inexistente | ✅ | ✅ | ✅ | — | ❌ no implementada | — |
 
-### Unitarias (113)
+### Unitarias (113) — instantánea al 25-jul-2026
 | Archivo | Pruebas |
 |---------|---------|
 | `ViajeEntityTest` | 6 |
@@ -477,7 +477,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 | `CalculadorRangoPeriodoTest` | **22** |
 | `DashboardViewModelTest` | **20** |
 
-### Instrumentadas (68)
+### Instrumentadas (68) — instantánea al 25-jul-2026
 | Archivo | Pruebas |
 |---------|---------|
 | `ViajeDaoTest` | **11** |
@@ -511,16 +511,20 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - ✅ Categorías siguen disponibles.
 - ✅ Sin cierres inesperados.
 
-## Deuda técnica
+## Deuda técnica (vigente)
 | Elemento | Detalle |
 |---|---|
 | `exportSchema` | `false` — Room 2.8.4 incompatible con Kotlin 2.1.20 |
-| Persistencia en HONOR | Verificada manualmente (no automatizada) |
+
+## Deuda cerrada o mitigada
+| Elemento | Detalle |
+|---|---|
+| Persistencia en dispositivo | Automatizada mediante `PersistenciaTest` en la Fase 8.4 (BD Room temporal en archivo: ciclo cierre → reapertura con instancia nueva de Room). Verificada manualmente durante la Fase 8.7 en ALT-LX3 (3 ciclos: segundo plano, retirada de recientes y force-stop). |
 
 ## Mejoras backend (01-ago-2026)
 - ✅ Enum `PeriodoMeta` (type-safety en meta, sin cambios de BD) — commit `f989047`.
 - ✅ Índices `fechaHora` en viajes/gastos + `MIGRATION_3_4` — commit `0af17a6`.
-- Pendiente: ejecutar instrumentadas (incl. `migracionTresACuatro`) en ALT-LX3.
+- ✅ Instrumentadas ejecutadas en ALT-LX3, incl. `migracionTresACuatro` (124/124 el 01-ago-2026; 128/128 tras 8.8 el 16-ago-2026).
 
 ## Mejora 2 — Rediseño del Dashboard y modo claro únicamente (02-ago-2026)
 
@@ -549,7 +553,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - [x] Ruta `dashboard` en NavGraph.
 - [x] Cambio de `startDestination` a Dashboard.
 - [x] Accesos rápidos "Registrar viaje" y "Registrar gasto" desde Dashboard.
-- [ ] Verificación manual en HONOR ALT-LX3.
+- [x] Verificación manual en ALT-LX3 — descartada por decisión del usuario (16-ago-2026); la validación automatizada en ALT-LX3 es la vigente.
 
 ### Otras fases
 - [x] Editar y eliminar viajes (completado).
