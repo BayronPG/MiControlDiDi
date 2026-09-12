@@ -30,3 +30,9 @@ BOOTSTRAP.md
 
 # OpenClaw local memory
 memory/
+
+# OpenClaw local memory / continuity
+MEMORY.md
+DREAMS.md
+SESSION_HANDOFF.md
+openclaw-workspace-state.json*
