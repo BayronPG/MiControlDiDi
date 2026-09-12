@@ -1,6 +1,7 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 16-ago-2026 — Fase 8 cerrada: APK demo regenerado con el código vigente; 322/322 pruebas; push a origin/main completado.
+> Actualizado: 12-sep-2026 — Incremento A del control diario cerrado (documentación únicamente: auditoría + ADR-001; sin cambios de código).
+> Estado funcional vigente: 16-ago-2026 — Fase 8 cerrada: APK demo regenerado con el código vigente; 322/322 pruebas; push a origin/main completado.
 
 ---
 
@@ -560,3 +561,55 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - [x] **Fase 6: Filtros, metas, dashboard y estadísticas — Completada ✅**
 - [x] Fase 7: Preferencias (tema claro/oscuro) — **Retirada del alcance por decisión de producto. Se eliminó la funcionalidad de selección de tema y la aplicación conserva únicamente el esquema claro.**
 - [x] **Fase 8: Calidad y cierre del MVP — Cerrada el 16-ago-2026 ✅** (322/322 pruebas; APK demo regenerado; push a origin/main; verificación manual descartada por decisión del usuario).
+- [ ] **Control diario del trabajo — Incremento A ✅ completado (documentación); incrementos B–K ⛔ no autorizados** (ver sección siguiente).
+
+---
+
+## Adaptación al control diario — Incremento A (12-sep-2026)
+
+**Naturaleza del incremento: exclusivamente documental.** No se modificó código funcional, ni Gradle, ni Room, ni pruebas, ni APK; no se crearon migraciones. La base de datos permanece en **versión 4** con las mismas cuatro tablas.
+
+### Entregables
+
+| Documento | Contenido |
+|---|---|
+| `docs/AUDITORIA_CONTROL_DIARIO.md` | Auditoría del estado real de MiControlDiDi, brecha frente a la propuesta, conflictos con `AGENTS.md`, plan desglosado en incrementos, riesgos técnicos y condiciones de cierre |
+| `docs/ADR-001-control-diario.md` | Decisiones de arquitectura D-01 a D-19 (contexto de trabajo, gasolina y doble conteo, recordatorios, tema, modelo de kilómetros, unidades, indicadores derivados, GPS, migraciones y alcance del propio incremento) |
+
+### Decisiones registradas (resumen)
+
+- Plataforma principal **inDrive**; vehículo **TVS Raider 125 FI**; combustible **gasolina extra**; ciudad **Medellín**; horario **lunes a viernes, 6:00 a. m. a 3:00 p. m.** (valores iniciales del perfil de trabajo, incremento B).
+- El tanqueo **genera o enlaza** un `GastoEntity` de categoría Gasolina, con relación identificable y sincronización al editar o eliminar (evita doble conteo).
+- Recordatorios **internos** (banners y tarjetas) en la primera versión; **sin** notificaciones del sistema, `WorkManager` ni permisos nuevos.
+- Tema **exclusivamente claro**; no se restaura el modo oscuro.
+- Modelo de **odómetro**: totales = final − inicial; con pasajero = suma de distancias de viajes; vacíos = totales − con pasajero. Tramos vacíos opcionales en etapa posterior.
+- Distancias en **metros (`Long`)**; dinero en **`Long`**.
+- Indicadores derivados (rendimiento, costo por kilómetro, netos) **se calculan y no se persisten**.
+- **Sin GPS** y **sin `destructiveMigration`**.
+
+### Roadmap propuesto (estado)
+
+| # | Incremento | Migración | Estado |
+|---|---|---|---|
+| A | Auditoría documentada + ADR | — | ✅ Completado |
+| B | Perfil de trabajo | v4→v5 | ⛔ No autorizado |
+| C | Horario laboral (dominio) | — | ⛔ No autorizado |
+| D | Registro de jornada + checklist | v5→v6 | ⛔ No autorizado |
+| E | Viaje adaptado a plataforma | v6→v7 | ⛔ No autorizado |
+| F | Gasolina extra / tanqueos | v7→v8 | ⛔ No autorizado |
+| G | Kilómetros y netos (dominio) | — | ⛔ No autorizado |
+| H | Bienestar | v8→v9 | ⛔ No autorizado |
+| I | Dashboard adaptado | — | ⛔ No autorizado |
+| J | Reportes ampliados | — | ⛔ No autorizado |
+| K | Calidad y cierre | — | ⛔ No autorizado |
+
+### Validación
+
+| Verificación | Resultado |
+|---|---|
+| Cambios en código funcional | Ninguno (solo documentación en `docs/`, `PROJECT_STATUS.md` y `TASKS.md`) |
+| Migraciones nuevas | Ninguna |
+| Versión de la base de datos | Sin cambios (v4) |
+| Batería de pruebas | No ejecutada: no hubo cambios de código (estado vigente 322/322) |
+
+> **Estado:** A cerrado y a la espera de revisión. **Ningún incremento posterior está autorizado.**

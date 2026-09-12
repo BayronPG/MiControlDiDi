@@ -424,3 +424,46 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 - **Categorías fijas**: gasolina, mantenimiento, parqueadero, lavado, cuota moto, otros — insertadas al crear la base de datos.
 - **Formato COP**: `$ #,##0` sin decimales, usando `java.text.NumberFormat` o `DecimalFormat`.
 - **Navegación**: Navigation Compose con rutas: dashboard, trips, tripForm/{id?}, expenses, expenseForm/{id?}, stats, settings.
+
+---
+
+## Fase 9 — Control diario del trabajo (propuesta — NO autorizada)
+
+> **Estado global: ⛔ no autorizada.** Solo el **Incremento A** fue autorizado y completado (documentación). Los incrementos B–K requieren autorización explícita e individual.
+> Documentos de referencia: `docs/AUDITORIA_CONTROL_DIARIO.md` y `docs/ADR-001-control-diario.md`.
+
+| # | Incremento | Prioridad | Dependencias | Migración | Estado |
+|---|---|---|---|---|---|
+| 9.A | Auditoría del control diario + ADR de arquitectura | [H] | — | — | ✅ Completado (12-sep-2026) |
+| 9.B | Perfil de trabajo editable (plataforma, vehículo, combustible, ciudad, horario, umbrales, reservas por km) | [H] | 9.A | v4→v5 | ⛔ No autorizado |
+| 9.C | Horario laboral: bloques, pausas, progreso y modo regreso (dominio puro) | [H] | 9.B | — | ⛔ No autorizado |
+| 9.D | Registro de jornada + checklist de 12 puntos de seguridad | [H] | 9.B, 9.C | v5→v6 | ⛔ No autorizado |
+| 9.E | Viaje adaptado a plataforma (precios, distancias, zonas, forma de pago, peajes) | [H] | 9.B | v6→v7 | ⛔ No autorizado |
+| 9.F | Gasolina extra: tanqueos con enlace a gasto de categoría Gasolina | [H] | 9.B, 9.E | v7→v8 | ⛔ No autorizado |
+| 9.G | Kilómetros vacíos, semáforo y netos (operativo y económico) | [H] | 9.B, 9.D, 9.E, 9.F | — | ⛔ No autorizado |
+| 9.H | Bienestar: cansancio, molestias y recordatorios internos | [M] | 9.D | v8→v9 | ⛔ No autorizado |
+| 9.I | Dashboard adaptado al conductor | [H] | 9.G | — | ⛔ No autorizado |
+| 9.J | Reportes por bloque, plataforma, zona y día | [M] | 9.G | — | ⛔ No autorizado |
+| 9.K | Calidad y cierre de la adaptación | [H] | 9.B–9.J | — | ⛔ No autorizado |
+
+### Criterios de aceptación — Incremento A (9.A)
+
+- ✅ Auditoría del estado real verificada contra el código (entidades, DAOs, rutas, pantallas, pruebas).
+- ✅ Brecha frente al documento de origen documentada por área.
+- ✅ Conflictos con las reglas de `AGENTS.md` identificados y resueltos.
+- ✅ Decisiones de arquitectura registradas como ADR-001 (D-01 a D-19).
+- ✅ Roadmap desglosado en incrementos ejecutables de una sola tarea.
+- ✅ Riesgos técnicos identificados con mitigación.
+- ✅ Sin cambios en código funcional, Gradle, Room, pruebas ni APK; sin migraciones nuevas.
+- ✅ `PROJECT_STATUS.md` y `TASKS.md` actualizados (solo documentación).
+
+### Criterios de aceptación — Fase 9 (pendientes de implementación)
+
+- Perfil de trabajo persistente y editable, con reservas por kilómetro configurables.
+- Jornada con checklist de seguridad y advertencia en ítems críticos, sin bloquear al conductor.
+- Todo valor derivado (kilómetros vacíos, rendimiento, costo por kilómetro, netos) se calcula y no se persiste.
+- Un tanqueo mantiene siempre la relación 1:1 con su gasto de categoría Gasolina, sin doble conteo.
+- Ninguna migración usa `destructiveMigration`; cada salto de versión tiene su prueba escrita a mano.
+- Distancias en metros (`Long`) y dinero en `Long`.
+- Sin GPS, sin notificaciones del sistema y sin permisos nuevos.
+- Tema claro exclusivo.
