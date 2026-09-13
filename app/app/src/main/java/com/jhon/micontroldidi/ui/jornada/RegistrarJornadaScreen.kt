@@ -28,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -35,8 +36,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.jhon.micontroldidi.R
+import com.jhon.micontroldidi.domain.EstadoSemaforo
+import com.jhon.micontroldidi.domain.MetricasKilometros
 import com.jhon.micontroldidi.domain.NivelCombustible
 import com.jhon.micontroldidi.domain.PuntoRevision
+import com.jhon.micontroldidi.domain.ResultadoNetos
+import com.jhon.micontroldidi.util.CurrencyFormatter
 import com.jhon.micontroldidi.util.DateFormatter
 
 /**
@@ -102,6 +107,15 @@ fun RegistrarJornadaScreen(
                 }
             }
 
+            // --- Métricas G: km, rendimiento y netos ---
+            state.jornadaDeHoy?.let {
+                MetricasJornadaCard(
+                    metricas = state.metricasKm,
+                    netos = state.resultadoNetos,
+                    rendimiento = state.rendimientoKmPorL,
+                    cerrada = it.cerrada
+                )
+            }
             // --- Inicio de jornada ---
             EncabezadoSeccion(stringResource(R.string.jornada_seccion_inicio))
             CampoTexto(
@@ -391,4 +405,182 @@ private fun etiquetaCombustible(nivel: NivelCombustible): Int = when (nivel) {
     NivelCombustible.MEDIO -> R.string.jornada_combustible_medio
     NivelCombustible.TRES_CUARTOS -> R.string.jornada_combustible_tres_cuartos
     NivelCombustible.LLENO -> R.string.jornada_combustible_lleno
+}
+
+/**
+ * Tarjeta con métricas de kilómetros, rendimiento y netos de la jornada.
+ * Se renderiza cuando hay jornada registrada hoy.
+ */
+@Composable
+private fun MetricasJornadaCard(
+    metricas: MetricasKilometros?,
+    netos: ResultadoNetos?,
+    rendimiento: Long?,
+    cerrada: Boolean
+) {
+    if (metricas == null && netos == null) return
+
+    Spacer(Modifier.height(12.dp))
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("metricas_jornada_card"),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(
+                text = stringResource(R.string.metricas_titulo),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.testTag("metricas_titulo")
+            )
+            Spacer(Modifier.height(8.dp))
+
+            // --- Kilómetros ---
+            metricas?.let { m ->
+                if (m.esPendiente) {
+                    // Jornada abierta: solo km con pasajero parciales
+                    if (m.kmConPasajeroMetros > 0L) {
+                        MetricaFila(
+                            etiqueta = stringResource(R.string.metricas_km_con_pasajero),
+                            valor = stringResource(R.string.metricas_km_formato, m.kmConPasajeroKm),
+                            testTag = "metricas_km_con_pasajero"
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.metricas_pendiente),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.testTag("metricas_km_pendiente")
+                    )
+                } else {
+                    MetricaFila(
+                        etiqueta = stringResource(R.string.metricas_km_totales),
+                        valor = stringResource(R.string.metricas_km_formato, m.kmTotalesKm),
+                        testTag = "metricas_km_totales"
+                    )
+                    MetricaFila(
+                        etiqueta = stringResource(R.string.metricas_km_con_pasajero),
+                        valor = stringResource(R.string.metricas_km_formato, m.kmConPasajeroKm),
+                        testTag = "metricas_km_con_pasajero"
+                    )
+                    MetricaFila(
+                        etiqueta = stringResource(R.string.metricas_km_vacios),
+                        valor = "${m.porcentajeVacios}% (${m.kmVaciosKm} km)",
+                        testTag = "metricas_km_vacios"
+                    )
+
+                    // Semáforo
+                    val (colorSemaforo, textoSemaforo) = when (m.semaforo) {
+                        EstadoSemaforo.VERDE -> Pair(
+                            Color(0xFF2E7D32),
+                            stringResource(R.string.metricas_semaforo_verde)
+                        )
+                        EstadoSemaforo.ROJO -> Pair(
+                            MaterialTheme.colorScheme.error,
+                            stringResource(R.string.metricas_semaforo_rojo)
+                        )
+                        EstadoSemaforo.NEUTRO -> Pair(
+                            MaterialTheme.colorScheme.onSurfaceVariant,
+                            stringResource(R.string.metricas_semaforo_neutro)
+                        )
+                        EstadoSemaforo.PENDIENTE -> Pair(
+                            MaterialTheme.colorScheme.onSurfaceVariant,
+                            stringResource(R.string.metricas_pendiente)
+                        )
+                    }
+                    Text(
+                        text = textoSemaforo,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colorSemaforo,
+                        modifier = Modifier.testTag("metricas_semaforo")
+                    )
+
+                    if (m.inconsistencia) {
+                        Text(
+                            text = stringResource(R.string.metricas_inconsistencia),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.testTag("metricas_inconsistencia")
+                        )
+                    }
+                }
+            }
+
+            // --- Rendimiento ---
+            Spacer(Modifier.height(4.dp))
+            val textoRendimiento = when {
+                rendimiento != null -> stringResource(R.string.metricas_rendimiento_valor, rendimiento)
+                else -> stringResource(R.string.metricas_rendimiento_sin_datos)
+            }
+            MetricaFila(
+                etiqueta = stringResource(R.string.metricas_rendimiento),
+                valor = textoRendimiento,
+                testTag = "metricas_rendimiento"
+            )
+
+            // --- Netos ---
+            netos?.let { n ->
+                Spacer(Modifier.height(4.dp))
+                MetricaFila(
+                    etiqueta = stringResource(R.string.metricas_neto_operativo),
+                    valor = CurrencyFormatter.format(n.netoOperativo),
+                    testTag = "metricas_neto_operativo"
+                )
+                if (n.esPendiente) {
+                    Text(
+                        text = stringResource(R.string.metricas_pendiente),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.testTag("metricas_neto_pendiente")
+                    )
+                } else {
+                    n.reservaMantenimientoTotal?.let { reserva ->
+                        MetricaFila(
+                            etiqueta = stringResource(R.string.metricas_reserva_mantenimiento),
+                            valor = CurrencyFormatter.format(reserva),
+                            testTag = "metricas_reserva"
+                        )
+                    }
+                    n.netoEconomico?.let { eco ->
+                        MetricaFila(
+                            etiqueta = stringResource(R.string.metricas_neto_economico),
+                            valor = CurrencyFormatter.format(eco),
+                            testTag = "metricas_neto_economico",
+                            negrita = true
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MetricaFila(
+    etiqueta: String,
+    valor: String,
+    testTag: String,
+    negrita: Boolean = false
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 1.dp)
+    ) {
+        Text(
+            text = etiqueta,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = valor,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = if (negrita) FontWeight.Bold else FontWeight.Normal,
+            modifier = Modifier.testTag(testTag)
+        )
+    }
 }

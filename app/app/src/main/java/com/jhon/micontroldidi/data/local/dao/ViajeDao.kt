@@ -30,6 +30,13 @@ interface ViajeDao {
     """)
     fun obtenerIngresosPorRango(inicioInclusivo: Long, finExclusivo: Long): Flow<Long>
 
+    @Query("""
+        SELECT COALESCE(SUM(distanciaMetros), 0)
+        FROM viajes
+        WHERE fechaHora >= :inicioInclusivo AND fechaHora < :finExclusivo
+    """)
+    fun obtenerDistanciaTotalPorRango(inicioInclusivo: Long, finExclusivo: Long): Flow<Long>
+
     @Query("SELECT * FROM viajes WHERE id = :id")
     suspend fun obtenerPorId(id: Long): ViajeEntity?
 

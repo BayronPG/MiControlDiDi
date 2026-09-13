@@ -39,6 +39,15 @@ class ViajeRepositoryTest {
             ultimoFin = finExclusivo
             return flowOf(9999L)
         }
+
+        override fun obtenerDistanciaTotalPorRango(
+            inicioInclusivo: Long, finExclusivo: Long
+        ): Flow<Long> {
+            ultimoInicio = inicioInclusivo
+            ultimoFin = finExclusivo
+            return flowOf(12345L)
+        }
+
         override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
         override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 1
         override suspend fun eliminar(id: Long): Int = 1
@@ -113,6 +122,11 @@ class ViajeRepositoryTest {
                 inicioInclusivo: Long,
                 finExclusivo: Long
             ): Flow<Long> = flowOf(0L)
+
+            override fun obtenerDistanciaTotalPorRango(
+                inicioInclusivo: Long,
+                finExclusivo: Long
+            ): Flow<Long> = flowOf(0L)
             override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
             override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 1
             override suspend fun eliminar(id: Long): Int = 1
@@ -135,6 +149,16 @@ class ViajeRepositoryTest {
         assertEquals(9999L, resultado)
         assertEquals(1000L, ultimoInicio)
         assertEquals(9999L, ultimoFin)
+    }
+
+    @Test
+    fun `obtenerDistanciaTotalPorRango delega limites al DAO`() = runTest {
+        val flujo = repository.obtenerDistanciaTotalPorRango(2000L, 8000L)
+        var resultado: Long? = null
+        flujo.collect { resultado = it }
+        assertEquals(12345L, resultado)
+        assertEquals(2000L, ultimoInicio)
+        assertEquals(8000L, ultimoFin)
     }
 
     @Test

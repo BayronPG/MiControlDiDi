@@ -5,16 +5,26 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.local.entity.JornadaEntity
+import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.JornadaRepository
 import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
+import com.jhon.micontroldidi.data.repository.TanqueoRepository
+import com.jhon.micontroldidi.data.repository.ViajeRepository
+import com.jhon.micontroldidi.domain.CalculadorKilometros
+import com.jhon.micontroldidi.domain.CalculadorNetos
+import com.jhon.micontroldidi.domain.CalculadorRendimiento
 import com.jhon.micontroldidi.domain.NivelCombustible
 import com.jhon.micontroldidi.domain.PuntoRevision
 import com.jhon.micontroldidi.util.ResourceProvider
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.time.Clock
 import java.time.Instant
@@ -25,11 +35,17 @@ import java.time.Instant
  * - La fecha y la hora de inicio se toman del reloj al guardar.
  * - La plataforma se prellena con la del perfil de trabajo.
  * - La jornada ya registrada hoy se muestra como información, no bloquea.
+ * - Las métricas G (km, rendimiento, netos) se calculan reactivamente
+ *   desde los flows de viajes, tanqueos, gastos y perfil.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class JornadaViewModel(
     private val jornadaRepository: JornadaRepository,
     private val perfilTrabajoRepository: PerfilTrabajoRepository,
     private val resourceProvider: ResourceProvider,
+    private val viajeRepository: ViajeRepository,
+    private val gastoRepository: GastoRepository,
+    private val tanqueoRepository: TanqueoRepository,
     private val clock: Clock = Clock.systemDefaultZone()
 ) : ViewModel() {
 
@@ -73,6 +89,74 @@ class JornadaViewModel(
                     _uiState.value = _uiState.value.copy(
                         cargando = false,
                         jornadaDeHoy = ultima?.takeIf { esDeHoy(it.fechaHoraInicio) }
+                    )
+                }
+        }
+
+        // Observa la jornada de hoy y recalcula métricas G cada vez que
+        // cambian la jornada, los viajes, los tanqueos, los gastos o el perfil.
+        viewModelScope.launch {
+            _uiState
+                .flatMapLatest { estado ->
+                    val jornada = estado.jornadaDeHoy
+                    if (jornada == null) {
+                        flowOf(Triple(null, null, null))
+                    } else {
+                        val inicio = jornada.fechaHoraInicio
+                        // Fin exclusivo: si está cerrada usa fechaHoraFin+1, si no usa Long.MAX_VALUE.
+                        val finExclusivo = if (jornada.cerrada && jornada.fechaHoraFin > 0L)
+                            jornada.fechaHoraFin + 1L else Long.MAX_VALUE
+
+                        combine(
+                            viajeRepository.obtenerDistanciaTotalPorRango(inicio, finExclusivo),
+                            gastoRepository.obtenerTotalGastosPorRango(inicio, finExclusivo),
+                            viajeRepository.obtenerIngresosPorRango(inicio, finExclusivo),
+                            tanqueoRepository.observarTodos(),
+                            perfilTrabajoRepository.observar()
+                        ) { distancia, gastos, ingresos, tanqueos, perfil ->
+                            val cerrada = jornada.cerrada
+                            val umbral = perfil?.maxPorcentajeKmVacios
+                                ?: com.jhon.micontroldidi.data.local.entity.PerfilTrabajoEntity.MAX_KMVACIOS_POR_DEFECTO
+                            val reservaPorKm = perfil?.reservaTotalPorKm ?: 0L
+
+                            val metricas = CalculadorKilometros.calcular(
+                                kilometrajeInicialMetros = jornada.kilometrajeInicialMetros,
+                                kilometrajeFinalMetros = jornada.kilometrajeFinalMetros ?: 0L,
+                                distanciaViajesMetros = distancia,
+                                maxPorcentajeKmVacios = umbral,
+                                jornadaCerrada = cerrada
+                            )
+
+                            // Filtrar tanqueos del mismo día (aproximado: todos los tanqueos)
+                            // CalculadorRendimiento ya selecciona los 2 últimos llenos de la lista.
+                            val rendimiento = CalculadorRendimiento.calcularKmPorLitro(tanqueos)
+
+                            // Calcular costo de gasolina del día: suma de tanqueos en el rango
+                            val gastoGasolina = tanqueos
+                                .filter { t ->
+                                    t.fechaHora >= inicio && t.fechaHora < finExclusivo
+                                }
+                                .sumOf { it.importePagado }
+
+                            val netos = CalculadorNetos.calcular(
+                                ingresos = ingresos,
+                                gastosReales = gastos,
+                                gastoGasolina = gastoGasolina,
+                                kmTotalesMetros = metricas.kmTotalesMetros,
+                                reservaTotalPorKm = reservaPorKm,
+                                jornadaCerrada = cerrada
+                            )
+
+                            Triple(metricas, netos, rendimiento)
+                        }
+                    }
+                }
+                .catch { /* Silencioso: las métricas son opcionales */ }
+                .collect { (metricas, netos, rendimiento) ->
+                    _uiState.value = _uiState.value.copy(
+                        metricasKm = metricas,
+                        resultadoNetos = netos,
+                        rendimientoKmPorL = rendimiento
                     )
                 }
         }
@@ -312,6 +396,9 @@ class JornadaViewModel(
         private val jornadaRepository: JornadaRepository,
         private val perfilTrabajoRepository: PerfilTrabajoRepository,
         private val resourceProvider: ResourceProvider,
+        private val viajeRepository: ViajeRepository,
+        private val gastoRepository: GastoRepository,
+        private val tanqueoRepository: TanqueoRepository,
         private val clock: Clock = Clock.systemDefaultZone()
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -320,6 +407,9 @@ class JornadaViewModel(
                 jornadaRepository,
                 perfilTrabajoRepository,
                 resourceProvider,
+                viajeRepository,
+                gastoRepository,
+                tanqueoRepository,
                 clock
             ) as T
         }

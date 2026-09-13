@@ -268,4 +268,25 @@
     <string name="error_jornada_energia_rango">La energía debe estar entre 0 y 10</string>
     <string name="error_guardar_jornada">No se pudo registrar la jornada. Inténtalo de nuevo.</string>
     <string name="error_cargar_jornada">No se pudo cargar la jornada. Inténtalo de nuevo.</string>
+
+    <!-- Incremento G: Métricas de kilómetros, rendimiento y netos -->
+    <string name="metricas_titulo">Métricas de la jornada</string>
+    <string name="metricas_km_totales">Km totales</string>
+    <string name="metricas_km_con_pasajero">Km con pasajero</string>
+    <string name="metricas_km_vacios">Km en vacío</string>
+    <string name="metricas_porcentaje_vacios">%% en vacío</string>
+    <string name="metricas_inconsistencia">⚠ Los km con pasajero superan los km totales. Revisa los viajes.</string>
+    <string name="metricas_pendiente">Pendiente al cerrar la jornada</string>
+    <string name="metricas_rendimiento">Rendimiento</string>
+    <string name="metricas_rendimiento_valor">%1$d km/L</string>
+    <string name="metricas_rendimiento_sin_datos">Sin datos (se necesitan 2 llenados)</string>
+    <string name="metricas_semaforo_verde">✓ Vacíos en rango</string>
+    <string name="metricas_semaforo_rojo">✗ Vacíos fuera del umbral</string>
+    <string name="metricas_semaforo_neutro">Sin recorrido registrado</string>
+    <string name="metricas_neto_operativo">Neto operativo</string>
+    <string name="metricas_neto_economico">Neto económico</string>
+    <string name="metricas_reserva_mantenimiento">Reserva mantenimiento</string>
+    <string name="metricas_costo_combustible_por_km">Costo combustible/km</string>
+    <string name="metricas_km_formato">%1$d km</string>
+    <string name="metricas_m_formato">%1$d m</string>
 </resources>

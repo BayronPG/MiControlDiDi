@@ -1,8 +1,10 @@
 package com.jhon.micontroldidi.ui.jornada
 
 import com.jhon.micontroldidi.data.local.entity.JornadaEntity
+import com.jhon.micontroldidi.domain.MetricasKilometros
 import com.jhon.micontroldidi.domain.NivelCombustible
 import com.jhon.micontroldidi.domain.PuntoRevision
+import com.jhon.micontroldidi.domain.ResultadoNetos
 
 /** Tipo de dato que acepta cada campo del formulario de jornada. */
 enum class TipoCampoJornada { TEXTO, ENTERO }
@@ -41,7 +43,13 @@ data class JornadaUiState(
     val errorCierre: String? = null,
     val cerrando: Boolean = false,
     val cierreExitoso: Boolean = false,
-    val mensajeError: String? = null
+    val mensajeError: String? = null,
+    /** Métricas de kilómetros de la jornada de hoy (null si no hay jornada). */
+    val metricasKm: MetricasKilometros? = null,
+    /** Resultados económicos de la jornada de hoy (null si no hay jornada). */
+    val resultadoNetos: ResultadoNetos? = null,
+    /** Rendimiento km/L entre los dos últimos tanqueos llenos (null si faltan datos). */
+    val rendimientoKmPorL: Long? = null
 ) {
 
     fun valor(campo: CampoJornada): String = valores[campo].orEmpty()

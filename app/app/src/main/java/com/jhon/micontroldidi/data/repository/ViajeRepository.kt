@@ -24,6 +24,13 @@ class ViajeRepository(private val viajeDao: ViajeDao) {
         viajeDao.obtenerIngresosPorRango(inicioInclusivo, finExclusivo)
 
     /**
+     * Obtiene la suma de distancias (en metros) en el rango semiabierto
+     * [inicioInclusivo, finExclusivo) mediante consulta agregada en SQLite.
+     */
+    fun obtenerDistanciaTotalPorRango(inicioInclusivo: Long, finExclusivo: Long): Flow<Long> =
+        viajeDao.obtenerDistanciaTotalPorRango(inicioInclusivo, finExclusivo)
+
+    /**
      * Inserta un viaje validando las reglas de negocio.
      * Retorna [Result.success] con el id generado si los datos son válidos,
      * o [Result.failure] con la excepción correspondiente.

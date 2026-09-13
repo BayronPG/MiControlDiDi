@@ -392,4 +392,49 @@ class ViajeDaoTest {
 
         assertEquals("El peaje no debe sumarse a los ingresos", 17000L, ingresos)
     }
+
+    // --- Incremento G: Distancia total por rango ---
+
+    @Test
+    fun obtenerDistanciaTotalPorRango_sinRegistros_retornaCero() = runBlocking {
+        val total = dao.obtenerDistanciaTotalPorRango(0L, 9999L).first()
+        assertEquals(0L, total)
+    }
+
+    @Test
+    fun obtenerDistanciaTotalPorRango_sumaDistanciasEnRango() = runBlocking {
+        dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000L, distanciaMetros = 3500L))
+        dao.insertar(ViajeEntity(fechaHora = 2000L, valor = 12000L, distanciaMetros = 4200L))
+
+        val total = dao.obtenerDistanciaTotalPorRango(0L, 5000L).first()
+        assertEquals(7700L, total)
+    }
+
+    @Test
+    fun obtenerDistanciaTotalPorRango_inicioIncluido() = runBlocking {
+        dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000L, distanciaMetros = 5000L))
+
+        val total = dao.obtenerDistanciaTotalPorRango(1000L, 5000L).first()
+        assertEquals(5000L, total)
+    }
+
+    @Test
+    fun obtenerDistanciaTotalPorRango_finExclusivo_excluye() = runBlocking {
+        dao.insertar(ViajeEntity(fechaHora = 5000L, valor = 10000L, distanciaMetros = 5000L))
+
+        val total = dao.obtenerDistanciaTotalPorRango(1000L, 5000L).first()
+        assertEquals(0L, total)
+    }
+
+    @Test
+    fun obtenerDistanciaTotalPorRango_viajesEnLimitesDelRango() = runBlocking {
+        // En rango [1000, 5000)
+        dao.insertar(ViajeEntity(fechaHora = 999L, valor = 10000L, distanciaMetros = 1000L))  // fuera (antes)
+        dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 10000L, distanciaMetros = 2000L)) // dentro (límite inferior)
+        dao.insertar(ViajeEntity(fechaHora = 4999L, valor = 10000L, distanciaMetros = 3000L)) // dentro (límite superior - 1)
+        dao.insertar(ViajeEntity(fechaHora = 5000L, valor = 10000L, distanciaMetros = 4000L)) // fuera (límite superior exclusivo)
+
+        val total = dao.obtenerDistanciaTotalPorRango(1000L, 5000L).first()
+        assertEquals(5000L, total)
+    }
 }

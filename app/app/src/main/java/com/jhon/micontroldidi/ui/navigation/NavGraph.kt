@@ -174,7 +174,10 @@ fun AppNavGraph(
         factory = JornadaViewModel.Factory(
             jornadaRepository,
             perfilTrabajoRepository,
-            resourceProvider
+            resourceProvider,
+            viajeRepository,
+            gastoRepository,
+            tanqueoRepository
         )
     )
     val tanqueoViewModel: TanqueoViewModel = viewModel(
