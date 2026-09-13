@@ -31,6 +31,33 @@ class JornadaRepository(private val jornadaDao: JornadaDao) {
         }
     }
 
+    /**
+     * Cierra la jornada con la hora de fin y el odómetro final.
+     *
+     * Rechaza cerrar una jornada inexistente o ya cerrada, una hora de fin
+     * anterior al inicio y un odómetro final menor que el inicial.
+     */
+    suspend fun cerrar(id: Long, fechaHoraFin: Long, kilometrajeFinalMetros: Long): Result<Unit> {
+        return try {
+            val jornada = jornadaDao.obtenerPorId(id)
+                ?: return Result.failure(NoSuchElementException("La jornada no existe"))
+            require(fechaHoraFin >= jornada.fechaHoraInicio) {
+                "La hora de fin no puede ser anterior al inicio"
+            }
+            require(kilometrajeFinalMetros >= jornada.kilometrajeInicialMetros) {
+                "El odómetro final no puede ser menor que el inicial"
+            }
+            val filas = jornadaDao.cerrar(id, fechaHoraFin, kilometrajeFinalMetros)
+            if (filas == 0) {
+                Result.failure(IllegalStateException("La jornada ya está cerrada"))
+            } else {
+                Result.success(Unit)
+            }
+        } catch (e: IllegalArgumentException) {
+            Result.failure(e)
+        }
+    }
+
     private fun validar(jornada: JornadaEntity) {
         require(jornada.kilometrajeInicialMetros >= 0) {
             "El kilometraje inicial no puede ser negativo"
