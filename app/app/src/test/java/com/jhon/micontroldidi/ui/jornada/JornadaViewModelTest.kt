@@ -9,10 +9,12 @@ import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
 import com.jhon.micontroldidi.domain.NivelCombustible
 import com.jhon.micontroldidi.domain.PuntoRevision
 import com.jhon.micontroldidi.util.FakeResourceProvider
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -38,6 +40,7 @@ class JornadaViewModelTest {
     private val perfil = MutableStateFlow<PerfilTrabajoEntity?>(PerfilTrabajoEntity())
     private var insertarLlamadas = 0
     private var errorSimulado: Exception? = null
+    private var errorPerfil: Exception? = null
     private var jornadaInsertada: JornadaEntity? = null
 
     private val clockFijo: Clock = Clock.fixed(
@@ -61,7 +64,10 @@ class JornadaViewModelTest {
     }
 
     private val perfilDaoFalso = object : PerfilTrabajoDao {
-        override fun observar(id: Int): Flow<PerfilTrabajoEntity?> = perfil
+        override fun observar(id: Int): Flow<PerfilTrabajoEntity?> {
+            errorPerfil?.let { return flow { throw it } }
+            return perfil
+        }
 
         override suspend fun obtener(id: Int): PerfilTrabajoEntity? = perfil.value
 
@@ -79,6 +85,7 @@ class JornadaViewModelTest {
         perfil.value = PerfilTrabajoEntity()
         insertarLlamadas = 0
         errorSimulado = null
+        errorPerfil = null
         jornadaInsertada = null
         viewModel = crearViewModel()
     }
@@ -320,5 +327,36 @@ class JornadaViewModelTest {
 
         assertEquals(clockFijo.millis(), jornadaInsertada!!.fechaHoraInicio)
         assertNotNull(viewModel.uiState.value.jornadaDeHoy)
+    }
+
+    @Test
+    fun `fallo al cargar el perfil publica mensaje descriptivo`() = runTest {
+        errorPerfil = IllegalStateException("perfil caido")
+        viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        assertEquals(
+            "No se pudo cargar el perfil. Inténtalo de nuevo.",
+            viewModel.uiState.value.mensajeError
+        )
+    }
+
+    @Test
+    fun `fallo al cargar el perfil no prellena la plataforma`() = runTest {
+        errorPerfil = IllegalStateException("perfil caido")
+        viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        assertEquals("", viewModel.uiState.value.valor(CampoJornada.PLATAFORMA))
+        assertNotNull(viewModel.uiState.value.error(CampoJornada.PLATAFORMA))
+    }
+
+    @Test
+    fun `la cancelacion del flujo del perfil no publica mensaje de error`() = runTest {
+        errorPerfil = CancellationException("cancelado")
+        viewModel = crearViewModel()
+        advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.mensajeError)
     }
 }

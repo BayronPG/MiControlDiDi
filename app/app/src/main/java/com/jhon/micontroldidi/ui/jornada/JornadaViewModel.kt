@@ -10,6 +10,7 @@ import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
 import com.jhon.micontroldidi.domain.NivelCombustible
 import com.jhon.micontroldidi.domain.PuntoRevision
 import com.jhon.micontroldidi.util.ResourceProvider
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,7 +41,12 @@ class JornadaViewModel(
     init {
         viewModelScope.launch {
             perfilTrabajoRepository.observar()
-                .catch { }
+                .catch { e ->
+                    if (e is CancellationException) throw e
+                    _uiState.value = _uiState.value.copy(
+                        mensajeError = resourceProvider.getString(R.string.error_cargar_perfil)
+                    )
+                }
                 .collect { perfil ->
                     if (!plataformaPrellenada) {
                         plataformaPrellenada = true
@@ -56,7 +62,8 @@ class JornadaViewModel(
 
         viewModelScope.launch {
             jornadaRepository.observarUltima()
-                .catch {
+                .catch { e ->
+                    if (e is CancellationException) throw e
                     _uiState.value = _uiState.value.copy(
                         cargando = false,
                         mensajeError = resourceProvider.getString(R.string.error_cargar_jornada)

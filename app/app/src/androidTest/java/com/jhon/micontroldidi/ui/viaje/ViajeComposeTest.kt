@@ -1,8 +1,9 @@
 package com.jhon.micontroldidi.ui.viaje
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertTextMatches
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jhon.micontroldidi.MainActivity
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,14 +117,10 @@ class ViajeComposeTest {
      */
     @Test
     fun fechaInformativa_visibleEnCreacionYEnEdicion() {
-        val patronFecha = Regex("""\d{2}/\d{2}/\d{4} \d{2}:\d{2}""")
-
         navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
 
-        composeTestRule.onNodeWithTag("fecha_viaje")
-            .assertIsDisplayed()
-            .assertTextMatches(patronFecha)
+        assertFechaConFormatoCompleto()
 
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("18000")
         composeTestRule.onNodeWithTag("campo_observacion_viaje")
@@ -132,8 +130,20 @@ class ViajeComposeTest {
         // Se abre la edición del viaje recién guardado (el primero de la lista).
         composeTestRule.onAllNodesWithContentDescription("Editar")[0].performClick()
 
-        composeTestRule.onNodeWithTag("fecha_viaje")
-            .assertIsDisplayed()
-            .assertTextMatches(patronFecha)
+        assertFechaConFormatoCompleto()
+    }
+
+    /** Comprueba que la fecha informativa está visible y tiene formato dd/MM/yyyy HH:mm. */
+    private fun assertFechaConFormatoCompleto() {
+        val nodo = composeTestRule.onNodeWithTag("fecha_viaje")
+        nodo.assertIsDisplayed()
+        val texto = nodo.fetchSemanticsNode()
+            .config.getOrNull(SemanticsProperties.Text)
+            .orEmpty()
+            .joinToString("") { it.text }
+        assertTrue(
+            "La fecha '$texto' no tiene formato dd/MM/yyyy HH:mm",
+            Regex("""\d{2}/\d{2}/\d{4} \d{2}:\d{2}""").matches(texto)
+        )
     }
 }
