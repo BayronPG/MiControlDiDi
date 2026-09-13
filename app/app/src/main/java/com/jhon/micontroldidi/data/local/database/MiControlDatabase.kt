@@ -12,11 +12,13 @@ import com.jhon.micontroldidi.data.local.dao.ViajeDao
 import com.jhon.micontroldidi.data.local.dao.JornadaDao
 import com.jhon.micontroldidi.data.local.dao.MetaDao
 import com.jhon.micontroldidi.data.local.dao.PerfilTrabajoDao
+import com.jhon.micontroldidi.data.local.dao.TanqueoDao
 import com.jhon.micontroldidi.data.local.entity.CategoriaGastoEntity
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.local.entity.JornadaEntity
 import com.jhon.micontroldidi.data.local.entity.MetaEntity
 import com.jhon.micontroldidi.data.local.entity.PerfilTrabajoEntity
+import com.jhon.micontroldidi.data.local.entity.TanqueoEntity
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 
 @Database(
@@ -26,9 +28,10 @@ import com.jhon.micontroldidi.data.local.entity.ViajeEntity
         GastoEntity::class,
         MetaEntity::class,
         PerfilTrabajoEntity::class,
-        JornadaEntity::class
+        JornadaEntity::class,
+        TanqueoEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class MiControlDatabase : RoomDatabase() {
@@ -39,6 +42,7 @@ abstract class MiControlDatabase : RoomDatabase() {
     abstract fun metaDao(): MetaDao
     abstract fun perfilTrabajoDao(): PerfilTrabajoDao
     abstract fun jornadaDao(): JornadaDao
+    abstract fun tanqueoDao(): TanqueoDao
 
     companion object {
         @Volatile
@@ -251,6 +255,44 @@ abstract class MiControlDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Tanqueos: cada fila mantiene sincronizado un gasto de gasolina.
+                // El gasto es el padre, así que la FK vive en el tanqueo.
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `tanqueos` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `fechaHora` INTEGER NOT NULL,
+                        `odometroMetros` INTEGER NOT NULL,
+                        `litrosMililitros` INTEGER NOT NULL,
+                        `importePagado` INTEGER NOT NULL,
+                        `esLleno` INTEGER NOT NULL,
+                        `tipoCombustible` TEXT NOT NULL,
+                        `observacion` TEXT NOT NULL,
+                        `gastoId` INTEGER NOT NULL,
+                        FOREIGN KEY(`gastoId`) REFERENCES `gastos`(`id`)
+                        ON UPDATE NO ACTION ON DELETE RESTRICT
+                    )"""
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_tanqueos_fechaHora` " +
+                    "ON `tanqueos` (`fechaHora`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_tanqueos_gastoId` " +
+                    "ON `tanqueos` (`gastoId`)"
+                )
+                // Cierre de jornada: 0 significa jornada abierta, de modo que
+                // las jornadas ya registradas quedan abiertas sin perder datos.
+                db.execSQL(
+                    "ALTER TABLE `jornadas` ADD COLUMN `fechaHoraFin` INTEGER NOT NULL DEFAULT 0"
+                )
+                db.execSQL(
+                    "ALTER TABLE `jornadas` ADD COLUMN `kilometrajeFinalMetros` INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
     private val PREPOBLAR_CATEGORIAS = object : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
@@ -288,7 +330,8 @@ abstract class MiControlDatabase : RoomDatabase() {
                         MIGRATION_3_4,
                         MIGRATION_4_5,
                         MIGRATION_5_6,
-                        MIGRATION_6_7
+                        MIGRATION_6_7,
+                        MIGRATION_7_8
                     )
                     .addCallback(PREPOBLAR_CATEGORIAS)
                     .build()

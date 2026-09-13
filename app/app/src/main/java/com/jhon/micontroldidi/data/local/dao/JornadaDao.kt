@@ -18,4 +18,18 @@ interface JornadaDao {
 
     @Query("SELECT * FROM jornadas ORDER BY fechaHoraInicio DESC LIMIT 1")
     fun observarUltima(): Flow<JornadaEntity?>
+
+    @Query("SELECT * FROM jornadas WHERE id = :id")
+    suspend fun obtenerPorId(id: Long): JornadaEntity?
+
+    /**
+     * Cierra la jornada solo si sigue abierta (`fechaHoraFin = 0`).
+     * Devuelve 0 si ya estaba cerrada, lo que impide cerrarla dos veces.
+     */
+    @Query("""
+        UPDATE jornadas SET fechaHoraFin = :fechaHoraFin,
+        kilometrajeFinalMetros = :kilometrajeFinalMetros
+        WHERE id = :id AND fechaHoraFin = 0
+    """)
+    suspend fun cerrar(id: Long, fechaHoraFin: Long, kilometrajeFinalMetros: Long): Int
 }

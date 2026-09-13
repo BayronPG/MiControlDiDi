@@ -24,4 +24,8 @@ interface CategoriaGastoDao {
 
     @Query("SELECT COUNT(*) > 0 FROM categorias_gasto WHERE LOWER(nombre) = LOWER(:nombre)")
     suspend fun existePorNombre(nombre: String): Boolean
+
+    /** Identificador de la categoría Gasolina, que ya viene sembrada. */
+    @Query("SELECT id FROM categorias_gasto WHERE LOWER(nombre) = 'gasolina' LIMIT 1")
+    suspend fun obtenerIdGasolina(): Long?
 }

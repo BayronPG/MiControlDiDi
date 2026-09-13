@@ -19,6 +19,10 @@ class JornadaRepositoryTest {
     private var observacionesUltima = 0
 
     private val daoFalso = object : JornadaDao {
+        override suspend fun obtenerPorId(id: Long): JornadaEntity? = null
+
+        override suspend fun cerrar(id: Long, fechaHoraFin: Long, kilometrajeFinalMetros: Long): Int = 0
+
         override suspend fun insertar(jornada: JornadaEntity): Long {
             errorSimulado?.let { throw it }
             jornadaGuardada = jornada

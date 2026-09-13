@@ -31,6 +31,10 @@ data class JornadaEntity(
     val nivelEnergia: Int,
     val clima: String = "",
     val observaciones: String = "",
+    /** Hora de cierre de la jornada. `0` significa jornada abierta. */
+    val fechaHoraFin: Long = 0,
+    /** Odómetro final en metros. `0` significa jornada abierta. */
+    val kilometrajeFinalMetros: Long = 0,
     val llantasOk: Boolean = true,
     val frenosOk: Boolean = true,
     val lucesOk: Boolean = true,
@@ -48,6 +52,25 @@ data class JornadaEntity(
     /** Nivel de combustible tipado. */
     val nivel: NivelCombustible
         get() = NivelCombustible.fromNombre(nivelCombustible) ?: NivelCombustible.POR_DEFECTO
+
+    /** Indica si la jornada ya se cerró con su odómetro final. */
+    val cerrada: Boolean
+        get() = fechaHoraFin > 0L
+
+    /**
+     * Kilómetros totales recorridos: odómetro final menos inicial.
+     * Se calcula; no se persiste. Es 0 mientras la jornada siga abierta.
+     */
+    val kilometrosTotales: Long
+        get() = if (cerrada) {
+            (kilometrajeFinalMetros - kilometrajeInicialMetros) / METROS_POR_KM
+        } else {
+            0L
+        }
+
+    /** Odómetro final en kilómetros, solo para mostrar. */
+    val kilometrajeFinalKm: Long
+        get() = kilometrajeFinalMetros / METROS_POR_KM
 
     /** Odómetro inicial en kilómetros, solo para mostrar. */
     val kilometrajeInicialKm: Long

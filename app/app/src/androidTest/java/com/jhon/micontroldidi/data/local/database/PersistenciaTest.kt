@@ -50,7 +50,8 @@ class PersistenciaTest {
                 MiControlDatabase.MIGRATION_3_4,
                 MiControlDatabase.MIGRATION_4_5,
                 MiControlDatabase.MIGRATION_5_6,
-                MiControlDatabase.MIGRATION_6_7
+                MiControlDatabase.MIGRATION_6_7,
+            MiControlDatabase.MIGRATION_7_8
             )
             .addCallback(MiControlDatabase.obtenerCallbackPrepoblar())
             .build()

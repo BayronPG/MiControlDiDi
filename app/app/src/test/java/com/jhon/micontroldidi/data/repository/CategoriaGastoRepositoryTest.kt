@@ -17,6 +17,8 @@ class CategoriaGastoRepositoryTest {
     private var existeNombre = false
 
     private val daoFalso = object : CategoriaGastoDao {
+        override suspend fun obtenerIdGasolina(): Long? = 1L
+
         override suspend fun insertar(categoria: CategoriaGastoEntity): Long {
             insertarLlamadas++
             return 1L

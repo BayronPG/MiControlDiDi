@@ -25,27 +25,30 @@ interface GastoDao {
 
     @Query("""
         SELECT g.id, g.fechaHora, g.categoriaId, c.nombre AS nombreCategoria,
-               g.valor, g.descripcion
+               g.valor, g.descripcion, (t.id IS NOT NULL) AS esTanqueo
         FROM gastos g
         INNER JOIN categorias_gasto c ON g.categoriaId = c.id
+        LEFT JOIN tanqueos t ON t.gastoId = g.id
         ORDER BY g.fechaHora DESC
     """)
     fun obtenerTodos(): Flow<List<GastoConCategoria>>
 
     @Query("""
         SELECT g.id, g.fechaHora, g.categoriaId, c.nombre AS nombreCategoria,
-               g.valor, g.descripcion
+               g.valor, g.descripcion, (t.id IS NOT NULL) AS esTanqueo
         FROM gastos g
         INNER JOIN categorias_gasto c ON g.categoriaId = c.id
+        LEFT JOIN tanqueos t ON t.gastoId = g.id
         WHERE g.id = :id
     """)
     suspend fun obtenerPorId(id: Long): GastoConCategoria?
 
     @Query("""
         SELECT g.id, g.fechaHora, g.categoriaId, c.nombre AS nombreCategoria,
-               g.valor, g.descripcion
+               g.valor, g.descripcion, (t.id IS NOT NULL) AS esTanqueo
         FROM gastos g
         INNER JOIN categorias_gasto c ON g.categoriaId = c.id
+        LEFT JOIN tanqueos t ON t.gastoId = g.id
         WHERE g.fechaHora >= :inicioInclusivo AND g.fechaHora < :finExclusivo
           AND (:categoriaId IS NULL OR g.categoriaId = :categoriaId)
         ORDER BY g.fechaHora DESC

@@ -49,6 +49,10 @@ class JornadaViewModelTest {
     )
 
     private val jornadaDaoFalso = object : JornadaDao {
+        override suspend fun obtenerPorId(id: Long): JornadaEntity? = null
+
+        override suspend fun cerrar(id: Long, fechaHoraFin: Long, kilometrajeFinalMetros: Long): Int = 0
+
         override suspend fun insertar(jornada: JornadaEntity): Long {
             insertarLlamadas++
             errorSimulado?.let { throw it }

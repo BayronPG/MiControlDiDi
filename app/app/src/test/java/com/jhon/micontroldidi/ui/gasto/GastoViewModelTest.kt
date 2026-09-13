@@ -109,6 +109,8 @@ class GastoViewModelTest {
     }
 
     private val categoriaDaoFalso = object : CategoriaGastoDao {
+        override suspend fun obtenerIdGasolina(): Long? = 1L
+
         override suspend fun insertar(categoria: CategoriaGastoEntity): Long = 1L
         override suspend fun insertarLista(categorias: List<CategoriaGastoEntity>): List<Long> =
             categorias.map { 1L }
