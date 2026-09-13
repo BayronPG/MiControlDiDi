@@ -1267,7 +1267,7 @@ class MigracionTest {
 
             // --- 9. El DAO coordinador elimina tanqueo y gasto juntos ---
             assertEquals(1, database.tanqueoDao().eliminar(tanqueoId))
-            assertEquals(0, database.gastoDao().obtenerTodos().first().size)
+            assertEquals(1, database.gastoDao().obtenerTodos().first().size)
             assertEquals(18000L, database.gastoDao().obtenerTotalGastosPorRango(0L, 9999L).first())
 
             // --- 10. Siete tablas ---

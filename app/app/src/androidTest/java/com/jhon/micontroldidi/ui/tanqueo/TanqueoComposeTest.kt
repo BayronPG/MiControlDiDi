@@ -36,7 +36,7 @@ class TanqueoComposeTest {
     private var errorCarga = false
 
     private val resourceProvider = object : ResourceProvider {
-        override fun getString(resId: Int): String = ""
+        override fun getString(resId: Int): String = "Error al cargar tanqueos"
     }
 
     private val tanqueoDaoFalso = object : TanqueoDao() {
@@ -135,6 +135,11 @@ class TanqueoComposeTest {
     @Test
     fun errorDeCarga_muestraEstadoDeError() {
         errorCarga = true
+        viewModel = TanqueoViewModel(
+            TanqueoRepository(tanqueoDaoFalso, categoriaDaoFalso),
+            PerfilTrabajoRepository(perfilDaoFalso),
+            resourceProvider
+        )
 
         montarLista()
 
