@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#FF1A6B52</color>
-    <color name="primary_variant">#FF00513D</color>
-    <color name="secondary">#FF4C6359</color>
-    <color name="background">#FFFBFDF9</color>
-    <color name="surface">#FFFBFDF9</color>
-    <color name="on_primary">#FFFFFFFF</color>
-    <color name="on_secondary">#FFFFFFFF</color>
-    <color name="on_background">#FF191C1A</color>
-    <color name="on_surface">#FF191C1A</color>
+    <!--
+      Paleta del tema de plataforma: solo lo que el sistema necesita antes de que
+      Compose dibuje. La fuente única de la paleta de la app es ui/theme/Color.kt.
+      barra_estado  = PrimaryLight     (#FF2563EB)
+      fondo_ventana = BackgroundLight  (#FFF8FAFC)
+    -->
+    <color name="barra_estado">#FF2563EB</color>
+    <color name="fondo_ventana">#FFF8FAFC</color>
 </resources>
