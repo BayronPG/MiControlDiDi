@@ -1,27 +1,34 @@
 # MiControlDiDi
 
-Aplicación Android para controlar ingresos, gastos y ganancias de un conductor de moto.
+Aplicación Android para controlar ingresos, gastos y ganancias de un conductor de moto, adaptada al
+control del día de trabajo. Funciona **completamente sin conexión a Internet** y el manifiesto **no
+declara ningún permiso**.
 
-## Estado del proyecto
+## Estado del proyecto (actualizado el 13-sep-2026)
 
-- **Fases 1 a 4 cerradas.**
-- **Fase 5 en desarrollo.** Incrementos 1A (cálculo de periodos), 1B (totales por rango) y 1C (DashboardViewModel) completados e integrados.
-- **DashboardScreen y navegación al Dashboard pendientes.**
-- La aplicación funciona completamente sin conexión a Internet.
+- **Fases 0 a 6 y Fase 8 cerradas.** MVP completo y en uso.
+- **Fase 7 retirada del alcance** por decisión de producto (02-ago-2026): la app conserva un único tema claro.
+- **Control diario del trabajo:** incrementos **A** (auditoría + ADR), **B** (perfil de trabajo),
+  **C** (horario laboral) y **D** (registro de jornada) cerrados y validados en dispositivo.
+  Los incrementos **E–K no están autorizados**.
+- **Estabilización previa al incremento E cerrada** (13-sep-2026): corregidos los hallazgos H-01, H-02,
+  H-05, H-06 y H-08 de la auditoría completa (`docs/AUDITORIA_COMPLETA_2026-09-13.md`).
+- **Instantánea de pruebas al 13-sep-2026:** 316 unitarias y 131 instrumentadas (dispositivo ALT-LX3).
+
+> La **fuente única** del estado detallado, de la trazabilidad por fase y del desglose de pruebas por
+> archivo es **`PROJECT_STATUS.md`**. Los conteos de este documento son una instantánea.
 
 ## Stack técnico
 
 - **Kotlin** — lenguaje principal.
-- **Jetpack Compose** — UI declarativa.
-- **Material 3** — diseño siguiendo Material Design 3.
+- **Jetpack Compose** + **Material 3** — interfaz declarativa.
 - **Room** — persistencia local con SQLite.
 - **KSP** — procesador de anotaciones de Room.
-- **MVVM** — separación de capas UI y datos.
-- **Repository Pattern** — abstracción entre ViewModel y DAO.
-- **StateFlow** — estado reactivo en ViewModels.
-- **Coroutines y Flow** — operaciones asíncronas y reactivas.
+- **MVVM** + **Repository Pattern** — separación entre interfaz y datos.
+- **StateFlow / Flow** y **Coroutines** — estado reactivo y operaciones asíncronas.
 - **Navigation Compose** — navegación entre pantallas.
 - **Gradle Kotlin DSL** — configuración del proyecto.
+- **JUnit 4** y **Compose UI Test** — pruebas unitarias e instrumentadas.
 
 ## Arquitectura
 
@@ -29,131 +36,84 @@ Aplicación Android para controlar ingresos, gastos y ganancias de un conductor 
 Compose UI → ViewModel → Repository → DAO → Room
 ```
 
+Los composables no acceden a Room y los ViewModel no acceden a los DAO.
+
+## Estructura del repositorio
+
+```
+C:\Proyectos\MiControlDiDi\   ← raíz Git (espacio de trabajo)
+├── AGENTS.md · PROJECT_STATUS.md · TASKS.md · README.md
+├── app\                       ← raíz del proyecto Gradle
+│   └── app\                   ← módulo Android :app
+├── docs\                      SRS (.docx), ADR-001 y auditorías
+├── recursos\ · disenos\        material de apoyo
+└── dist\                       APK demo y capturas (ignorado por Git)
+```
+
+La raíz Git y la raíz Gradle **no coinciden**: abre en Android Studio la carpeta `app`.
+
 ## Funcionalidades implementadas
 
-### Viajes
+**Viajes**
+- Registrar, consultar, editar y eliminar viajes (valor, propina y observación).
+- Listado descendente por fecha y filtro por rango de fechas.
+- Al editar un viaje se muestra su fecha original, no la fecha actual.
 
-- [x] Registrar viajes con valor, propina y observación.
-- [x] Listar viajes ordenados por fecha descendente.
-- [x] Validar datos: valor > 0, propina ≥ 0, fecha obligatoria.
-- [x] Persistir viajes en Room.
+**Gastos**
+- Registrar, consultar, editar y eliminar gastos con categoría, valor y descripción.
+- Seis categorías iniciales (Gasolina, Mantenimiento, Parqueadero, Lavado, Cuota de la moto, Otros)
+  con unicidad de nombre case-insensitive.
+- Filtro por rango de fechas y protección ante un ID inexistente.
 
-> Editar y eliminar viajes desde la interfaz **no está implementado**.
+**Balance y metas**
+- Ingresos, gastos y ganancia neta por día, semana y mes.
+- Dashboard con meta activa, progreso y accesos rápidos a registrar viaje y gasto.
+- Estadísticas del periodo actual frente al anterior.
 
-### Gastos
+**Control diario del trabajo**
+- Perfil de trabajo editable (plataforma, vehículo, combustible, ciudad, días, horario, umbral de
+  kilómetros vacíos y reservas por kilómetro calculadas).
+- Horario laboral por bloques con pausas, progreso y modo regreso (dominio puro).
+- Registro de jornada con odómetro inicial, combustible, zona, meta del día, energía, clima y
+  **revisión previa de 12 puntos de seguridad** con aviso no bloqueante en llantas, frenos y luces.
 
-- [x] Registrar gastos con categoría, valor y descripción.
-- [x] Listar gastos ordenados por fecha descendente.
-- [x] Seleccionar categorías activas desde ExposedDropdownMenu.
-- [x] Editar gastos (categoría, valor, descripción conservando ID y fechaHora).
-- [x] Eliminar gastos con diálogo de confirmación y opción de cancelar.
-- [x] Persistir creación, edición y eliminación.
-- [x] Proteger la edición cuando el ID no existe (pantalla de error).
-- [x] 6 categorías iniciales: Gasolina, Mantenimiento, Parqueadero, Lavado, Cuota de la moto, Otros.
-- [x] Unicidad case-insensitive en nombres de categoría (COLLATE NOCASE).
+## Navegación
 
-### Navegación
-
-- [x] Barra de navegación inferior entre Viajes (inicio) y Gastos.
-- [x] Destino inicial: `lista_viajes`.
-- [x] Rutas: `lista_viajes`, `registrar_viaje`, `lista_gastos`, `registrar_gasto`, `registrar_gasto/{gastoId}`.
+- Destino inicial: **`dashboard`**.
+- Barra inferior con cinco destinos e iconos diferenciados: Inicio, Viajes, Gastos, Datos y Ajustes.
+- Rutas: `dashboard`, `lista_viajes`, `registrar_viaje`, `registrar_viaje/{viajeId}`, `lista_gastos`,
+  `registrar_gasto`, `registrar_gasto/{gastoId}`, `configurar_meta`, `configurar_perfil`,
+  `registrar_jornada`, `estadisticas` y `configuracion`.
 
 ## Base de datos
 
-- **Archivo:** `micontrol_didi.db`
-- **Versión Room:** 2
-- **Tablas:** `viajes`, `categorias_gasto`, `gastos`
-- **Migración:** `MIGRATION_1_2` registrada explícitamente (v1 → v2 añade categorías y gastos)
-- **Sin** `fallbackToDestructiveMigration()`
-- **Seis categorías iniciales** insertadas tanto en la migración como en `onCreate` para bases nuevas
-- **Relación:** `gastos.categoriaId` → `categorias_gasto.id` con `ON DELETE RESTRICT`
-- **`exportSchema = false`** — deuda técnica por incompatibilidad entre Room 2.8.4 y Kotlin 2.1.20
-
-> **Sobre la validación de la migración:**
-> - Existe una prueba instrumentada directa (`MigracionTest`) que crea la base v1 manualmente con SQL, la abre con Room + `MIGRATION_1_2` y verifica que los datos de viajes se conservan, las categorías iniciales existen y los gastos pueden insertarse.
-> - **No** está validada mediante `MigrationTestHelper` contra un esquema `2.json` — no existe `2.json` mientras `exportSchema` permanezca desactivado.
+- **Archivo:** `micontrol_didi.db` · **Versión Room: 6**
+- **Tablas (6):** `viajes`, `categorias_gasto`, `gastos`, `metas`, `perfil_trabajo`, `jornadas`
+- **Migraciones explícitas (5):** `MIGRATION_1_2`, `MIGRATION_2_3`, `MIGRATION_3_4`, `MIGRATION_4_5`,
+  `MIGRATION_5_6`. **Sin** `fallbackToDestructiveMigration()`.
+- **`exportSchema = false`** (deuda técnica por incompatibilidad entre Room 2.8.4 y Kotlin 2.1.20):
+  sin esquemas exportados no se puede usar `MigrationTestHelper`, así que las migraciones se validan con
+  `MigracionTest` escrito a mano más `PersistenciaTest` sobre una base de archivo real.
+- Dinero y distancias se guardan como `Long` (pesos colombianos enteros y metros).
 
 ## Batería de pruebas
 
 | Tipo | Cantidad | Estado |
 |------|----------|--------|
-| Unitarias | 113 | ✅ |
-| Instrumentadas | 65 | ✅ |
-| **Total** | **178** | ✅ |
+| Unitarias (`src/test`) | 316 | ✅ 0 fallos, 0 omitidas |
+| Instrumentadas (`src/androidTest`) | 131 | ✅ 0 fallos, 0 omitidas |
+| **Total** | **447** | ✅ |
 
-### Trazabilidad
-
-- Unitarias validadas tras Incremento 1C: **113/113**.
-- Instrumentadas vigentes desde validación del Incremento 1B: **65/65**.
-- **No se repitió `connectedDebugAndroidTest` después del Incremento 1C.**
-- 0 pruebas flaky pendientes.
-
-> Para detalles completos (distribución por archivo, limpieza selectiva, antecedente de incidencia flaky), consultar `PROJECT_STATUS.md`.
-
-### Desglose por archivo
-
-**Unitarias (113)**
-| Archivo | Pruebas |
-|---------|---------|
-| `ViajeEntityTest` | 6 |
-| `CategoriaGastoEntityTest` | 3 |
-| `ViajeRepositoryTest` | 8 |
-| `CategoriaGastoRepositoryTest` | 5 |
-| `GastoRepositoryTest` | 11 |
-| `ViajeViewModelTest` | 10 |
-| `GastoViewModelTest` | 28 |
-| `CalculadorRangoPeriodoTest` | 22 |
-| `DashboardViewModelTest` | **20** |
-
-**Instrumentadas (65)**
-| Archivo | Pruebas |
-|---------|---------|
-| `ViajeDaoTest` | 11 |
-| `CategoriaGastoDaoTest` | 3 |
-| `CategoriaUnicidadTest` | 3 |
-| `GastoDaoTest` | 22 |
-| `MigracionTest` | 1 |
-| `ViajeComposeTest` | 8 |
-| `GastoComposeTest` | 17 |
-
-## Funcionalidades pendientes (no implementadas)
-
-- [ ] **DashboardScreen** con resumen del periodo y selector visual (día / semana / mes).
-- [ ] Ruta `dashboard` y cambio de `startDestination` en NavGraph.
-- [ ] Accesos rápidos "Registrar viaje" y "Registrar gasto" desde Dashboard.
-- [ ] Editar y eliminar viajes desde la interfaz.
-- [ ] Filtros por rango de fechas (viajes y gastos).
-- [ ] Metas de ganancia.
-- [ ] Estadísticas básicas.
-- [ ] Categorías personalizadas desde la interfaz de usuario.
-- [ ] Preferencias (tema claro/oscuro).
-
-### Fuera del alcance del MVP
-
-- Firebase, backend, sincronización.
-- PDF, Excel, escaneo, voz.
-- Inteligencia artificial.
-- Migración Room 2 → 3.
-- Integración directa con DiDi, GPS.
-
-## Deuda técnica
-
-| Elemento | Detalle |
-|----------|--------|
-| `exportSchema` | `false` — Room 2.8.4 incompatible con Kotlin 2.1.20 |
-| Persistencia en HONOR | Verificada manualmente (no automatizada) |
+- Las pruebas instrumentadas se ejecutan **solo en el dispositivo físico ALT-LX3** (nunca en emulador).
+- El desglose por archivo, la trazabilidad por fase y las incidencias corregidas están en
+  `PROJECT_STATUS.md`.
 
 ## Cómo abrir el proyecto
 
-El proyecto Android se encuentra en la carpeta `app`:
+El proyecto Android está en la carpeta `app`. Ábrela directamente en **Android Studio** como proyecto
+existente.
 
-```
-C:\Proyectos\MiControlDiDi\app
-```
-
-Ábrela directamente en **Android Studio** como proyecto existente.
-
-## Comandos básicos
+### Comandos básicos
 
 Ejecutar desde `C:\Proyectos\MiControlDiDi\app`:
 
@@ -164,7 +124,7 @@ Ejecutar desde `C:\Proyectos\MiControlDiDi\app`:
 # Ejecutar pruebas unitarias
 .\gradlew.bat testDebugUnitTest
 
-# Ejecutar pruebas instrumentadas (requiere emulador o dispositivo)
+# Ejecutar pruebas instrumentadas (requiere el dispositivo ALT-LX3 conectado)
 .\gradlew.bat connectedDebugAndroidTest
 ```
 
@@ -172,5 +132,12 @@ Ejecutar desde `C:\Proyectos\MiControlDiDi\app`:
 
 - `docs/SRS_MiControlDiDi_v1.docx` — requisitos del producto.
 - `AGENTS.md` — reglas obligatorias para el desarrollo.
-- `TASKS.md` — backlog de trabajo.
-- `PROJECT_STATUS.md` — estado actual detallado.
+- `TASKS.md` — backlog de trabajo y criterios de aceptación por incremento.
+- `PROJECT_STATUS.md` — estado actual detallado (fuente única).
+- `docs/ADR-001-control-diario.md` — decisiones de arquitectura del control diario.
+- `docs/AUDITORIA_CONTROL_DIARIO.md` y `docs/AUDITORIA_COMPLETA_2026-09-13.md` — auditorías.
+
+## Fuera del alcance
+
+Firebase, backend o sincronización; PDF, Excel, voz o escaneo; inteligencia artificial; GPS;
+notificaciones del sistema y permisos nuevos; modo oscuro; integración directa con DiDi.
