@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 13-sep-2026 — Incrementos B, C y D del control diario cerrados, **estabilización previa al incremento E completada** y todo **validado en ALT-LX3** (316/316 unitarias + 131/131 instrumentadas).
+> Actualizado: 13-sep-2026 — Incrementos A, B, C, D, E y F del control diario cerrados y todo **validado en ALT-LX3** (383/383 unitarias + 148/148 instrumentadas, total 531).
 > Estado funcional anterior: 16-ago-2026 — Fase 8 cerrada (MVP): 322/322 pruebas; APK demo regenerado; push a origin/main completado.
 
 ---
@@ -196,9 +196,9 @@ class Factory(
 
 | Tipo | Cantidad | Estado |
 |------|---:|---:|
-| Unitarias | **309** | 309/309 (0 fallos) — 194 del MVP + 49 de B + 29 de C + 37 de D |
-| Instrumentadas | **130** | 130/130 en ALT-LX3 (13-sep-2026), 0 omitidas — incluye las migraciones v4→v5 y v5→v6 |
-| **Total** | **439** | 439/439, 0 fallos |
+| Unitarias | **383** | 383/383 (0 fallos) — 194 MVP + 49 B + 29 C + 37 D + 7 H-05/H-08 + 28 E + 39 F |
+| Instrumentadas | **148** | 148/148 en ALT-LX3 (13-sep-2026), 0 omitidas — incluye migraciones v4→v5, v5→v6, v6→v7 y v7→v8 |
+| **Total** | **531** | 531/531, 0 fallos |
 
 > **Nota (25-jul-2026):**
 >
@@ -561,7 +561,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - [x] **Fase 6: Filtros, metas, dashboard y estadísticas — Completada ✅**
 - [x] Fase 7: Preferencias (tema claro/oscuro) — **Retirada del alcance por decisión de producto. Se eliminó la funcionalidad de selección de tema y la aplicación conserva únicamente el esquema claro.**
 - [x] **Fase 8: Calidad y cierre del MVP — Cerrada el 16-ago-2026 ✅** (322/322 pruebas; APK demo regenerado; push a origin/main; verificación manual descartada por decisión del usuario).
-- [x] **Control diario del trabajo — Incrementos A ✅ (documentación), B ✅ (perfil de trabajo), C ✅ (horario laboral) y D ✅ (registro de jornada); 309/309 unitarias y 130/130 instrumentadas; incrementos E–K ⛔ no autorizados** (ver secciones siguientes).
+- [x] **Control diario del trabajo — Incrementos A ✅ (documentación), B ✅ (perfil de trabajo), C ✅ (horario laboral), D ✅ (registro de jornada), E ✅ (viaje adaptado) y F ✅ (tanqueos y cierre de jornada); 383/383 unitarias y 148/148 instrumentadas; incrementos G–K ⛔ no autorizados** (ver secciones siguientes).
 
 ---
 
@@ -595,8 +595,8 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 | B | Perfil de trabajo | v4→v5 | ✅ Implementado (13-sep-2026) |
 | C | Horario laboral (dominio) | — | ✅ Implementado (13-sep-2026) |
 | D | Registro de jornada + checklist | v5→v6 | ✅ Implementado (13-sep-2026) |
-| E | Viaje adaptado a plataforma | v6→v7 | ⛔ No autorizado |
-| F | Gasolina extra / tanqueos | v7→v8 | ⛔ No autorizado |
+| E | Viaje adaptado a plataforma | v6→v7 | ✅ Implementado (13-sep-2026) |
+| F | Gasolina extra / tanqueos y cierre | v7→v8 | ✅ Implementado (13-sep-2026) |
 | G | Kilómetros y netos (dominio) | — | ⛔ No autorizado |
 | H | Bienestar | v8→v9 | ⛔ No autorizado |
 | I | Dashboard adaptado | — | ⛔ No autorizado |
@@ -612,7 +612,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 | Versión de la base de datos | Sin cambios (v4) |
 | Batería de pruebas | No ejecutada: no hubo cambios de código (estado vigente 322/322) |
 
-> **Estado:** A cerrado. El incremento B fue autorizado y cerrado después (ver «Incremento B — Perfil de trabajo»). **Ningún incremento posterior a B está autorizado.**
+> **Estado:** A, B, C, D, E y F cerrados. **Ningún incremento posterior a F está autorizado.**
 
 ---
 
@@ -842,6 +842,62 @@ La prueba instrumentada nueva de H-05 usaba `assertTextMatches`, que no existe e
 
 Durante la implementación se lanzaron **varias corridas instrumentadas solapadas** sobre ALT-LX3. La reinstalación e interferencia entre procesos de esas corridas produjo fallos espurios en `DashboardScreenTest` (ajenos a este incremento). **No son defectos de producción ni de las pruebas nuevas**: la única corrida **no solapada** terminó **142/142, 0 fallos**. Regla adoptada: **una sola corrida instrumentada a la vez** sobre el dispositivo.
 
-### Pendiente registrado (sin resolver)
+### Resolución de contradicción F/G
 
-- **Contradicción documental F/G:** `PROJECT_STATUS.md` atribuye el **cierre de jornada con odómetro final** al incremento **F**, mientras `TASKS.md` y `docs/AUDITORIA_CONTROL_DIARIO.md` sitúan los **kilómetros vacíos y los netos en G** y los **tanqueos en F**. Queda **registrada como pendiente**: no se resuelve ni se implementa nada de F ni de G.
+- **Contradicción documental F/G resuelta:** el **cierre de jornada con odómetro final y hora de fin** quedó implementado e integrado en el incremento **F** junto con la base de datos **v8** (columnas `fechaHoraFin` y `kilometrajeFinalMetros` en `jornadas`). El incremento **G** se limita exclusivamente a la capa de dominio de **kilómetros vacíos, semáforo de eficiencia y cálculos netos** (operativo y económico).
+
+---
+
+## Incremento F — Gasolina extra, tanqueos y cierre de jornada (13-sep-2026)
+
+**Naturaleza: código funcional.** Base de datos **v7 → v8** con migración explícita. Sin dependencias nuevas, sin GPS, sin permisos nuevos y sin red.
+
+### Implementado
+
+- **`TanqueoEntity`** (tabla `tanqueos`): id, fechaHora, odometroMetros (`Long`), litrosMililitros (`Long`), importePagado (`Long`), esLleno (`Boolean`), tipoCombustible (`String`), observacion (`String`), gastoId (`Long`, FK → `gastos.id` con `ON DELETE RESTRICT`).
+  - Litros y precio por litro son propiedades calculadas de dominio (`litros` y `precioLitro`); no se persisten.
+  - Dinero en `Long` entero y distancias en metros (`Long`); sin `Double` ni `Float`.
+- **Atomicidad y sincronización tanqueo-gasto:**
+  - `TanqueoDao`: DAO coordinador con transacciones Room (`@Transaction`).
+  - Crear tanqueo crea atómicamente su `GastoEntity` de categoría Gasolina y enlaza `gastoId`.
+  - Editar tanqueo actualiza atómicamente los datos del gasto vinculado (valor, fechaHora, observación).
+  - Eliminar tanqueo elimina primero el tanqueo hijo y luego su gasto padre en la misma transacción.
+  - La FK `ON DELETE RESTRICT` impide borrar directamente el gasto desde la base de datos mientras exista el tanqueo.
+  - Evita doble conteo: el combustible vive una sola vez como gasto en la contabilidad general.
+- **Protección en la interfaz de gastos:**
+  - `GastoDao.obtenerTodos()` y `obtenerPorId()` marcan `esTanqueo = (t.id IS NOT NULL)` mediante `LEFT JOIN tanqueos`.
+  - `ListaGastosScreen` muestra etiqueta identificativa y deshabilita los botones de editar y eliminar para gastos de tanqueo.
+  - `GastoViewModel` bloquea `cargarGastoParaEditar` y `mostrarDialogoEliminar` ante gastos vinculados a tanqueos, mostrando mensaje informativo.
+- **Cierre de jornada (completado en F):**
+  - Columnas `fechaHoraFin` y `kilometrajeFinalMetros` agregadas a `jornadas` en migración `MIGRATION_7_8` (0 por defecto, lo que conserva jornadas anteriores abiertas).
+  - `jornadaDao.cerrar` valida atómicamente en SQL `WHERE id = :id AND fechaHoraFin = 0`, garantizando **cierre único**.
+  - `JornadaRepository.cerrar` valida fecha fin ≥ fecha inicio y odómetro final ≥ inicial.
+  - `JornadaViewModel` y `RegistrarJornadaScreen` exponen la sección de cierre con odómetro final y hora automática del reloj.
+- **Pantallas y navegación:**
+  - `ListaTanqueosScreen` (LazyColumn, card con fecha, litros, importe, odómetro, switch de lleno, botones editar y eliminar con diálogo de confirmación).
+  - `RegistrarTanqueoScreen` (odómetro, litros, importe, selector de combustible prellenado desde el perfil de trabajo, switch de lleno y validaciones).
+  - Rutas `lista_tanqueos`, `registrar_tanqueo` y `registrar_tanqueo/{tanqueoId}` en `NavGraph`.
+  - Acceso directo desde `SettingsScreen`.
+- **Migración `MIGRATION_7_8`:**
+  - Crea tabla `tanqueos` con FK hacia `gastos` e índices sobre `fechaHora` y `gastoId`.
+  - `ALTER TABLE jornadas` para añadir `fechaHoraFin` y `kilometrajeFinalMetros`.
+  - Sin `destructiveMigration` y con conservación estricta de datos previos.
+
+### Validación
+
+| Verificación | Resultado |
+|---|---|
+| `assembleDebug` | ✅ BUILD SUCCESSFUL |
+| `testDebugUnitTest` | ✅ **383/383, 0 fallos, 0 omitidas** (344 previas + 39 nuevas de F) |
+| `connectedDebugAndroidTest` en ALT-LX3 (Android 14, API 34) | ✅ **148/148, 0 fallos, 0 errores, 0 omitidas** (corrida no solapada) |
+| Pruebas nuevas unitarias (39) | `TanqueoEntityTest` (5), `TanqueoRepositoryTest` (8), `TanqueoViewModelTest` (8), `GastoVinculadoTest` (4), `JornadaEntityCierreTest` (3), `JornadaCierreRepositoryTest` (6), `JornadaCierreViewModelTest` (5) |
+| Pruebas nuevas instrumentadas (6) | `MigracionTest` (1: prueba v7→v8 `migracionSieteAOcho_creaTanqueosYAnadeCierreDeJornada`), `TanqueoComposeTest` (4), más actualización de `PersistenciaTest` con `MIGRATION_7_8` |
+| Base de datos | **v8**; `MIGRATION_7_8` registrada; 7 tablas; 0 migraciones destructivas |
+| Dependencias, GPS y permisos | Sin cambios |
+| Pruebas desactivadas u omitidas | Ninguna |
+
+### Incidencias encontradas y corregidas durante la validación
+
+1. **`MigracionTest`**: en el paso 9 de `migracionSieteAOcho_creaTanqueosYAnadeCierreDeJornada`, la aserción esperaba `0` gastos tras eliminar el tanqueo, pero el gasto previo de control (18.000) persistía intacto. Se corrigió la expectativa a `1` gasto conservado.
+2. **`TanqueoComposeTest`**: la prueba `errorDeCarga_muestraEstadoDeError` fijaba `errorCarga = true` después de que el ViewModel ya había recolectado el flow en `setUp()`. Se corrigió reinicializando el ViewModel para que recolectara el flujo con error.
+

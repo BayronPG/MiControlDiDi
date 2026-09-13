@@ -9,11 +9,12 @@ declara ningún permiso**.
 - **Fases 0 a 6 y Fase 8 cerradas.** MVP completo y en uso.
 - **Fase 7 retirada del alcance** por decisión de producto (02-ago-2026): la app conserva un único tema claro.
 - **Control diario del trabajo:** incrementos **A** (auditoría + ADR), **B** (perfil de trabajo),
-  **C** (horario laboral), **D** (registro de jornada) y **E** (viaje adaptado a inDrive) cerrados y
-  validados en dispositivo. Los incrementos **F–K no están autorizados**.
+  **C** (horario laboral), **D** (registro de jornada), **E** (viaje adaptado a inDrive) y
+  **F** (tanqueos enlazados a gasolina y cierre de jornada) cerrados y validados en dispositivo.
+  Los incrementos **G–K no están autorizados**.
 - **Estabilización previa al incremento E cerrada** (13-sep-2026): corregidos los hallazgos H-01, H-02,
   H-05, H-06 y H-08 de la auditoría completa (`docs/AUDITORIA_COMPLETA_2026-09-13.md`).
-- **Instantánea de pruebas al 13-sep-2026:** 344 unitarias y 142 instrumentadas (dispositivo ALT-LX3).
+- **Instantánea de pruebas al 13-sep-2026:** 383 unitarias y 148 instrumentadas (dispositivo ALT-LX3), total 531.
 
 > La **fuente única** del estado detallado, de la trazabilidad por fase y del desglose de pruebas por
 > archivo es **`PROJECT_STATUS.md`**. Los conteos de este documento son una instantánea.
@@ -61,11 +62,14 @@ La raíz Git y la raíz Gradle **no coinciden**: abre en Android Studio la carpe
 - Listado descendente por fecha y filtro por rango de fechas.
 - Al editar un viaje se muestra su fecha original, no la fecha actual.
 
-**Gastos**
+**Gastos y Tanqueos**
 - Registrar, consultar, editar y eliminar gastos con categoría, valor y descripción.
 - Seis categorías iniciales (Gasolina, Mantenimiento, Parqueadero, Lavado, Cuota de la moto, Otros)
   con unicidad de nombre case-insensitive.
 - Filtro por rango de fechas y protección ante un ID inexistente.
+- **Tanqueos con sincronización 1:1 a gastos**: registrar, consultar, editar y eliminar tanqueos
+  manteniendo sincronizado atómicamente un gasto de categoría Gasolina (sin doble conteo).
+- Bloqueo de edición y eliminación desde la pantalla general de gastos para gastos enlazados a tanqueos.
 
 **Balance y metas**
 - Ingresos, gastos y ganancia neta por día, semana y mes.
@@ -78,6 +82,8 @@ La raíz Git y la raíz Gradle **no coinciden**: abre en Android Studio la carpe
 - Horario laboral por bloques con pausas, progreso y modo regreso (dominio puro).
 - Registro de jornada con odómetro inicial, combustible, zona, meta del día, energía, clima y
   **revisión previa de 12 puntos de seguridad** con aviso no bloqueante en llantas, frenos y luces.
+- **Cierre de jornada**: registro de odómetro final y hora de fin automática, con validación de
+  cierre único y cálculo de kilómetros totales de jornada.
 
 ## Navegación
 
@@ -85,14 +91,15 @@ La raíz Git y la raíz Gradle **no coinciden**: abre en Android Studio la carpe
 - Barra inferior con cinco destinos e iconos diferenciados: Inicio, Viajes, Gastos, Datos y Ajustes.
 - Rutas: `dashboard`, `lista_viajes`, `registrar_viaje`, `registrar_viaje/{viajeId}`, `lista_gastos`,
   `registrar_gasto`, `registrar_gasto/{gastoId}`, `configurar_meta`, `configurar_perfil`,
-  `registrar_jornada`, `estadisticas` y `configuracion`.
+  `registrar_jornada`, `lista_tanqueos`, `registrar_tanqueo`, `registrar_tanqueo/{tanqueoId}`,
+  `estadisticas` y `configuracion`.
 
 ## Base de datos
 
-- **Archivo:** `micontrol_didi.db` · **Versión Room: 7**
-- **Tablas (6):** `viajes`, `categorias_gasto`, `gastos`, `metas`, `perfil_trabajo`, `jornadas`
-- **Migraciones explícitas (6):** `MIGRATION_1_2`, `MIGRATION_2_3`, `MIGRATION_3_4`, `MIGRATION_4_5`,
-  `MIGRATION_5_6`, `MIGRATION_6_7`. **Sin** `fallbackToDestructiveMigration()`.
+- **Archivo:** `micontrol_didi.db` · **Versión Room: 8**
+- **Tablas (7):** `viajes`, `categorias_gasto`, `gastos`, `metas`, `perfil_trabajo`, `jornadas`, `tanqueos`
+- **Migraciones explícitas (7):** `MIGRATION_1_2`, `MIGRATION_2_3`, `MIGRATION_3_4`, `MIGRATION_4_5`,
+  `MIGRATION_5_6`, `MIGRATION_6_7`, `MIGRATION_7_8`. **Sin** `fallbackToDestructiveMigration()`.
 - **`exportSchema = false`** (deuda técnica por incompatibilidad entre Room 2.8.4 y Kotlin 2.1.20):
   sin esquemas exportados no se puede usar `MigrationTestHelper`, así que las migraciones se validan con
   `MigracionTest` escrito a mano más `PersistenciaTest` sobre una base de archivo real.
@@ -102,9 +109,9 @@ La raíz Git y la raíz Gradle **no coinciden**: abre en Android Studio la carpe
 
 | Tipo | Cantidad | Estado |
 |------|----------|--------|
-| Unitarias (`src/test`) | 344 | ✅ 0 fallos, 0 omitidas |
-| Instrumentadas (`src/androidTest`) | 142 | ✅ 0 fallos, 0 errores, 0 omitidas |
-| **Total** | **486** | ✅ |
+| Unitarias (`src/test`) | 383 | ✅ 0 fallos, 0 omitidas |
+| Instrumentadas (`src/androidTest`) | 148 | ✅ 0 fallos, 0 errores, 0 omitidas (ALT-LX3) |
+| **Total** | **531** | ✅ 531/531 |
 
 - Las pruebas instrumentadas se ejecutan **solo en el dispositivo físico ALT-LX3** (nunca en emulador) y
   **una sola corrida a la vez**: las corridas solapadas reinstalan la app y generan fallos espurios.

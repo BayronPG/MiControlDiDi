@@ -429,7 +429,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 
 ## Fase 9 — Control diario del trabajo (propuesta — NO autorizada)
 
-> **Estado global: ⛔ no autorizada (parcial).** Autorizados y cerrados: **Incremento A** (documentación), **Incremento B** (perfil de trabajo), **Incremento C** (horario laboral) e **Incremento D** (registro de jornada). Los incrementos E–K requieren autorización explícita e individual.
+> **Estado global: ⛔ no autorizada (parcial).** Autorizados y cerrados: **Incremento A** (documentación), **Incremento B** (perfil de trabajo), **Incremento C** (horario laboral), **Incremento D** (registro de jornada), **Incremento E** (viaje adaptado) e **Incremento F** (tanqueos y cierre de jornada). Los incrementos G–K requieren autorización explícita e individual.
 > Documentos de referencia: `docs/AUDITORIA_CONTROL_DIARIO.md` y `docs/ADR-001-control-diario.md`.
 
 | # | Incremento | Prioridad | Dependencias | Migración | Estado |
@@ -440,7 +440,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | 9.C | Horario laboral: bloques, pausas, progreso y modo regreso (dominio puro) | [H] | 9.B | — | ✅ Implementado (13-sep-2026) — 29 pruebas nuevas; instrumentadas 129/129 |
 | 9.D | Registro de jornada + checklist de 12 puntos de seguridad | [H] | 9.B, 9.C | v5→v6 | ✅ Implementado (13-sep-2026) — 37 unitarias; migración v5→v6 validada en ALT-LX3 |
 | 9.E | Viaje adaptado a plataforma (precios, distancias, zonas, forma de pago, peajes) | [H] | 9.B | v6→v7 | ✅ Implementado (13-sep-2026) — 28 unitarias y 11 instrumentadas nuevas; 344/344 y 142/142 |
-| 9.F | Gasolina extra: tanqueos con enlace a gasto de categoría Gasolina | [H] | 9.B, 9.E | v7→v8 | ⛔ No autorizado |
+| 9.F | Gasolina extra: tanqueos con enlace a gasto de categoría Gasolina y cierre de jornada | [H] | 9.B, 9.E | v7→v8 | ✅ Implementado (13-sep-2026) — 383/383 unitarias y 148/148 instrumentadas en ALT-LX3 |
 | 9.G | Kilómetros vacíos, semáforo y netos (operativo y económico) | [H] | 9.B, 9.D, 9.E, 9.F | — | ⛔ No autorizado |
 | 9.H | Bienestar: cansancio, molestias y recordatorios internos | [M] | 9.D | v8→v9 | ⛔ No autorizado |
 | 9.I | Dashboard adaptado al conductor | [H] | 9.G | — | ⛔ No autorizado |
@@ -529,9 +529,25 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 - ✅ `assembleDebug` BUILD SUCCESSFUL; `testDebugUnitTest` **344/344, 0 fallos**; `connectedDebugAndroidTest` en ALT-LX3 **142/142, 0 fallos, 0 errores, 0 omitidas**.
 - ✅ `README.md`, `PROJECT_STATUS.md` y `TASKS.md` actualizados con resultados reales.
 
-### Pendiente registrado — contradicción F/G (sin resolver)
+### Resolución de contradicción F/G (resuelta)
 
-- ⚠️ `PROJECT_STATUS.md` atribuye el cierre de jornada con odómetro final al incremento **F**, mientras este backlog y `docs/AUDITORIA_CONTROL_DIARIO.md` sitúan los kilómetros vacíos y los netos en **G** y los tanqueos en **F**. Se registra como pendiente: **no se resuelve** y no se implementa nada de F ni de G.
+- ✅ **Contradicción documental F/G resuelta:** el cierre de jornada con odómetro final y hora de fin quedó implementado en el incremento **F** junto con la base de datos **v8** (columnas `fechaHoraFin` y `kilometrajeFinalMetros` en `jornadas`). El incremento **G** se enfocará exclusivamente en los **kilómetros vacíos, semáforo y netos** (operativo y económico).
+
+### Criterios de aceptación — Incremento F (9.F)
+
+- ✅ Entidad `TanqueoEntity` (id, fechaHora, odometroMetros, litrosMililitros, importePagado, esLleno, tipoCombustible, observacion, gastoId).
+- ✅ Litros y precio por litro calculados en dominio, sin persistirse.
+- ✅ Sin Float ni Double: distancias en metros (`Long`) y dinero en `Long`.
+- ✅ Relación 1:1 atómica con `GastoEntity` de categoría Gasolina vía `@Transaction` en `TanqueoDao` (crear, editar y eliminar).
+- ✅ FK `ON DELETE RESTRICT` de `tanqueos` hacia `gastos`: no se puede borrar el gasto directo sin eliminar el tanqueo.
+- ✅ Bloqueo de edición y eliminación de gastos enlazados a tanqueos en `ListaGastosScreen` y `GastoViewModel`.
+- ✅ Cierre de jornada: columnas `fechaHoraFin` y `kilometrajeFinalMetros` en `jornadas`.
+- ✅ Cierre único garantizado en SQL: `WHERE id = :id AND fechaHoraFin = 0`.
+- ✅ Validación de cierre: fechaHoraFin >= fechaHoraInicio y kilometrajeFinalMetros >= kilometrajeInicialMetros.
+- ✅ Pantallas `ListaTanqueosScreen` y `RegistrarTanqueoScreen` con validaciones, diálogo de confirmación y navegación.
+- ✅ Migración explícita `MIGRATION_7_8` (tabla `tanqueos`, índices y columnas en `jornadas`); sin `destructiveMigration`.
+- ✅ `assembleDebug` BUILD SUCCESSFUL; `testDebugUnitTest` **383/383, 0 fallos**; `connectedDebugAndroidTest` en ALT-LX3 **148/148, 0 fallos, 0 omitidas**.
+- ✅ `README.md`, `PROJECT_STATUS.md` y `TASKS.md` actualizados.
 
 ### Criterios de aceptación — Fase 9 (pendientes de implementación)
 
