@@ -15,6 +15,17 @@
     <string name="propina">Propina</string>
     <string name="propina_opcional">Propina (opcional)</string>
     <string name="observacion_opcional">Observación (opcional)</string>
+<string name="plataforma_viaje">Plataforma</string>
+<string name="zona_viaje">Zona</string>
+<string name="distancia_viaje">Distancia (km)</string>
+<string name="distancia_km_viaje">%1$d km</string>
+<string name="forma_pago_viaje">Forma de pago</string>
+<string name="peaje_viaje">Peaje</string>
+<string name="error_viaje_plataforma_obligatoria">Indica la plataforma del viaje</string>
+<string name="error_viaje_zona_obligatoria">Indica la zona del viaje</string>
+<string name="error_viaje_forma_pago_obligatoria">Selecciona la forma de pago</string>
+<string name="error_distancia_negativa">La distancia no puede ser negativa</string>
+<string name="error_peaje_negativo">El peaje no puede ser negativo</string>
     <string name="descripcion_opcional">Descripción (opcional)</string>
     <string name="categoria">Categoría</string>
     <string name="viajes">Viajes</string>

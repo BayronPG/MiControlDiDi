@@ -128,4 +128,48 @@ class ViajeListaScreenTest {
 
         composeTestRule.onNodeWithTag("lista_viajes").assertIsDisplayed()
     }
+
+    @Test
+    fun viajeConDatosDePlataforma_muestraLosDetalles() {
+        composeTestRule.setContent {
+            ListaViajesScreen(
+                state = ViajeUiState(
+                    cargando = false,
+                    mensajeError = null,
+                    viajes = listOf(
+                        ViajeEntity(
+                            id = 1,
+                            fechaHora = 0L,
+                            valor = 15000,
+                            plataforma = "inDrive",
+                            zona = "Belén",
+                            distanciaMetros = 8500L,
+                            formaPago = "EFECTIVO",
+                            peaje = 12000L
+                        )
+                    )
+                )
+            )
+        }
+
+        composeTestRule.onNodeWithTag("detalles_plataforma_viaje").assertIsDisplayed()
+        composeTestRule.onNodeWithText("inDrive · Belén · 8 km").assertIsDisplayed()
+    }
+
+    @Test
+    fun viajeMigradoSinDatosDePlataforma_noMuestraDetalles() {
+        composeTestRule.setContent {
+            ListaViajesScreen(
+                state = ViajeUiState(
+                    cargando = false,
+                    mensajeError = null,
+                    viajes = listOf(
+                        ViajeEntity(id = 1, fechaHora = 0L, valor = 15000)
+                    )
+                )
+            )
+        }
+
+        composeTestRule.onNodeWithTag("detalles_plataforma_viaje").assertDoesNotExist()
+    }
 }

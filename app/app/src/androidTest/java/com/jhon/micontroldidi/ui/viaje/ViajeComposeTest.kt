@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jhon.micontroldidi.MainActivity
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -33,6 +34,22 @@ class ViajeComposeTest {
         composeTestRule.onNodeWithTag("navegacion_viajes").performClick()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").assertIsDisplayed()
     }
+
+    /** Completa plataforma, zona y forma de pago, que exige un viaje nuevo. */
+    private fun completarDatosDePlataforma() {
+        composeTestRule.onNodeWithTag("campo_plataforma_viaje").performTextReplacement("inDrive")
+        composeTestRule.onNodeWithTag("campo_zona_viaje").performTextReplacement("Belén")
+        composeTestRule.onNodeWithTag("selector_forma_pago_viaje").performClick()
+        composeTestRule.onNodeWithText("EFECTIVO").performClick()
+    }
+
+    /** Texto visible de un nodo con etiqueta de prueba. */
+    private fun textoDe(tag: String): String =
+        composeTestRule.onNodeWithTag(tag)
+            .fetchSemanticsNode()
+            .config.getOrNull(SemanticsProperties.Text)
+            .orEmpty()
+            .joinToString("") { it.text }
 
     @Test
     fun listaVacia_muestraBotonRegistrar() {
@@ -82,6 +99,7 @@ class ViajeComposeTest {
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("15000")
         composeTestRule.onNodeWithTag("campo_propina_viaje").performTextReplacement("3000")
         composeTestRule.onNodeWithTag("campo_observacion_viaje").performTextReplacement(observacion)
+        completarDatosDePlataforma()
         composeTestRule.onNodeWithTag("boton_guardar_viaje").performClick()
 
         composeTestRule.onNodeWithText(observacion).assertIsDisplayed()
@@ -105,9 +123,40 @@ class ViajeComposeTest {
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("25000")
         composeTestRule.onNodeWithTag("campo_propina_viaje").performTextReplacement("5000")
         composeTestRule.onNodeWithTag("campo_observacion_viaje").performTextReplacement(observacion)
+        completarDatosDePlataforma()
         composeTestRule.onNodeWithTag("boton_guardar_viaje").performClick()
 
         composeTestRule.onNodeWithText(observacion).assertIsDisplayed()
+    }
+
+    @Test
+    fun laPlataformaSePrellenaDesdeElPerfil() {
+        navegarAViajes()
+        composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
+
+        assertEquals("inDrive", textoDe("campo_plataforma_viaje"))
+    }
+
+    @Test
+    fun viajeSinZonaNiFormaDePago_noPermiteGuardar() {
+        navegarAViajes()
+        composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
+
+        composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("12000")
+
+        composeTestRule.onNodeWithTag("boton_guardar_viaje").assertIsNotEnabled()
+    }
+
+    @Test
+    fun camposDePlataforma_estanVisiblesEnElFormulario() {
+        navegarAViajes()
+        composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
+
+        composeTestRule.onNodeWithTag("campo_plataforma_viaje").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("campo_zona_viaje").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("campo_distancia_viaje").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("selector_forma_pago_viaje").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("campo_peaje_viaje").assertIsDisplayed()
     }
 
     /**
@@ -125,6 +174,7 @@ class ViajeComposeTest {
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("18000")
         composeTestRule.onNodeWithTag("campo_observacion_viaje")
             .performTextReplacement("Viaje con fecha")
+        completarDatosDePlataforma()
         composeTestRule.onNodeWithTag("boton_guardar_viaje").performClick()
 
         // Se abre la edición del viaje recién guardado (el primero de la lista).

@@ -146,4 +146,94 @@ class ViajeRepositoryTest {
         flujo.collect { resultado = it }
         assertEquals(9999L, resultado)
     }
+
+    // --- Incremento E: datos de plataforma ---
+
+    @Test
+    fun `insertar viaje con datos de plataforma los conserva`() = runTest {
+        val viaje = ViajeEntity(
+            fechaHora = 1000L,
+            valor = 20000L,
+            propina = 1000L,
+            plataforma = "inDrive",
+            zona = "Belén",
+            distanciaMetros = 8500L,
+            formaPago = "EFECTIVO",
+            peaje = 12000L
+        )
+
+        val resultado = repository.insertar(viaje)
+
+        assertTrue("Viaje con datos de plataforma debe ser válido", resultado.isSuccess)
+        assertEquals("inDrive", ultimoViajeInsertado?.plataforma)
+        assertEquals("Belén", ultimoViajeInsertado?.zona)
+        assertEquals(8500L, ultimoViajeInsertado?.distanciaMetros)
+        assertEquals("EFECTIVO", ultimoViajeInsertado?.formaPago)
+        assertEquals(12000L, ultimoViajeInsertado?.peaje)
+    }
+
+    @Test
+    fun `insertar viaje con distancia negativa falla`() = runTest {
+        val viaje = ViajeEntity(fechaHora = 1000L, valor = 15000, distanciaMetros = -1L)
+
+        val resultado = repository.insertar(viaje)
+
+        assertFalse("La distancia negativa debe rechazarse", resultado.isSuccess)
+    }
+
+    @Test
+    fun `insertar viaje con peaje negativo falla`() = runTest {
+        val viaje = ViajeEntity(fechaHora = 1000L, valor = 15000, peaje = -500L)
+
+        val resultado = repository.insertar(viaje)
+
+        assertFalse("El peaje negativo debe rechazarse", resultado.isSuccess)
+    }
+
+    @Test
+    fun `insertar viaje con forma de pago desconocida falla`() = runTest {
+        val viaje = ViajeEntity(fechaHora = 1000L, valor = 15000, formaPago = "BITCOIN")
+
+        val resultado = repository.insertar(viaje)
+
+        assertFalse("Una forma de pago fuera del catálogo debe rechazarse", resultado.isSuccess)
+    }
+
+    @Test
+    fun `insertar viaje migrado sin forma de pago es valido`() = runTest {
+        val viaje = ViajeEntity(fechaHora = 1000L, valor = 15000, formaPago = "")
+
+        val resultado = repository.insertar(viaje)
+
+        assertTrue("Un viaje sin forma de pago debe seguir siendo válido", resultado.isSuccess)
+    }
+
+    @Test
+    fun `insertar viaje con forma de pago valida la acepta`() = runTest {
+        val viaje = ViajeEntity(fechaHora = 1000L, valor = 15000, formaPago = "TRANSFERENCIA")
+
+        val resultado = repository.insertar(viaje)
+
+        assertTrue("Una forma de pago del catálogo debe aceptarse", resultado.isSuccess)
+    }
+
+    @Test
+    fun `actualizar viaje migrado con textos vacios es valido`() = runTest {
+        val viaje = ViajeEntity(
+            id = 1L,
+            fechaHora = 1000L,
+            valor = 15000,
+            propina = 2000,
+            observacion = "Viaje migrado",
+            plataforma = "",
+            zona = "",
+            distanciaMetros = 0L,
+            formaPago = "",
+            peaje = 0L
+        )
+
+        val resultado = repository.actualizar(viaje)
+
+        assertTrue("Un viaje migrado debe poder editarse", resultado.isSuccess)
+    }
 }

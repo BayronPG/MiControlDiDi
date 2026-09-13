@@ -141,7 +141,11 @@ fun AppNavGraph(
     resourceProvider: ResourceProvider
 ) {
     val viajeViewModel: ViajeViewModel = viewModel(
-        factory = ViajeViewModel.Factory(viajeRepository, resourceProvider)
+        factory = ViajeViewModel.Factory(
+            viajeRepository,
+            perfilTrabajoRepository,
+            resourceProvider
+        )
     )
     val gastoViewModel: GastoViewModel = viewModel(
         factory = GastoViewModel.Factory(gastoRepository, categoriaGastoRepository, resourceProvider)

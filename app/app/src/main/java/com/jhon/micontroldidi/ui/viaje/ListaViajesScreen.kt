@@ -50,6 +50,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
@@ -496,6 +497,17 @@ private fun SelectorFechaContent(
 }
 
 @Composable
+private fun detallesDePlataforma(viaje: ViajeEntity): String {
+    val partes = mutableListOf<String>()
+    if (viaje.plataforma.isNotBlank()) partes.add(viaje.plataforma.trim())
+    if (viaje.zona.isNotBlank()) partes.add(viaje.zona.trim())
+    if (viaje.distanciaMetros > 0) {
+        partes.add(stringResource(R.string.distancia_km_viaje, viaje.distanciaKm))
+    }
+    return partes.joinToString(" · ")
+}
+
+@Composable
 private fun ViajeCard(
     viaje: ViajeEntity,
     onEditar: () -> Unit = {},
@@ -525,6 +537,18 @@ private fun ViajeCard(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2
+                        )
+                    }
+                    val detalles = detallesDePlataforma(viaje)
+                    if (detalles.isNotEmpty()) {
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = detalles,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.testTag("detalles_plataforma_viaje")
                         )
                     }
                 }

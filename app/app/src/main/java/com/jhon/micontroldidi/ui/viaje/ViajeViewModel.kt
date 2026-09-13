@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
+import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
+import com.jhon.micontroldidi.domain.FormaPago
 import com.jhon.micontroldidi.util.ResourceProvider
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,6 +21,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 class ViajeViewModel(
     private val viajeRepository: ViajeRepository,
+    private val perfilTrabajoRepository: PerfilTrabajoRepository,
     private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
@@ -44,7 +47,28 @@ class ViajeViewModel(
     private val _uiState = MutableStateFlow(ViajeUiState())
     val uiState: StateFlow<ViajeUiState> = _uiState.asStateFlow()
 
+    /** Indica si la plataforma ya se intentó prellenar desde el perfil. */
+    private var plataformaPrellenada = false
+
     init {
+        viewModelScope.launch {
+            perfilTrabajoRepository.observar()
+                .catch { e ->
+                    if (e is CancellationException) throw e
+                    // El fallo no bloquea el registro: se avisa y el conductor
+                    // puede escribir la plataforma a mano.
+                    _uiState.value = _uiState.value.copy(
+                        errorGuardado = resourceProvider.getString(R.string.error_cargar_perfil)
+                    )
+                }
+                .collect { perfil ->
+                    if (!plataformaPrellenada) {
+                        plataformaPrellenada = true
+                        aplicarPlataformaPrellenada(perfil?.plataforma.orEmpty())
+                    }
+                }
+        }
+
         viewModelScope.launch {
             _viajesFiltrados
                 .catch { e ->
@@ -112,23 +136,97 @@ class ViajeViewModel(
     }
 
     fun actualizarValor(texto: String) {
-        val error = validarValor(texto)
-        _uiState.value = _uiState.value.copy(
-            valorText = texto,
-            errorValor = error
-        )
+        aplicar(_uiState.value.copy(valorText = texto))
     }
 
     fun actualizarPropina(texto: String) {
-        val error = validarPropina(texto)
-        _uiState.value = _uiState.value.copy(
-            propinaText = texto,
-            errorPropina = error
-        )
+        aplicar(_uiState.value.copy(propinaText = texto))
     }
 
     fun actualizarObservacion(texto: String) {
         _uiState.value = _uiState.value.copy(observacionText = texto)
+    }
+
+    fun actualizarPlataforma(texto: String) {
+        aplicar(_uiState.value.copy(plataformaText = texto))
+    }
+
+    fun actualizarZona(texto: String) {
+        aplicar(_uiState.value.copy(zonaText = texto))
+    }
+
+    fun actualizarDistancia(texto: String) {
+        aplicar(_uiState.value.copy(distanciaText = texto))
+    }
+
+    fun seleccionarFormaPago(forma: FormaPago) {
+        aplicar(_uiState.value.copy(formaPago = forma))
+    }
+
+    fun actualizarPeaje(texto: String) {
+        aplicar(_uiState.value.copy(peajeText = texto))
+    }
+
+    /** Aplica el cambio y recalcula los errores del formulario. */
+    private fun aplicar(estado: ViajeUiState) {
+        _uiState.value = conErrores(estado).copy(errorGuardado = null)
+    }
+
+    /** Prellena la plataforma con la del perfil si el formulario está vacío. */
+    private fun aplicarPlataformaPrellenada(plataforma: String) {
+        val estado = _uiState.value
+        if (plataforma.isBlank() || estado.editando || estado.plataformaText.isNotBlank()) return
+        // No se recalculan errores: el formulario recién abierto no debe mostrar
+        // validaciones que el conductor todavía no provocó.
+        _uiState.value = estado.copy(plataformaText = plataforma)
+    }
+
+    /**
+     * Errores de formato en vivo: solo se marcan cuando el campo ya tiene texto.
+     * Los campos obligatorios se validan al guardar (ver [conErroresAlGuardar]).
+     */
+    private fun conErrores(estado: ViajeUiState): ViajeUiState {
+        return estado.copy(
+            errorValor = validarValor(estado.valorText),
+            errorPropina = validarPropina(estado.propinaText),
+            errorDistancia = validarNoNegativo(
+                estado.distanciaText,
+                R.string.error_distancia_negativa
+            ),
+            errorPeaje = validarNoNegativo(estado.peajeText, R.string.error_peaje_negativo),
+            errorPlataforma = null,
+            errorZona = null,
+            errorFormaPago = null
+        )
+    }
+
+    /**
+     * Errores al intentar guardar: añade los campos obligatorios de un viaje nuevo.
+     *
+     * Los datos de plataforma (plataforma, zona y forma de pago) son obligatorios
+     * al registrar un viaje nuevo; al editar se toleran vacíos para que los viajes
+     * migrados desde versiones anteriores puedan guardarse sin cambios.
+     */
+    private fun conErroresAlGuardar(estado: ViajeUiState): ViajeUiState {
+        val exigirDatosDePlataforma = !estado.editando
+        return conErrores(estado).copy(
+            errorValor = validarValor(estado.valorText),
+            errorPlataforma = if (exigirDatosDePlataforma && estado.plataformaText.isBlank()) {
+                resourceProvider.getString(R.string.error_viaje_plataforma_obligatoria)
+            } else {
+                null
+            },
+            errorZona = if (exigirDatosDePlataforma && estado.zonaText.isBlank()) {
+                resourceProvider.getString(R.string.error_viaje_zona_obligatoria)
+            } else {
+                null
+            },
+            errorFormaPago = if (exigirDatosDePlataforma && estado.formaPago == null) {
+                resourceProvider.getString(R.string.error_viaje_forma_pago_obligatoria)
+            } else {
+                null
+            }
+        )
     }
 
     fun cargarViajeParaEditar(id: Long) {
@@ -144,8 +242,18 @@ class ViajeViewModel(
                     valorText = viaje.valor.toString(),
                     propinaText = viaje.propina.toString(),
                     observacionText = viaje.observacion,
+                    plataformaText = viaje.plataforma,
+                    zonaText = viaje.zona,
+                    distanciaText = viaje.distanciaKm.toString(),
+                    formaPago = viaje.formaPagoTipo,
+                    peajeText = viaje.peaje.toString(),
                     errorValor = null,
                     errorPropina = null,
+                    errorPlataforma = null,
+                    errorZona = null,
+                    errorDistancia = null,
+                    errorFormaPago = null,
+                    errorPeaje = null,
                     errorGuardado = null
                 )
             }
@@ -156,10 +264,9 @@ class ViajeViewModel(
         val estado = _uiState.value
 
         // Re-validar antes de guardar
-        val errorV = validarValor(estado.valorText)
-        val errorP = validarPropina(estado.propinaText)
-        if (errorV != null || errorP != null) {
-            _uiState.value = estado.copy(errorValor = errorV, errorPropina = errorP)
+        val validado = conErroresAlGuardar(estado)
+        if (validado.hayErrores) {
+            _uiState.value = validado
             return
         }
 
@@ -174,7 +281,14 @@ class ViajeViewModel(
                     fechaHora = estado.fechaHoraOriginal,
                     valor = estado.valorText.toLong(),
                     propina = if (estado.propinaText.isBlank()) 0L else estado.propinaText.toLong(),
-                    observacion = estado.observacionText.trim()
+                    observacion = estado.observacionText.trim(),
+                    plataforma = estado.plataformaText.trim(),
+                    zona = estado.zonaText.trim(),
+                    distanciaMetros = ViajeEntity.kmAMetros(
+                        estado.distanciaText.toLongOrNull() ?: 0L
+                    ),
+                    formaPago = estado.formaPago?.nombre.orEmpty(),
+                    peaje = estado.peajeText.toLongOrNull() ?: 0L
                 )
                 val resultado = viajeRepository.actualizar(viaje)
                 if (resultado.isSuccess) {
@@ -185,8 +299,18 @@ class ViajeViewModel(
                         valorText = "",
                         propinaText = "",
                         observacionText = "",
+                        plataformaText = "",
+                        zonaText = "",
+                        distanciaText = "",
+                        formaPago = null,
+                        peajeText = "",
                         errorValor = null,
                         errorPropina = null,
+                        errorPlataforma = null,
+                        errorZona = null,
+                        errorDistancia = null,
+                        errorFormaPago = null,
+                        errorPeaje = null,
                         errorGuardado = null,
                         guardando = false,
                         guardadoExitoso = true
@@ -202,7 +326,14 @@ class ViajeViewModel(
                     fechaHora = System.currentTimeMillis(),
                     valor = estado.valorText.toLong(),
                     propina = if (estado.propinaText.isBlank()) 0L else estado.propinaText.toLong(),
-                    observacion = estado.observacionText.trim()
+                    observacion = estado.observacionText.trim(),
+                    plataforma = estado.plataformaText.trim(),
+                    zona = estado.zonaText.trim(),
+                    distanciaMetros = ViajeEntity.kmAMetros(
+                        estado.distanciaText.toLongOrNull() ?: 0L
+                    ),
+                    formaPago = estado.formaPago?.nombre.orEmpty(),
+                    peaje = estado.peajeText.toLongOrNull() ?: 0L
                 )
                 val resultado = viajeRepository.insertar(viaje)
                 if (resultado.isSuccess) {
@@ -210,8 +341,12 @@ class ViajeViewModel(
                         valorText = "",
                         propinaText = "",
                         observacionText = "",
+                        distanciaText = "",
+                        peajeText = "",
                         errorValor = null,
                         errorPropina = null,
+                        errorDistancia = null,
+                        errorPeaje = null,
                         errorGuardado = null,
                         guardando = false,
                         guardadoExitoso = true
@@ -275,13 +410,27 @@ class ViajeViewModel(
         return null
     }
 
+    /** Campo numérico opcional: vacío es válido, pero no admite negativos. */
+    private fun validarNoNegativo(texto: String, mensajeRes: Int): String? {
+        if (texto.isBlank()) return null
+        val valor = texto.toLongOrNull()
+            ?: return resourceProvider.getString(R.string.error_valor_numerico)
+        if (valor < 0) return resourceProvider.getString(mensajeRes)
+        return null
+    }
+
     class Factory(
         private val viajeRepository: ViajeRepository,
+        private val perfilTrabajoRepository: PerfilTrabajoRepository,
         private val resourceProvider: ResourceProvider
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ViajeViewModel(viajeRepository, resourceProvider) as T
+            return ViajeViewModel(
+                viajeRepository,
+                perfilTrabajoRepository,
+                resourceProvider
+            ) as T
         }
     }
 }

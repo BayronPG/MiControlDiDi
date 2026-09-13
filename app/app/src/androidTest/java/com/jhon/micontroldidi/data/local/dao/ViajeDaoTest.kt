@@ -284,4 +284,112 @@ class ViajeDaoTest {
             assertEquals(0, resultado[1].size)  // sigue vacío
         }
     }
+
+    // --- Incremento E: datos de plataforma ---
+
+    @Test
+    fun insertarViajeConDatosDePlataforma_losConserva() = runBlocking {
+        val id = dao.insertar(
+            ViajeEntity(
+                fechaHora = 1000L,
+                valor = 20000L,
+                propina = 1000L,
+                observacion = "Con plataforma",
+                plataforma = "inDrive",
+                zona = "Belén",
+                distanciaMetros = 8500L,
+                formaPago = "EFECTIVO",
+                peaje = 12000L
+            )
+        )
+
+        val viaje = dao.obtenerPorId(id)
+        assertNotNull(viaje)
+        assertEquals("inDrive", viaje!!.plataforma)
+        assertEquals("Belén", viaje.zona)
+        assertEquals(8500L, viaje.distanciaMetros)
+        assertEquals("EFECTIVO", viaje.formaPago)
+        assertEquals(12000L, viaje.peaje)
+        assertEquals(8L, viaje.distanciaKm)
+        assertEquals(21000L, viaje.ingresoTotal)
+    }
+
+    @Test
+    fun insertarViajeSinDatosDePlataforma_usaValoresPorDefecto() = runBlocking {
+        val id = dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 15000L))
+
+        val viaje = dao.obtenerPorId(id)!!
+        assertEquals("", viaje.plataforma)
+        assertEquals("", viaje.zona)
+        assertEquals(0L, viaje.distanciaMetros)
+        assertEquals("", viaje.formaPago)
+        assertEquals(0L, viaje.peaje)
+    }
+
+    @Test
+    fun actualizarViaje_cambiaTambienLosDatosDePlataforma() = runBlocking {
+        val id = dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 15000L))
+
+        val filas = dao.actualizar(
+            id = id,
+            fechaHora = 1000L,
+            valor = 18000L,
+            propina = 2000L,
+            observacion = "Editado",
+            plataforma = "DiDi",
+            zona = "Laureles",
+            distanciaMetros = 6500L,
+            formaPago = "TARJETA",
+            peaje = 9000L
+        )
+
+        assertEquals(1, filas)
+        val viaje = dao.obtenerPorId(id)!!
+        assertEquals("DiDi", viaje.plataforma)
+        assertEquals("Laureles", viaje.zona)
+        assertEquals(6500L, viaje.distanciaMetros)
+        assertEquals("TARJETA", viaje.formaPago)
+        assertEquals(9000L, viaje.peaje)
+        assertEquals(20000L, viaje.ingresoTotal)
+    }
+
+    @Test
+    fun actualizarViajeMigrado_conCamposVacios_funciona() = runBlocking {
+        val id = dao.insertar(ViajeEntity(fechaHora = 1000L, valor = 15000L, propina = 1000L))
+
+        val filas = dao.actualizar(
+            id = id,
+            fechaHora = 1000L,
+            valor = 15000L,
+            propina = 1000L,
+            observacion = "Viaje migrado",
+            plataforma = "",
+            zona = "",
+            distanciaMetros = 0L,
+            formaPago = "",
+            peaje = 0L
+        )
+
+        assertEquals(1, filas)
+        val viaje = dao.obtenerPorId(id)!!
+        assertEquals("", viaje.plataforma)
+        assertEquals("", viaje.formaPago)
+        assertEquals(16000L, viaje.ingresoTotal)
+    }
+
+    @Test
+    fun elPeajeNoAlteraLosIngresosAgregados() = runBlocking {
+        dao.insertar(
+            ViajeEntity(
+                fechaHora = 1000L,
+                valor = 15000L,
+                propina = 2000L,
+                peaje = 12000L
+            )
+        )
+
+        val ingresos = dao.obtenerIngresosPorRango(0L, 5000L).first()
+
+        assertEquals("El peaje no debe sumarse a los ingresos", 17000L, ingresos)
+    }
 }
