@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.local.entity.MetaEntity
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
+import com.jhon.micontroldidi.domain.FormaPago
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -48,7 +49,8 @@ class PersistenciaTest {
                 MiControlDatabase.MIGRATION_2_3,
                 MiControlDatabase.MIGRATION_3_4,
                 MiControlDatabase.MIGRATION_4_5,
-                MiControlDatabase.MIGRATION_5_6
+                MiControlDatabase.MIGRATION_5_6,
+                MiControlDatabase.MIGRATION_6_7
             )
             .addCallback(MiControlDatabase.obtenerCallbackPrepoblar())
             .build()
@@ -65,7 +67,12 @@ class PersistenciaTest {
                 fechaHora = 1000L,
                 valor = 15000,
                 propina = 3000,
-                observacion = "Viaje persistente"
+                observacion = "Viaje persistente",
+                plataforma = "inDrive",
+                zona = "Belén",
+                distanciaMetros = 8500L,
+                formaPago = "EFECTIVO",
+                peaje = 12000L
             )
         )
         assertTrue(viajeId > 0)
@@ -81,6 +88,15 @@ class PersistenciaTest {
         assertEquals(3000L, viajes[0].propina)
         assertEquals("Viaje persistente", viajes[0].observacion)
         assertEquals(18000L, viajes[0].ingresoTotal)
+
+        // Datos de plataforma del incremento E
+        assertEquals("inDrive", viajes[0].plataforma)
+        assertEquals("Belén", viajes[0].zona)
+        assertEquals(8500L, viajes[0].distanciaMetros)
+        assertEquals("EFECTIVO", viajes[0].formaPago)
+        assertEquals(FormaPago.EFECTIVO, viajes[0].formaPagoTipo)
+        assertEquals(12000L, viajes[0].peaje)
+        assertEquals("El peaje no forma parte del ingreso total", 18000L, viajes[0].ingresoTotal)
 
         database.close()
     }

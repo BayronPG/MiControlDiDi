@@ -80,7 +80,7 @@ class DashboardViewModelTest {
             return ingresosFlow
         }
         override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
-        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 0
+        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 0
         override suspend fun eliminar(id: Long): Int = 0
     }
 
@@ -372,7 +372,7 @@ class DashboardViewModelTest {
                 inicioInclusivo: Long, finExclusivo: Long
             ): Flow<Long> = flow { throw RuntimeException("Error BD ingresos") }
             override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
-            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 0
+            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 0
             override suspend fun eliminar(id: Long): Int = 0
         }
 
@@ -437,7 +437,7 @@ class DashboardViewModelTest {
                 inicioInclusivo: Long, finExclusivo: Long
             ): Flow<Long> = flow { throw RuntimeException("DetalleTecnicoNOdebeSalir") }
             override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
-            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 0
+            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 0
             override suspend fun eliminar(id: Long): Int = 0
         }
 
@@ -568,7 +568,7 @@ class DashboardViewModelTest {
                 }
             }
             override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
-            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 0
+            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 0
             override suspend fun eliminar(id: Long): Int = 0
         }
 

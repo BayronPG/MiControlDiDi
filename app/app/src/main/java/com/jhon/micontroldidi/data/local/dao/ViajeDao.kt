@@ -35,9 +35,22 @@ interface ViajeDao {
 
     @Query("""
         UPDATE viajes SET fechaHora = :fechaHora, valor = :valor,
-        propina = :propina, observacion = :observacion WHERE id = :id
+        propina = :propina, observacion = :observacion, plataforma = :plataforma,
+        zona = :zona, distanciaMetros = :distanciaMetros, formaPago = :formaPago,
+        peaje = :peaje WHERE id = :id
     """)
-    suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int
+    suspend fun actualizar(
+        id: Long,
+        fechaHora: Long,
+        valor: Long,
+        propina: Long,
+        observacion: String,
+        plataforma: String,
+        zona: String,
+        distanciaMetros: Long,
+        formaPago: String,
+        peaje: Long
+    ): Int
 
     @Query("DELETE FROM viajes WHERE id = :id")
     suspend fun eliminar(id: Long): Int

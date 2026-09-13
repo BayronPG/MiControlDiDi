@@ -72,7 +72,7 @@ class ViajeViewModelTest {
         }
 
         override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
-        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 1
+        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 1
         override suspend fun eliminar(id: Long): Int {
             errorSimulado?.let { throw it }
             return 1

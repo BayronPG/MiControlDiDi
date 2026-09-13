@@ -40,7 +40,7 @@ class ViajeRepositoryTest {
             return flowOf(9999L)
         }
         override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
-        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 1
+        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 1
         override suspend fun eliminar(id: Long): Int = 1
     }
 
@@ -114,7 +114,7 @@ class ViajeRepositoryTest {
                 finExclusivo: Long
             ): Flow<Long> = flowOf(0L)
             override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
-            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 1
+            override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 1
             override suspend fun eliminar(id: Long): Int = 1
         }
         val repo = ViajeRepository(dao)

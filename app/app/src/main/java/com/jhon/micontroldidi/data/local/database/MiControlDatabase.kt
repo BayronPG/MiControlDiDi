@@ -28,7 +28,7 @@ import com.jhon.micontroldidi.data.local.entity.ViajeEntity
         PerfilTrabajoEntity::class,
         JornadaEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class MiControlDatabase : RoomDatabase() {
@@ -228,6 +228,29 @@ abstract class MiControlDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // El viaje se amplía con los datos de plataforma. Las columnas
+                // son NOT NULL con valor por defecto para que los viajes ya
+                // registrados queden con texto vacío y cero, sin perder datos.
+                db.execSQL(
+                    "ALTER TABLE `viajes` ADD COLUMN `plataforma` TEXT NOT NULL DEFAULT ''"
+                )
+                db.execSQL(
+                    "ALTER TABLE `viajes` ADD COLUMN `zona` TEXT NOT NULL DEFAULT ''"
+                )
+                db.execSQL(
+                    "ALTER TABLE `viajes` ADD COLUMN `distanciaMetros` INTEGER NOT NULL DEFAULT 0"
+                )
+                db.execSQL(
+                    "ALTER TABLE `viajes` ADD COLUMN `formaPago` TEXT NOT NULL DEFAULT ''"
+                )
+                db.execSQL(
+                    "ALTER TABLE `viajes` ADD COLUMN `peaje` INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
     private val PREPOBLAR_CATEGORIAS = object : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
@@ -264,7 +287,8 @@ abstract class MiControlDatabase : RoomDatabase() {
                         MIGRATION_2_3,
                         MIGRATION_3_4,
                         MIGRATION_4_5,
-                        MIGRATION_5_6
+                        MIGRATION_5_6,
+                        MIGRATION_6_7
                     )
                     .addCallback(PREPOBLAR_CATEGORIAS)
                     .build()

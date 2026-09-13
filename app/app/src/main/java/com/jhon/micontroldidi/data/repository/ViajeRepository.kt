@@ -2,6 +2,7 @@ package com.jhon.micontroldidi.data.repository
 
 import com.jhon.micontroldidi.data.local.dao.ViajeDao
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
+import com.jhon.micontroldidi.domain.FormaPago
 import kotlinx.coroutines.flow.Flow
 
 class ViajeRepository(private val viajeDao: ViajeDao) {
@@ -44,7 +45,9 @@ class ViajeRepository(private val viajeDao: ViajeDao) {
             validarViaje(viaje)
             val filas = viajeDao.actualizar(
                 viaje.id, viaje.fechaHora, viaje.valor,
-                viaje.propina, viaje.observacion
+                viaje.propina, viaje.observacion,
+                viaje.plataforma, viaje.zona,
+                viaje.distanciaMetros, viaje.formaPago, viaje.peaje
             )
             if (filas == 0) {
                 Result.failure(NoSuchElementException("El viaje no existe"))
@@ -72,5 +75,11 @@ class ViajeRepository(private val viajeDao: ViajeDao) {
     private fun validarViaje(viaje: ViajeEntity) {
         require(viaje.valor > 0) { "El valor del viaje debe ser mayor que cero" }
         require(viaje.propina >= 0) { "La propina no puede ser negativa" }
+        require(viaje.distanciaMetros >= 0) { "La distancia no puede ser negativa" }
+        require(viaje.peaje >= 0) { "El peaje no puede ser negativo" }
+        // Los viajes migrados no tienen forma de pago (cadena vacía): se acepta.
+        require(viaje.formaPago.isEmpty() || FormaPago.fromNombre(viaje.formaPago) != null) {
+            "La forma de pago no es válida"
+        }
     }
 }

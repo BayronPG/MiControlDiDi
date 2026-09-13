@@ -54,7 +54,7 @@ class StatsViewModelTest {
         override fun obtenerPorRango(i: Long, f: Long): Flow<List<ViajeEntity>> = viajesFlow
         override fun obtenerIngresosPorRango(i: Long, f: Long): Flow<Long> = ingresosFlow
         override suspend fun obtenerPorId(id: Long): ViajeEntity? = null
-        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String): Int = 0
+        override suspend fun actualizar(id: Long, fechaHora: Long, valor: Long, propina: Long, observacion: String, plataforma: String, zona: String, distanciaMetros: Long, formaPago: String, peaje: Long): Int = 0
         override suspend fun eliminar(id: Long): Int = 0
     }
 

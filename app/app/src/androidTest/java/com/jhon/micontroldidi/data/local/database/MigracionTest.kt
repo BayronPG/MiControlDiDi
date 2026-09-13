@@ -83,7 +83,8 @@ class MigracionTest {
                 MiControlDatabase.MIGRATION_2_3,
                 MiControlDatabase.MIGRATION_3_4,
                 MiControlDatabase.MIGRATION_4_5,
-                MiControlDatabase.MIGRATION_5_6
+                MiControlDatabase.MIGRATION_5_6,
+                MiControlDatabase.MIGRATION_6_7
             )
             .build()
 
@@ -204,7 +205,8 @@ class MigracionTest {
                 MiControlDatabase.MIGRATION_2_3,
                 MiControlDatabase.MIGRATION_3_4,
                 MiControlDatabase.MIGRATION_4_5,
-                MiControlDatabase.MIGRATION_5_6
+                MiControlDatabase.MIGRATION_5_6,
+                MiControlDatabase.MIGRATION_6_7
             )
             .build()
 
@@ -342,7 +344,8 @@ class MigracionTest {
                 MiControlDatabase.MIGRATION_2_3,
                 MiControlDatabase.MIGRATION_3_4,
                 MiControlDatabase.MIGRATION_4_5,
-                MiControlDatabase.MIGRATION_5_6
+                MiControlDatabase.MIGRATION_5_6,
+                MiControlDatabase.MIGRATION_6_7
             )
             .build()
 
@@ -488,7 +491,8 @@ class MigracionTest {
                 MiControlDatabase.MIGRATION_2_3,
                 MiControlDatabase.MIGRATION_3_4,
                 MiControlDatabase.MIGRATION_4_5,
-                MiControlDatabase.MIGRATION_5_6
+                MiControlDatabase.MIGRATION_5_6,
+                MiControlDatabase.MIGRATION_6_7
             )
             .build()
 
@@ -674,7 +678,8 @@ class MigracionTest {
                 MiControlDatabase.MIGRATION_2_3,
                 MiControlDatabase.MIGRATION_3_4,
                 MiControlDatabase.MIGRATION_4_5,
-                MiControlDatabase.MIGRATION_5_6
+                MiControlDatabase.MIGRATION_5_6,
+                MiControlDatabase.MIGRATION_6_7
             )
             .build()
 
@@ -715,6 +720,280 @@ class MigracionTest {
             assertEquals(120000L, jornada.metaBrutaDia)
             assertEquals(NivelCombustible.MEDIO, jornada.nivel)
             assertTrue("La revisión debe empezar en buen estado", jornada.puntosEnMalEstado.isEmpty())
+        }
+
+        database.close()
+    }
+
+    @Test
+    fun migracionSeisASiete_agregaDatosDePlataformaYConservaDatos() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val dbName = "migracion_v6_v7_test.db"
+        context.deleteDatabase(dbName)
+
+        // --- 1. Crear base SQLite v6 con las seis tablas anteriores ---
+        val factory = FrameworkSQLiteOpenHelperFactory()
+        val helper = factory.create(
+            SupportSQLiteOpenHelper.Configuration.builder(context)
+                .name(dbName)
+                .callback(object : SupportSQLiteOpenHelper.Callback(6) {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `viajes` (
+                                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                `fechaHora` INTEGER NOT NULL,
+                                `valor` INTEGER NOT NULL,
+                                `propina` INTEGER NOT NULL,
+                                `observacion` TEXT NOT NULL
+                            )"""
+                        )
+                        db.execSQL(
+                            "CREATE INDEX IF NOT EXISTS `index_viajes_fechaHora` " +
+                            "ON `viajes` (`fechaHora`)"
+                        )
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `categorias_gasto` (
+                                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                `nombre` TEXT COLLATE NOCASE NOT NULL,
+                                `activa` INTEGER NOT NULL DEFAULT 1
+                            )"""
+                        )
+                        db.execSQL(
+                            "CREATE UNIQUE INDEX IF NOT EXISTS `index_categorias_gasto_nombre` " +
+                            "ON `categorias_gasto` (`nombre`)"
+                        )
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `gastos` (
+                                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                `fechaHora` INTEGER NOT NULL,
+                                `categoriaId` INTEGER NOT NULL,
+                                `valor` INTEGER NOT NULL,
+                                `descripcion` TEXT NOT NULL DEFAULT '',
+                                FOREIGN KEY (`categoriaId`) REFERENCES `categorias_gasto`(`id`)
+                                ON DELETE RESTRICT
+                            )"""
+                        )
+                        db.execSQL(
+                            "CREATE INDEX IF NOT EXISTS `index_gastos_categoriaId` " +
+                            "ON `gastos` (`categoriaId`)"
+                        )
+                        db.execSQL(
+                            "CREATE INDEX IF NOT EXISTS `index_gastos_fechaHora` " +
+                            "ON `gastos` (`fechaHora`)"
+                        )
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `metas` (
+                                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                `tipoPeriodo` TEXT NOT NULL,
+                                `valorObjetivo` INTEGER NOT NULL,
+                                `activa` INTEGER NOT NULL DEFAULT 1,
+                                `createdAt` INTEGER NOT NULL
+                            )"""
+                        )
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `perfil_trabajo` (
+                                `id` INTEGER NOT NULL,
+                                `plataforma` TEXT NOT NULL,
+                                `plataformasDisponibles` TEXT NOT NULL,
+                                `vehiculo` TEXT NOT NULL,
+                                `tipoCombustible` TEXT NOT NULL,
+                                `ciudad` TEXT NOT NULL,
+                                `diasLaborales` TEXT NOT NULL,
+                                `horaInicioMinutos` INTEGER NOT NULL,
+                                `horaFinMinutos` INTEGER NOT NULL,
+                                `maxPorcentajeKmVacios` INTEGER NOT NULL,
+                                `costoAceite` INTEGER NOT NULL,
+                                `intervaloAceiteKm` INTEGER NOT NULL,
+                                `costoLlantas` INTEGER NOT NULL,
+                                `intervaloLlantasKm` INTEGER NOT NULL,
+                                `costoFrenos` INTEGER NOT NULL,
+                                `intervaloFrenosKm` INTEGER NOT NULL,
+                                `costoKitArrastre` INTEGER NOT NULL,
+                                `intervaloKitArrastreKm` INTEGER NOT NULL,
+                                `costoMantenimiento` INTEGER NOT NULL,
+                                `intervaloMantenimientoKm` INTEGER NOT NULL,
+                                `costoDepreciacion` INTEGER NOT NULL,
+                                `intervaloDepreciacionKm` INTEGER NOT NULL,
+                                `actualizadoEn` INTEGER NOT NULL,
+                                PRIMARY KEY(`id`)
+                            )"""
+                        )
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `jornadas` (
+                                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                `fechaHoraInicio` INTEGER NOT NULL,
+                                `kilometrajeInicialMetros` INTEGER NOT NULL,
+                                `nivelCombustible` TEXT NOT NULL,
+                                `precioGalonExtra` INTEGER NOT NULL,
+                                `zonaInicial` TEXT NOT NULL,
+                                `plataforma` TEXT NOT NULL,
+                                `metaBrutaDia` INTEGER NOT NULL,
+                                `nivelEnergia` INTEGER NOT NULL,
+                                `clima` TEXT NOT NULL,
+                                `observaciones` TEXT NOT NULL,
+                                `llantasOk` INTEGER NOT NULL,
+                                `frenosOk` INTEGER NOT NULL,
+                                `lucesOk` INTEGER NOT NULL,
+                                `direccionalesOk` INTEGER NOT NULL,
+                                `cadenaOk` INTEGER NOT NULL,
+                                `aceiteOk` INTEGER NOT NULL,
+                                `gasolinaOk` INTEGER NOT NULL,
+                                `soporteTelefonoOk` INTEGER NOT NULL,
+                                `cargaTelefonoOk` INTEGER NOT NULL,
+                                `impermeableOk` INTEGER NOT NULL,
+                                `documentosOk` INTEGER NOT NULL,
+                                `aguaOk` INTEGER NOT NULL
+                            )"""
+                        )
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS room_master_table " +
+                            "(id INTEGER PRIMARY KEY,identity_hash TEXT)"
+                        )
+                        db.execSQL(
+                            "INSERT OR REPLACE INTO room_master_table " +
+                            "(id,identity_hash) VALUES(42, 'dummy_v6')"
+                        )
+                    }
+
+                    override fun onUpgrade(
+                        db: SupportSQLiteDatabase, old: Int, new: Int
+                    ) = Unit
+                }).build()
+        )
+        val sqLiteDb = helper.writableDatabase
+
+        // Datos de prueba en v6 (viaje sin datos de plataforma)
+        sqLiteDb.execSQL(
+            "INSERT INTO viajes (fechaHora, valor, propina, observacion) " +
+            "VALUES (1000, 15000, 2000, 'Viaje pre-migraci\u00f3n v7')"
+        )
+        sqLiteDb.execSQL(
+            "INSERT INTO categorias_gasto (nombre, activa) VALUES ('Gasolina', 1)"
+        )
+        sqLiteDb.execSQL(
+            "INSERT INTO gastos (fechaHora, categoriaId, valor, descripcion) " +
+            "VALUES (2000, 1, 18000, 'Tanqueo')"
+        )
+        sqLiteDb.execSQL(
+            "INSERT INTO metas (tipoPeriodo, valorObjetivo, activa, createdAt) " +
+            "VALUES ('DIA', 50000, 1, 100)"
+        )
+        sqLiteDb.execSQL(
+            "INSERT INTO perfil_trabajo (id, plataforma, plataformasDisponibles, vehiculo, " +
+            "tipoCombustible, ciudad, diasLaborales, horaInicioMinutos, horaFinMinutos, " +
+            "maxPorcentajeKmVacios, costoAceite, intervaloAceiteKm, costoLlantas, " +
+            "intervaloLlantasKm, costoFrenos, intervaloFrenosKm, costoKitArrastre, " +
+            "intervaloKitArrastreKm, costoMantenimiento, intervaloMantenimientoKm, " +
+            "costoDepreciacion, intervaloDepreciacionKm, actualizadoEn) " +
+            "VALUES (1, 'inDrive', 'inDrive, DiDi', 'TVS Raider 125 FI', 'Extra', 'Medell\u00edn', " +
+            "'1,2,3,4,5', 360, 900, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)"
+        )
+        sqLiteDb.close()
+        helper.close()
+
+        // --- 2. Abrir con Room + MiControlDatabase.MIGRATION_6_7 ---
+        val database = Room.databaseBuilder(
+            context, MiControlDatabase::class.java, dbName
+        )
+            .addMigrations(
+                MiControlDatabase.MIGRATION_1_2,
+                MiControlDatabase.MIGRATION_2_3,
+                MiControlDatabase.MIGRATION_3_4,
+                MiControlDatabase.MIGRATION_4_5,
+                MiControlDatabase.MIGRATION_5_6,
+                MiControlDatabase.MIGRATION_6_7
+            )
+            .build()
+
+        runBlocking {
+            // --- 3. El viaje anterior se conserva y queda con valores por defecto ---
+            val viajes = database.viajeDao().obtenerTodos().first()
+            assertEquals(1, viajes.size)
+            assertEquals(15000L, viajes[0].valor)
+            assertEquals(2000L, viajes[0].propina)
+            assertEquals("Viaje pre-migración v7", viajes[0].observacion)
+            assertEquals(17000L, viajes[0].ingresoTotal)
+
+            assertEquals("", viajes[0].plataforma)
+            assertEquals("", viajes[0].zona)
+            assertEquals(0L, viajes[0].distanciaMetros)
+            assertEquals("", viajes[0].formaPago)
+            assertEquals(0L, viajes[0].peaje)
+            assertEquals(0L, viajes[0].distanciaKm)
+            assertTrue("El viaje migrado no tiene forma de pago", viajes[0].formaPagoTipo == null)
+
+            // --- 4. Los agregados monetarios no cambian ---
+            val ingresos = database.viajeDao().obtenerIngresosPorRango(0L, 9999L).first()
+            assertEquals("El ingreso agregado no debe incluir el peaje", 17000L, ingresos)
+
+            // --- 5. Se conservan las seis tablas ---
+            val tablas = mutableListOf<String>()
+            database.openHelper.readableDatabase.query(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).use { cursor ->
+                while (cursor.moveToNext()) {
+                    tablas.add(cursor.getString(0))
+                }
+            }
+            assertTrue(tablas.containsAll(listOf(
+                "viajes", "categorias_gasto", "gastos", "metas", "perfil_trabajo", "jornadas"
+            )))
+
+            // --- 6. El índice de fechaHora se conserva ---
+            val indices = mutableListOf<String>()
+            database.openHelper.readableDatabase.query(
+                "SELECT name FROM sqlite_master WHERE type = 'index' AND name LIKE 'index_%_fechaHora'"
+            ).use { cursor ->
+                while (cursor.moveToNext()) {
+                    indices.add(cursor.getString(0))
+                }
+            }
+            assertTrue(
+                "Debe conservarse el índice de viajes por fecha",
+                indices.contains("index_viajes_fechaHora")
+            )
+
+            // --- 7. Un viaje nuevo usa los cinco campos ---
+            val nuevoId = database.viajeDao().insertar(
+                ViajeEntity(
+                    fechaHora = 3000L,
+                    valor = 20000L,
+                    propina = 1000L,
+                    observacion = "Viaje con plataforma",
+                    plataforma = "inDrive",
+                    zona = "Belén",
+                    distanciaMetros = 8500L,
+                    formaPago = "EFECTIVO",
+                    peaje = 12000L
+                )
+            )
+            assertTrue("El viaje nuevo debe insertarse", nuevoId > 0)
+
+            val todos = database.viajeDao().obtenerTodos().first()
+            val nuevo = todos.first { it.id == nuevoId }
+            assertEquals("inDrive", nuevo.plataforma)
+            assertEquals("Belén", nuevo.zona)
+            assertEquals(8500L, nuevo.distanciaMetros)
+            assertEquals(8L, nuevo.distanciaKm)
+            assertEquals("EFECTIVO", nuevo.formaPago)
+            assertEquals(12000L, nuevo.peaje)
+            assertEquals("El peaje no altera el ingreso total", 21000L, nuevo.ingresoTotal)
+
+            // --- 8. Un viaje migrado se puede editar sin errores ---
+            val migrado = todos.first { it.id == viajes[0].id }
+            val filas = database.viajeDao().actualizar(
+                migrado.id,
+                migrado.fechaHora,
+                migrado.valor,
+                migrado.propina,
+                migrado.observacion,
+                migrado.plataforma,
+                migrado.zona,
+                migrado.distanciaMetros,
+                migrado.formaPago,
+                migrado.peaje
+            )
+            assertEquals("El viaje migrado debe poder editarse", 1, filas)
         }
 
         database.close()
