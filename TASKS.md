@@ -439,7 +439,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | 9.B | Perfil de trabajo editable (plataforma, vehículo, combustible, ciudad, horario, umbrales, reservas por km) | [H] | 9.A | v4→v5 | ✅ Implementado (13-sep-2026) — 49 unitarias; migración v4→v5 validada en ALT-LX3 |
 | 9.C | Horario laboral: bloques, pausas, progreso y modo regreso (dominio puro) | [H] | 9.B | — | ✅ Implementado (13-sep-2026) — 29 pruebas nuevas; instrumentadas 129/129 |
 | 9.D | Registro de jornada + checklist de 12 puntos de seguridad | [H] | 9.B, 9.C | v5→v6 | ✅ Implementado (13-sep-2026) — 37 unitarias; migración v5→v6 validada en ALT-LX3 |
-| 9.E | Viaje adaptado a plataforma (precios, distancias, zonas, forma de pago, peajes) | [H] | 9.B | v6→v7 | ⛔ No autorizado |
+| 9.E | Viaje adaptado a plataforma (precios, distancias, zonas, forma de pago, peajes) | [H] | 9.B | v6→v7 | ✅ Implementado (13-sep-2026) — 28 unitarias y 11 instrumentadas nuevas; 344/344 y 142/142 |
 | 9.F | Gasolina extra: tanqueos con enlace a gasto de categoría Gasolina | [H] | 9.B, 9.E | v7→v8 | ⛔ No autorizado |
 | 9.G | Kilómetros vacíos, semáforo y netos (operativo y económico) | [H] | 9.B, 9.D, 9.E, 9.F | — | ⛔ No autorizado |
 | 9.H | Bienestar: cansancio, molestias y recordatorios internos | [M] | 9.D | v8→v9 | ⛔ No autorizado |
@@ -514,6 +514,24 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 - ✅ `connectedDebugAndroidTest` en ALT-LX3: **131/131, 0 fallos, 0 omitidas** (1 prueba nueva de H-05).
 - ✅ Sin cambios en la base de datos (v6), sin migraciones, sin dependencias nuevas y sin pruebas desactivadas.
 - ✅ `PROJECT_STATUS.md` y `TASKS.md` actualizados.
+
+### Criterios de aceptación — Incremento E (9.E)
+
+- ✅ Cinco campos nuevos en `ViajeEntity`: `plataforma`, `zona`, `distanciaMetros`, `formaPago` y `peaje`.
+- ✅ Catálogo cerrado `FormaPago` (EFECTIVO, TRANSFERENCIA, TARJETA, OTRO) persistido como texto estable; los viajes migrados quedan con cadena vacía y la UI los tolera.
+- ✅ `valor` sigue siendo el precio cobrado y `ingresoTotal = valor + propina` no cambia.
+- ✅ `peaje` es informativo: no suma a `ingresoTotal`, no resta ganancia, no crea gasto y puede valer 0.
+- ✅ `distanciaMetros` en `Long`, capturada a mano y puede valer 0. Sin `Float`/`Double`, sin GPS y sin permisos nuevos.
+- ✅ Un viaje nuevo exige plataforma, zona y forma de pago; `distanciaMetros >= 0` y `peaje >= 0`.
+- ✅ Los viajes antiguos con plataforma, zona y forma de pago vacías se visualizan y editan sin errores.
+- ✅ La plataforma se prellena desde `PerfilTrabajoRepository` (texto editable, sin catálogo fijo).
+- ✅ Migración explícita `MIGRATION_6_7` con cinco `ALTER TABLE` y `DEFAULT` compatibles; sin `destructiveMigration`, sin tablas nuevas, conservando las seis tablas y el índice existente y con `exportSchema = false`.
+- ✅ `assembleDebug` BUILD SUCCESSFUL; `testDebugUnitTest` **344/344, 0 fallos**; `connectedDebugAndroidTest` en ALT-LX3 **142/142, 0 fallos, 0 errores, 0 omitidas**.
+- ✅ `README.md`, `PROJECT_STATUS.md` y `TASKS.md` actualizados con resultados reales.
+
+### Pendiente registrado — contradicción F/G (sin resolver)
+
+- ⚠️ `PROJECT_STATUS.md` atribuye el cierre de jornada con odómetro final al incremento **F**, mientras este backlog y `docs/AUDITORIA_CONTROL_DIARIO.md` sitúan los kilómetros vacíos y los netos en **G** y los tanqueos en **F**. Se registra como pendiente: **no se resuelve** y no se implementa nada de F ni de G.
 
 ### Criterios de aceptación — Fase 9 (pendientes de implementación)
 

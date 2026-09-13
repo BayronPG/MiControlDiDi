@@ -807,4 +807,41 @@ La prueba instrumentada nueva de H-05 usaba `assertTextMatches`, que no existe e
 - **H-02:** ALT-LX3 es Android 14 (API 34), así que `statusBarColor` **sí** se aplica ahí; en Android 15+ (API ≥ 35) el sistema lo ignora por el modo extremo a extremo obligatorio. El rediseño edge-to-edge sigue fuera de alcance.
 - **H-06:** no hay prueba automática que impida volver a repetir un icono; la verificación es visual.
 - **H-01:** los conteos del `README.md` son una instantánea y remiten a este documento como fuente única.
-- **Incrementos E–K:** siguen ⛔ no autorizados.
+- **Incrementos E–K:** E quedó implementado; **F–K siguen ⛔ no autorizados**.
+
+---
+
+## Incremento E — Viaje adaptado a inDrive (13-sep-2026)
+
+**Naturaleza: código funcional.** Base de datos **v6 → v7** con migración explícita. Sin dependencias nuevas, sin GPS, sin permisos nuevos y sin red. `valor` sigue siendo el precio cobrado y `ingresoTotal = valor + propina` no cambia.
+
+### Implementado
+
+- **`ViajeEntity`**: cinco campos nuevos — `plataforma` (texto editable), `zona` (texto), `distanciaMetros` (`Long`, en metros), `formaPago` (texto estable del catálogo `FormaPago`), `peaje` (`Long`).
+- **`FormaPago`** (`domain/`): catálogo cerrado **EFECTIVO, TRANSFERENCIA, TARJETA, OTRO**, con `fromNombre` tolerante a mayúsculas y `null` para vacío o valor desconocido.
+- **Migración `MIGRATION_6_7`**: cinco `ALTER TABLE` sobre `viajes` con `DEFAULT` compatible (`''` y `0`), sin tablas nuevas, sin recrear la tabla, conservando las seis tablas y el índice `index_viajes_fechaHora`.
+- **`peaje`** es un dato informativo del viaje: no se suma a `ingresoTotal`, no se resta de la ganancia, no crea ningún gasto y puede valer `0`.
+- **Reglas de validación:** un viaje **nuevo** exige plataforma, zona y forma de pago; `distanciaMetros >= 0` y `peaje >= 0`. La forma de pago debe pertenecer al catálogo o venir vacía (viajes migrados).
+- **Viajes migrados:** quedan con textos vacíos y ceros; se **visualizan y editan sin errores** (la exigencia de datos de plataforma solo aplica a viajes nuevos).
+- **`ViajeViewModel`**: prellena la plataforma desde `PerfilTrabajoRepository` sin pisar lo que el usuario escriba y sin bloquear el registro si el perfil falla (avisa con un mensaje).
+- **UI:** cinco campos nuevos en `RegistrarViajeScreen` (plataforma, zona, distancia en km, forma de pago y peaje) y los detalles de plataforma, zona y distancia en la tarjeta de `ListaViajesScreen`. Cadenas nuevas en `strings.xml`; ningún texto visible hardcodeado.
+
+### Validación
+
+| Verificación | Resultado |
+|---|---|
+| `assembleDebug` | ✅ BUILD SUCCESSFUL |
+| `testDebugUnitTest` | ✅ **344/344, 0 fallos, 0 omitidas** |
+| `connectedDebugAndroidTest` en ALT-LX3 (Android 14, API 34) | ✅ **142/142, 0 fallos, 0 errores, 0 omitidas** (corrida no solapada, 13-sep 10:58) |
+| Pruebas nuevas | 28 unitarias (6 de catálogo, 6 de entidad, 6 de repositorio, 10 de ViewModel) y 11 instrumentadas (5 de DAO, 1 de migración v6→v7, 3 de formulario, 2 de lista) |
+| Base de datos | **v7**; `MIGRATION_6_7` declarada y registrada; 6 tablas; ninguna migración destructiva |
+| Dependencias, GPS y permisos | Sin cambios |
+| Pruebas desactivadas u omitidas | Ninguna |
+
+### Incidencia de proceso (no es un defecto)
+
+Durante la implementación se lanzaron **varias corridas instrumentadas solapadas** sobre ALT-LX3. La reinstalación e interferencia entre procesos de esas corridas produjo fallos espurios en `DashboardScreenTest` (ajenos a este incremento). **No son defectos de producción ni de las pruebas nuevas**: la única corrida **no solapada** terminó **142/142, 0 fallos**. Regla adoptada: **una sola corrida instrumentada a la vez** sobre el dispositivo.
+
+### Pendiente registrado (sin resolver)
+
+- **Contradicción documental F/G:** `PROJECT_STATUS.md` atribuye el **cierre de jornada con odómetro final** al incremento **F**, mientras `TASKS.md` y `docs/AUDITORIA_CONTROL_DIARIO.md` sitúan los **kilómetros vacíos y los netos en G** y los **tanqueos en F**. Queda **registrada como pendiente**: no se resuelve ni se implementa nada de F ni de G.
