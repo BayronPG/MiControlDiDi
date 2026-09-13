@@ -435,8 +435,8 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | # | Incremento | Prioridad | Dependencias | Migración | Estado |
 |---|---|---|---|---|---|
 | 9.A | Auditoría del control diario + ADR de arquitectura | [H] | — | — | ✅ Completado (12-sep-2026) |
-| 9.B | Perfil de trabajo editable (plataforma, vehículo, combustible, ciudad, horario, umbrales, reservas por km) | [H] | 9.A | v4→v5 | ✅ Implementado (13-sep-2026) — unitarias verdes; instrumentadas pendientes en ALT-LX3 |
-| 9.C | Horario laboral: bloques, pausas, progreso y modo regreso (dominio puro) | [H] | 9.B | — | ✅ Implementado (13-sep-2026) — 29 pruebas nuevas |
+| 9.B | Perfil de trabajo editable (plataforma, vehículo, combustible, ciudad, horario, umbrales, reservas por km) | [H] | 9.A | v4→v5 | ✅ Implementado (13-sep-2026) — 49 unitarias; migración v4→v5 validada en ALT-LX3 |
+| 9.C | Horario laboral: bloques, pausas, progreso y modo regreso (dominio puro) | [H] | 9.B | — | ✅ Implementado (13-sep-2026) — 29 pruebas nuevas; instrumentadas 129/129 |
 | 9.D | Registro de jornada + checklist de 12 puntos de seguridad | [H] | 9.B, 9.C | v5→v6 | ⛔ No autorizado |
 | 9.E | Viaje adaptado a plataforma (precios, distancias, zonas, forma de pago, peajes) | [H] | 9.B | v6→v7 | ⛔ No autorizado |
 | 9.F | Gasolina extra: tanqueos con enlace a gasto de categoría Gasolina | [H] | 9.B, 9.E | v7→v8 | ⛔ No autorizado |
@@ -468,7 +468,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 - ✅ `assembleDebug` BUILD SUCCESSFUL.
 - ✅ `testDebugUnitTest` **243/243, 0 fallos** (49 pruebas nuevas).
 - ✅ `MigracionTest` ampliado con la prueba v4→v5; `PersistenciaTest` actualizado.
-- ⏳ `connectedDebugAndroidTest` en ALT-LX3 **pendiente**: no había dispositivo conectado.
+- ✅ `connectedDebugAndroidTest` en ALT-LX3: **129/129, 0 fallos** (13-sep-2026), incluida la migración v4→v5.
 - ✅ `PROJECT_STATUS.md` y `TASKS.md` actualizados.
 - ✅ Sin dependencias nuevas, sin GPS, sin notificaciones y sin permisos nuevos.
 

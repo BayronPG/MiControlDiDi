@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 13-sep-2026 — Incremento C del control diario cerrado (horario laboral; dominio puro; 272/272 unitarias).
+> Actualizado: 13-sep-2026 — Incrementos B y C del control diario cerrados y **validados en ALT-LX3** (272/272 unitarias + 129/129 instrumentadas).
 > Estado funcional anterior: 16-ago-2026 — Fase 8 cerrada (MVP): 322/322 pruebas; APK demo regenerado; push a origin/main completado.
 
 ---
@@ -197,8 +197,8 @@ class Factory(
 | Tipo | Cantidad | Estado |
 |------|---:|---:|
 | Unitarias | **272** | 272/272 (0 fallos) — 194 del MVP + 49 del Incremento B + 29 del Incremento C |
-| Instrumentadas | **128** | Última corrida: 128/128 en ALT-LX3 (16-ago-2026). **Pendientes de re-ejecutar** por el cambio de esquema v4→v5 |
-| **Total** | **371** | 243/243 unitarias verdes; instrumentadas pendientes de re-ejecución |
+| Instrumentadas | **129** | 129/129 en ALT-LX3 (13-sep-2026), 0 omitidas — incluye la migración v4→v5 |
+| **Total** | **401** | 401/401, 0 fallos |
 
 > **Nota (25-jul-2026):**
 >
@@ -561,7 +561,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - [x] **Fase 6: Filtros, metas, dashboard y estadísticas — Completada ✅**
 - [x] Fase 7: Preferencias (tema claro/oscuro) — **Retirada del alcance por decisión de producto. Se eliminó la funcionalidad de selección de tema y la aplicación conserva únicamente el esquema claro.**
 - [x] **Fase 8: Calidad y cierre del MVP — Cerrada el 16-ago-2026 ✅** (322/322 pruebas; APK demo regenerado; push a origin/main; verificación manual descartada por decisión del usuario).
-- [x] **Control diario del trabajo — Incremento A ✅ (documentación), B ✅ (perfil de trabajo) y C ✅ (horario laboral, dominio); instrumentadas pendientes en ALT-LX3; incrementos D–K ⛔ no autorizados** (ver secciones siguientes).
+- [x] **Control diario del trabajo — Incremento A ✅ (documentación), B ✅ (perfil de trabajo) y C ✅ (horario laboral, dominio); 272/272 unitarias y 129/129 instrumentadas; incrementos D–K ⛔ no autorizados** (ver secciones siguientes).
 
 ---
 
@@ -647,13 +647,13 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 | Pruebas nuevas | `PerfilTrabajoEntityTest` (13), `PerfilTrabajoRepositoryTest` (18), `PerfilTrabajoViewModelTest` (18) |
 | `MigracionTest` | Ampliado: nueva prueba **v4→v5** y `MIGRATION_4_5` añadida a las tres pruebas existentes |
 | `PersistenciaTest` | Actualizado con `MIGRATION_4_5` (mantiene la paridad con la configuración real de la app) |
-| `connectedDebugAndroidTest` en ALT-LX3 | ⏳ **Pendiente**: no había dispositivo conectado al cerrar el incremento |
+| `connectedDebugAndroidTest` en ALT-LX3 | ✅ **129/129, 0 fallos** (13-sep-2026), incluida la migración v4→v5 |
 
 ### Incidencia encontrada y corregida durante el incremento
 
 La primera corrida de `testDebugUnitTest` falló con **1 prueba de 243**: una aserción mal escrita en `PerfilTrabajoViewModelTest` (se esperaba el intervalo de mantenimiento como reserva por kilómetro). Se corrigió la prueba —no el código de producción— y la corrida siguiente quedó **243/243**. No se desactivó ni omitió ninguna prueba.
 
-> **Pendiente de validación en dispositivo:** las pruebas instrumentadas —incluida la migración v4→v5— no se ejecutaron por falta de dispositivo. La migración es el cambio de mayor riesgo del incremento y debe validarse en **ALT-LX3** antes de darlo por cerrado funcionalmente.
+> **Validado en dispositivo (13-sep-2026):** `connectedDebugAndroidTest` en **ALT-LX3**: **129/129, 0 fallos, 0 omitidas**. La migración **v4→v5** quedó verificada sobre una base SQLite real (`migracionCuatroACinco_creaPerfilTrabajoYConservaDatos`), con los viajes, gastos y metas anteriores conservados y el perfil sembrado.
 
 ---
 
@@ -682,7 +682,7 @@ La primera corrida de `testDebugUnitTest` falló con **1 prueba de 243**: una as
 | `testDebugUnitTest` | ✅ **272/272, 0 fallos, 0 omitidas** (243 previas + 29 nuevas) |
 | Pruebas nuevas | `CalculadorHorarioLaboralTest` (29 pruebas) |
 | Cambios en la base de datos | Ninguno (sigue en v5) |
-| `connectedDebugAndroidTest` en ALT-LX3 | ⏳ Pendiente (sin dispositivo conectado) |
+| `connectedDebugAndroidTest` en ALT-LX3 | ✅ **129/129, 0 fallos** (13-sep-2026) |
 
 ### Incidencia encontrada y corregida durante el incremento
 
@@ -704,4 +704,4 @@ La primera corrida falló **4 pruebas de 272**: cuatro expectativas mal sumadas 
 | No obligar a finalizar la jornada | ✅ solo informa; no existe ninguna acción de cierre |
 | Mostrarlo en la interfaz | ⏳ Pendiente: llega con la jornada (D) y el dashboard (I) |
 
-> **Pendiente de validación en dispositivo:** las pruebas instrumentadas siguen sin ejecutarse por falta de dispositivo. Cubren la migración v4→v5 del incremento B, el cambio de mayor riesgo pendiente de validar en **ALT-LX3**.
+> **Validado en dispositivo (13-sep-2026):** `connectedDebugAndroidTest` en **ALT-LX3**: **129/129, 0 fallos, 0 omitidas**. Con esta corrida quedó probada también la migración v4→v5 del incremento B sobre una base SQLite real.
