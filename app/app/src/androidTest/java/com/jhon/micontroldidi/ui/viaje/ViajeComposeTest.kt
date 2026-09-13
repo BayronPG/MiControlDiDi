@@ -4,11 +4,14 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jhon.micontroldidi.MainActivity
@@ -37,19 +40,25 @@ class ViajeComposeTest {
 
     /** Completa plataforma, zona y forma de pago, que exige un viaje nuevo. */
     private fun completarDatosDePlataforma() {
-        composeTestRule.onNodeWithTag("campo_plataforma_viaje").performTextReplacement("inDrive")
-        composeTestRule.onNodeWithTag("campo_zona_viaje").performTextReplacement("Belén")
-        composeTestRule.onNodeWithTag("selector_forma_pago_viaje").performClick()
+        composeTestRule.onNodeWithTag("campo_plataforma_viaje")
+            .performScrollTo()
+            .performTextReplacement("inDrive")
+        composeTestRule.onNodeWithTag("campo_zona_viaje")
+            .performScrollTo()
+            .performTextReplacement("Belén")
+        composeTestRule.onNodeWithTag("selector_forma_pago_viaje")
+            .performScrollTo()
+            .performClick()
         composeTestRule.onNodeWithText("EFECTIVO").performClick()
     }
 
     /** Texto visible de un nodo con etiqueta de prueba. */
-    private fun textoDe(tag: String): String =
-        composeTestRule.onNodeWithTag(tag)
-            .fetchSemanticsNode()
-            .config.getOrNull(SemanticsProperties.Text)
-            .orEmpty()
-            .joinToString("") { it.text }
+    private fun textoDe(tag: String): String {
+        val config = composeTestRule.onNodeWithTag(tag).fetchSemanticsNode().config
+        val editable = config.getOrNull(SemanticsProperties.EditableText)?.text
+        if (!editable.isNullOrEmpty()) return editable
+        return config.getOrNull(SemanticsProperties.Text).orEmpty().joinToString("") { it.text }
+    }
 
     @Test
     fun listaVacia_muestraBotonRegistrar() {
@@ -62,8 +71,8 @@ class ViajeComposeTest {
         navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
         composeTestRule.onNodeWithTag("campo_valor_viaje").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("boton_guardar_viaje").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("boton_cancelar_viaje").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("boton_guardar_viaje").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithTag("boton_cancelar_viaje").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -100,7 +109,7 @@ class ViajeComposeTest {
         composeTestRule.onNodeWithTag("campo_propina_viaje").performTextReplacement("3000")
         composeTestRule.onNodeWithTag("campo_observacion_viaje").performTextReplacement(observacion)
         completarDatosDePlataforma()
-        composeTestRule.onNodeWithTag("boton_guardar_viaje").performClick()
+        composeTestRule.onNodeWithTag("boton_guardar_viaje").performScrollTo().performClick()
 
         composeTestRule.onNodeWithText(observacion).assertIsDisplayed()
     }
@@ -110,7 +119,7 @@ class ViajeComposeTest {
         navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
         composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("99999")
-        composeTestRule.onNodeWithTag("boton_cancelar_viaje").performClick()
+        composeTestRule.onNodeWithTag("boton_cancelar_viaje").performScrollTo().performClick()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").assertIsDisplayed()
     }
 
@@ -124,7 +133,7 @@ class ViajeComposeTest {
         composeTestRule.onNodeWithTag("campo_propina_viaje").performTextReplacement("5000")
         composeTestRule.onNodeWithTag("campo_observacion_viaje").performTextReplacement(observacion)
         completarDatosDePlataforma()
-        composeTestRule.onNodeWithTag("boton_guardar_viaje").performClick()
+        composeTestRule.onNodeWithTag("boton_guardar_viaje").performScrollTo().performClick()
 
         composeTestRule.onNodeWithText(observacion).assertIsDisplayed()
     }
@@ -152,11 +161,11 @@ class ViajeComposeTest {
         navegarAViajes()
         composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
 
-        composeTestRule.onNodeWithTag("campo_plataforma_viaje").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("campo_zona_viaje").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("campo_distancia_viaje").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("selector_forma_pago_viaje").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("campo_peaje_viaje").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("campo_plataforma_viaje").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithTag("campo_zona_viaje").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithTag("campo_distancia_viaje").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithTag("selector_forma_pago_viaje").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithTag("campo_peaje_viaje").performScrollTo().assertIsDisplayed()
     }
 
     /**
@@ -175,9 +184,11 @@ class ViajeComposeTest {
         composeTestRule.onNodeWithTag("campo_observacion_viaje")
             .performTextReplacement("Viaje con fecha")
         completarDatosDePlataforma()
-        composeTestRule.onNodeWithTag("boton_guardar_viaje").performClick()
+        composeTestRule.onNodeWithTag("boton_guardar_viaje").performScrollTo().performClick()
 
         // Se abre la edición del viaje recién guardado (el primero de la lista).
+        composeTestRule.onNodeWithTag("lista_viajes")
+            .performScrollToNode(hasContentDescription("Editar"))
         composeTestRule.onAllNodesWithContentDescription("Editar")[0].performClick()
 
         assertFechaConFormatoCompleto()
