@@ -177,4 +177,51 @@
     <string name="error_perfil_intervalo_cero">Indica cada cuántos kilómetros</string>
     <string name="error_guardar_perfil">No se pudo guardar el perfil. Inténtalo de nuevo.</string>
     <string name="error_cargar_perfil">No se pudo cargar el perfil. Inténtalo de nuevo.</string>
+
+    <!-- Registro de jornada -->
+    <string name="jornada_titulo">Jornada</string>
+    <string name="jornada_descripcion">Registra el inicio de tu día de trabajo</string>
+    <string name="jornada_seccion_inicio">Inicio de jornada</string>
+    <string name="jornada_seccion_revision">Revisión previa</string>
+    <string name="jornada_revision_ayuda">Deja marcado lo que esté en buen estado. Si algo está mal, desmárcalo.</string>
+    <string name="jornada_kilometraje_inicial">Kilometraje inicial (km)</string>
+    <string name="jornada_nivel_combustible">Nivel de combustible</string>
+    <string name="jornada_combustible_reserva">Reserva</string>
+    <string name="jornada_combustible_cuarto">1/4</string>
+    <string name="jornada_combustible_medio">1/2</string>
+    <string name="jornada_combustible_tres_cuartos">3/4</string>
+    <string name="jornada_combustible_lleno">Lleno</string>
+    <string name="jornada_precio_galon">Precio del galón extra</string>
+    <string name="jornada_zona_inicial">Zona inicial</string>
+    <string name="jornada_plataforma">Plataforma</string>
+    <string name="jornada_meta_bruta">Meta bruta del día</string>
+    <string name="jornada_energia">Energía (0 a 10)</string>
+    <string name="jornada_clima">Clima</string>
+    <string name="jornada_observaciones">Observaciones</string>
+    <string name="jornada_punto_llantas">Llantas</string>
+    <string name="jornada_punto_frenos">Frenos</string>
+    <string name="jornada_punto_luces">Luces</string>
+    <string name="jornada_punto_direccionales">Direccionales</string>
+    <string name="jornada_punto_cadena">Cadena</string>
+    <string name="jornada_punto_aceite">Aceite</string>
+    <string name="jornada_punto_gasolina">Gasolina</string>
+    <string name="jornada_punto_soporte">Soporte del teléfono</string>
+    <string name="jornada_punto_carga">Carga del teléfono</string>
+    <string name="jornada_punto_impermeable">Impermeable</string>
+    <string name="jornada_punto_documentos">Documentos</string>
+    <string name="jornada_punto_agua">Agua</string>
+    <string name="jornada_alerta_critica_titulo">Revisión crítica pendiente</string>
+    <string name="jornada_alerta_critica">Antes de salir revisa: %1$s. Puedes continuar, pero hazlo con cuidado.</string>
+    <string name="jornada_hoy_registrada">Ya registraste una jornada hoy a las %1$s</string>
+    <string name="jornada_guardada">Jornada registrada</string>
+    <string name="jornada_confirmar_guardar">Guardar jornada</string>
+
+    <!-- Validación del registro de jornada -->
+    <string name="error_jornada_plataforma_obligatoria">Indica la plataforma</string>
+    <string name="error_jornada_kilometraje_negativo">El kilometraje no puede ser negativo</string>
+    <string name="error_jornada_precio_positivo">El precio del galón debe ser mayor que cero</string>
+    <string name="error_jornada_meta_positiva">La meta debe ser mayor que cero</string>
+    <string name="error_jornada_energia_rango">La energía debe estar entre 0 y 10</string>
+    <string name="error_guardar_jornada">No se pudo registrar la jornada. Inténtalo de nuevo.</string>
+    <string name="error_cargar_jornada">No se pudo cargar la jornada. Inténtalo de nuevo.</string>
 </resources>

@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 13-sep-2026 — Incrementos B y C del control diario cerrados y **validados en ALT-LX3** (272/272 unitarias + 129/129 instrumentadas).
+> Actualizado: 13-sep-2026 — Incrementos B, C y D del control diario cerrados y **validados en ALT-LX3** (309/309 unitarias + 130/130 instrumentadas).
 > Estado funcional anterior: 16-ago-2026 — Fase 8 cerrada (MVP): 322/322 pruebas; APK demo regenerado; push a origin/main completado.
 
 ---
@@ -196,9 +196,9 @@ class Factory(
 
 | Tipo | Cantidad | Estado |
 |------|---:|---:|
-| Unitarias | **272** | 272/272 (0 fallos) — 194 del MVP + 49 del Incremento B + 29 del Incremento C |
-| Instrumentadas | **129** | 129/129 en ALT-LX3 (13-sep-2026), 0 omitidas — incluye la migración v4→v5 |
-| **Total** | **401** | 401/401, 0 fallos |
+| Unitarias | **309** | 309/309 (0 fallos) — 194 del MVP + 49 de B + 29 de C + 37 de D |
+| Instrumentadas | **130** | 130/130 en ALT-LX3 (13-sep-2026), 0 omitidas — incluye las migraciones v4→v5 y v5→v6 |
+| **Total** | **439** | 439/439, 0 fallos |
 
 > **Nota (25-jul-2026):**
 >
@@ -561,7 +561,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - [x] **Fase 6: Filtros, metas, dashboard y estadísticas — Completada ✅**
 - [x] Fase 7: Preferencias (tema claro/oscuro) — **Retirada del alcance por decisión de producto. Se eliminó la funcionalidad de selección de tema y la aplicación conserva únicamente el esquema claro.**
 - [x] **Fase 8: Calidad y cierre del MVP — Cerrada el 16-ago-2026 ✅** (322/322 pruebas; APK demo regenerado; push a origin/main; verificación manual descartada por decisión del usuario).
-- [x] **Control diario del trabajo — Incremento A ✅ (documentación), B ✅ (perfil de trabajo) y C ✅ (horario laboral, dominio); 272/272 unitarias y 129/129 instrumentadas; incrementos D–K ⛔ no autorizados** (ver secciones siguientes).
+- [x] **Control diario del trabajo — Incrementos A ✅ (documentación), B ✅ (perfil de trabajo), C ✅ (horario laboral) y D ✅ (registro de jornada); 309/309 unitarias y 130/130 instrumentadas; incrementos E–K ⛔ no autorizados** (ver secciones siguientes).
 
 ---
 
@@ -594,7 +594,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 | A | Auditoría documentada + ADR | — | ✅ Completado |
 | B | Perfil de trabajo | v4→v5 | ✅ Implementado (13-sep-2026) |
 | C | Horario laboral (dominio) | — | ✅ Implementado (13-sep-2026) |
-| D | Registro de jornada + checklist | v5→v6 | ⛔ No autorizado |
+| D | Registro de jornada + checklist | v5→v6 | ✅ Implementado (13-sep-2026) |
 | E | Viaje adaptado a plataforma | v6→v7 | ⛔ No autorizado |
 | F | Gasolina extra / tanqueos | v7→v8 | ⛔ No autorizado |
 | G | Kilómetros y netos (dominio) | — | ⛔ No autorizado |
@@ -705,3 +705,68 @@ La primera corrida falló **4 pruebas de 272**: cuatro expectativas mal sumadas 
 | Mostrarlo en la interfaz | ⏳ Pendiente: llega con la jornada (D) y el dashboard (I) |
 
 > **Validado en dispositivo (13-sep-2026):** `connectedDebugAndroidTest` en **ALT-LX3**: **129/129, 0 fallos, 0 omitidas**. Con esta corrida quedó probada también la migración v4→v5 del incremento B sobre una base SQLite real.
+
+---
+
+## Incremento D — Registro de jornada (13-sep-2026)
+
+**Naturaleza del incremento: código funcional.** Base de datos **v5 → v6** con migración explícita. Sin dependencias nuevas, sin GPS, sin notificaciones y sin red.
+
+### Implementado
+
+- **`JornadaEntity`** (tabla `jornadas`): fecha y hora de inicio automáticas, odómetro inicial (**en metros**, coherente con el resto de distancias), nivel aproximado de combustible, precio del galón extra, zona inicial, plataforma, meta bruta del día, energía (0–10), clima, observaciones y los **doce puntos de la revisión previa** como columnas booleanas (true = en buen estado).
+- **`PuntoRevision`** (`domain/`): los doce puntos con la marca `critico` en **llantas, frenos y luces**.
+- **`NivelCombustible`** (`domain/`): reserva, 1/4, 1/2, 3/4 y lleno. Es **aproximado a propósito**: el consumo real se medirá con los tanqueos, no con las barras del indicador.
+- **`JornadaDao`**: insertar, observar todas y observar la última.
+- **`JornadaRepository`** con validaciones: odómetro no negativo, precio del galón mayor que cero, meta del día mayor que cero, energía entre 0 y 10 y plataforma obligatoria.
+- **`JornadaViewModel`** con `Clock` inyectable: prellena la plataforma con la del perfil, detecta si ya hay una jornada registrada **hoy** y valida el formulario campo por campo.
+- **`RegistrarJornadaScreen`**: datos del inicio, chips de combustible, los doce puntos de la revisión y un **aviso claro cuando frenos, llantas o luces están en mal estado**. El aviso **no bloquea** el guardado (requisito de la FASE 4): el botón sigue habilitado.
+- **Ruta** `registrar_jornada`, accesible desde **Configuración**.
+- **`DateFormatter.formatHora`**: hora en formato `HH:mm` para el aviso de jornada ya registrada.
+- **Migración `MIGRATION_5_6`**: crea la tabla `jornadas`. No siembra filas.
+- **`strings.xml`**: 37 cadenas nuevas.
+
+### Decisiones del incremento
+
+- **Los doce puntos de la revisión y los valores derivados** (puntos en mal estado, críticos pendientes) se calculan; no se persisten.
+- **La meta bruta del día se guarda en la jornada** porque es un dato del día que el conductor escribe al arrancar. La tabla `metas` del MVP sigue siendo la meta general que usa el dashboard.
+- **El cierre de la jornada aún no existe**: guardar el odómetro final corresponde al cálculo de kilómetros (incremento F), junto con `fechaHoraFin`. Por eso la jornada no expone todavía ninguna acción de cierre.
+- **La entrada está en Configuración** por ahora; el acceso destacado desde el dashboard —con el bloque actual y el modo regreso en vivo— llega con el incremento I.
+- La revisión **avisa pero no impide**: sin bloqueos técnicos, como pide la especificación.
+
+### Validación
+
+| Verificación | Resultado |
+|---|---|
+| `assembleDebug` | ✅ BUILD SUCCESSFUL — `app-debug.apk` regenerado |
+| `testDebugUnitTest` | ✅ **309/309, 0 fallos, 0 omitidas** (272 previas + 37 nuevas) |
+| Pruebas nuevas | `JornadaEntityTest` (10), `JornadaRepositoryTest` (11), `JornadaViewModelTest` (16) |
+| `MigracionTest` | Ampliado: nueva prueba **v5→v6** y `MIGRATION_5_6` añadida a las cuatro pruebas existentes |
+| `PersistenciaTest` | Actualizado con `MIGRATION_5_6` |
+| `connectedDebugAndroidTest` en ALT-LX3 | ✅ **130/130, 0 fallos, 0 omitidas** (13-sep-2026) |
+
+### Incidencias encontradas y corregidas durante el incremento
+
+1. **Error de compilación** (detectado al compilar): se llamaba a una función `@Composable` dentro de un lambda de `joinToString` para listar los puntos críticos. Se corrigió resolviendo los nombres con `LocalContext` fuera del lambda.
+2. **Bug detectado antes de probar**: al prellenar la plataforma desde el perfil no se recalculaban los errores de validación, así que el botón de guardar habría quedado deshabilitado para siempre. Se corrigió revalidando tras el prellenado.
+
+Ninguna prueba se desactivó ni se omitió.
+
+### Cobertura de la FASE 4
+
+| Requisito | Estado |
+|---|---|
+| Fecha y hora inicial automáticas | ✅ tomadas del reloj al guardar |
+| Kilometraje inicial | ✅ (guardado en metros) |
+| Nivel aproximado de combustible | ✅ cinco niveles |
+| Precio actual de gasolina extra | ✅ |
+| Zona inicial | ✅ |
+| Plataforma utilizada | ✅ prellenada desde el perfil |
+| Meta bruta del día | ✅ |
+| Nivel de energía de 0 a 10 | ✅ validado |
+| Clima | ✅ |
+| Observaciones | ✅ |
+| Lista de revisión de 12 puntos | ✅ |
+| Advertencia en frenos, llantas y luces | ✅ visible y **no bloqueante** |
+| Ver la jornada en el dashboard | ⏳ llega con el incremento I |
+| Cierre de jornada con odómetro final | ⏳ llega con los kilómetros (incremento F) |

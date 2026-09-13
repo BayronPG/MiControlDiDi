@@ -26,7 +26,8 @@ import com.jhon.micontroldidi.R
 @Composable
 fun SettingsScreen(
     onNavegarAConfigurarMeta: () -> Unit = {},
-    onNavegarAConfigurarPerfil: () -> Unit = {}
+    onNavegarAConfigurarPerfil: () -> Unit = {},
+    onNavegarARegistrarJornada: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -83,6 +84,30 @@ fun SettingsScreen(
                     .testTag("boton_ir_a_perfil")
             ) {
                 Text(stringResource(R.string.perfil_configurar))
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                text = stringResource(R.string.jornada_titulo),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Text(
+                text = stringResource(R.string.jornada_descripcion),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            Button(
+                onClick = onNavegarARegistrarJornada,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("boton_ir_a_jornada")
+            ) {
+                Text(stringResource(R.string.jornada_confirmar_guardar))
             }
 
             Spacer(Modifier.height(24.dp))

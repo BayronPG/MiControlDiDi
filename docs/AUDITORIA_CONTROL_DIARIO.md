@@ -111,7 +111,7 @@ Rutas: `dashboard`, `lista_viajes`, `registrar_viaje`, `registrar_viaje/{viajeId
 | **A** | Auditoría + ADR | Este documento + `ADR-001` | — | ✅ Cerrado (12-sep-2026) |
 | B | Perfil de trabajo | Entidad `perfil_trabajo` (fila única) + DAO + repositorio + ViewModel + sección en Ajustes | v4→v5 | ✅ Cerrado (13-sep-2026) |
 | C | Horario laboral (dominio) | Bloques, pausas, progreso, modo regreso | — | ✅ Cerrado (13-sep-2026) |
-| D | Jornada + checklist | Entidad `jornadas` + checklist de 12 puntos + pantallas | v5→v6 | ⛔ No autorizado |
+| D | Jornada + checklist | Entidad `jornadas` + checklist de 12 puntos + pantallas | v5→v6 | ✅ Cerrado (13-sep-2026) |
 | E | Viaje con datos de plataforma | Columnas nuevas en `viajes` sin romper `valor` | v6→v7 | ⛔ No autorizado |
 | F | Tanqueos / gasolina | Entidad `tanqueos` enlazada al gasto de Gasolina | v7→v8 | ⛔ No autorizado |
 | G | Kilómetros y netos (dominio) | Km vacíos, semáforo, neto operativo y económico | — | ⛔ No autorizado |
@@ -126,7 +126,7 @@ Rutas: `dashboard`, `lista_viajes`, `registrar_viaje`, `registrar_viaje/{viajeId
 |---|---|
 | B | `entity/PerfilTrabajoEntity.kt`, `dao/PerfilTrabajoDao.kt`, `repository/PerfilTrabajoRepository.kt`, `ui/settings/PerfilTrabajoViewModel.kt`, `ui/settings/SettingsScreen.kt`, `MiControlDatabase.kt` (v5), `strings.xml` |
 | C | `domain/BloqueJornada.kt`, `domain/EstadoHorarioLaboral.kt`, `domain/CalculadorHorarioLaboral.kt` |
-| D | `entity/JornadaEntity.kt`, `dao/JornadaDao.kt`, `repository/JornadaRepository.kt`, `ui/jornada/*`, `ui/navigation/NavGraph.kt`, `MiControlDatabase.kt` (v6) |
+| D | `domain/PuntoRevision.kt`, `domain/NivelCombustible.kt`, `entity/JornadaEntity.kt`, `dao/JornadaDao.kt`, `repository/JornadaRepository.kt`, `ui/jornada/*`, `ui/navigation/NavGraph.kt`, `MiControlDatabase.kt` (v6) |
 | E | `entity/ViajeEntity.kt`, `dao/ViajeDao.kt`, `repository/ViajeRepository.kt`, `ui/viaje/ViajeUiState.kt`, `ui/viaje/ViajeViewModel.kt`, `ui/viaje/RegistrarViajeScreen.kt`, `ui/viaje/ListaViajesScreen.kt`, `MiControlDatabase.kt` (v7) |
 | F | `entity/TanqueoEntity.kt`, `dao/TanqueoDao.kt`, `repository/TanqueoRepository.kt`, `ui/tanqueo/*`, `MiControlDatabase.kt` (v8) |
 | G | `domain/CalculadoraKilometros.kt`, `domain/CalculadoraNetos.kt` |

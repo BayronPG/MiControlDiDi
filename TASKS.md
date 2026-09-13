@@ -429,7 +429,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 
 ## Fase 9 — Control diario del trabajo (propuesta — NO autorizada)
 
-> **Estado global: ⛔ no autorizada (parcial).** Autorizados y cerrados: **Incremento A** (documentación), **Incremento B** (perfil de trabajo) e **Incremento C** (horario laboral). Los incrementos D–K requieren autorización explícita e individual.
+> **Estado global: ⛔ no autorizada (parcial).** Autorizados y cerrados: **Incremento A** (documentación), **Incremento B** (perfil de trabajo), **Incremento C** (horario laboral) e **Incremento D** (registro de jornada). Los incrementos E–K requieren autorización explícita e individual.
 > Documentos de referencia: `docs/AUDITORIA_CONTROL_DIARIO.md` y `docs/ADR-001-control-diario.md`.
 
 | # | Incremento | Prioridad | Dependencias | Migración | Estado |
@@ -437,7 +437,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 | 9.A | Auditoría del control diario + ADR de arquitectura | [H] | — | — | ✅ Completado (12-sep-2026) |
 | 9.B | Perfil de trabajo editable (plataforma, vehículo, combustible, ciudad, horario, umbrales, reservas por km) | [H] | 9.A | v4→v5 | ✅ Implementado (13-sep-2026) — 49 unitarias; migración v4→v5 validada en ALT-LX3 |
 | 9.C | Horario laboral: bloques, pausas, progreso y modo regreso (dominio puro) | [H] | 9.B | — | ✅ Implementado (13-sep-2026) — 29 pruebas nuevas; instrumentadas 129/129 |
-| 9.D | Registro de jornada + checklist de 12 puntos de seguridad | [H] | 9.B, 9.C | v5→v6 | ⛔ No autorizado |
+| 9.D | Registro de jornada + checklist de 12 puntos de seguridad | [H] | 9.B, 9.C | v5→v6 | ✅ Implementado (13-sep-2026) — 37 unitarias; migración v5→v6 validada en ALT-LX3 |
 | 9.E | Viaje adaptado a plataforma (precios, distancias, zonas, forma de pago, peajes) | [H] | 9.B | v6→v7 | ⛔ No autorizado |
 | 9.F | Gasolina extra: tanqueos con enlace a gasto de categoría Gasolina | [H] | 9.B, 9.E | v7→v8 | ⛔ No autorizado |
 | 9.G | Kilómetros vacíos, semáforo y netos (operativo y económico) | [H] | 9.B, 9.D, 9.E, 9.F | — | ⛔ No autorizado |
@@ -485,6 +485,21 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 - ✅ `testDebugUnitTest` **272/272, 0 fallos** (29 pruebas nuevas de horario).
 - ✅ Sin cambios en la base de datos (sigue en v5) y sin dependencias nuevas.
 - ⏳ Mostrar el estado en la interfaz: corresponde a los incrementos D (jornada) e I (dashboard).
+
+### Criterios de aceptación — Incremento D (9.D)
+
+- ✅ Entidad `jornadas` con fecha/hora automática, odómetro inicial, nivel de combustible, precio del galón, zona, plataforma, meta del día, energía, clima y observaciones.
+- ✅ Los doce puntos de la revisión previa, con llantas, frenos y luces marcados como críticos.
+- ✅ Aviso visible cuando un punto crítico está en mal estado, **sin bloquear** el guardado.
+- ✅ Migración explícita v5→v6 que crea la tabla; sin `destructiveMigration` y sin sembrar filas.
+- ✅ DAO, repositorio con validaciones y ViewModel con `Clock` inyectable.
+- ✅ La plataforma se prellena desde el perfil de trabajo y se detecta la jornada ya registrada hoy.
+- ✅ `assembleDebug` BUILD SUCCESSFUL.
+- ✅ `testDebugUnitTest` **309/309, 0 fallos** (37 pruebas nuevas).
+- ✅ `connectedDebugAndroidTest` en ALT-LX3: **130/130, 0 fallos**, incluida la migración v5→v6.
+- ✅ Sin dependencias nuevas, sin GPS y sin notificaciones.
+- ⏳ Cierre de la jornada con odómetro final: corresponde al incremento F (kilómetros).
+- ⏳ Acceso destacado desde el dashboard: corresponde al incremento I.
 
 ### Criterios de aceptación — Fase 9 (pendientes de implementación)
 

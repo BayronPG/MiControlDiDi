@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.jhon.micontroldidi.data.local.database.MiControlDatabase
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
+import com.jhon.micontroldidi.data.repository.JornadaRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
         val gastoRepository = GastoRepository(database.gastoDao())
         val metaRepository = MetaRepository(database.metaDao())
         val perfilTrabajoRepository = PerfilTrabajoRepository(database.perfilTrabajoDao())
+        val jornadaRepository = JornadaRepository(database.jornadaDao())
 
         val resourceProvider = ResourceProvider { resId -> resources.getString(resId) }
 
@@ -48,6 +50,7 @@ class MainActivity : ComponentActivity() {
                         categoriaGastoRepository = categoriaGastoRepository,
                         metaRepository = metaRepository,
                         perfilTrabajoRepository = perfilTrabajoRepository,
+                        jornadaRepository = jornadaRepository,
                         resourceProvider = resourceProvider
                     )
                 }

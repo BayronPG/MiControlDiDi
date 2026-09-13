@@ -29,6 +29,7 @@ import androidx.navigation.navArgument
 import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
+import com.jhon.micontroldidi.data.repository.JornadaRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
@@ -37,6 +38,8 @@ import com.jhon.micontroldidi.ui.dashboard.DashboardViewModel
 import com.jhon.micontroldidi.ui.gasto.GastoViewModel
 import com.jhon.micontroldidi.ui.gasto.ListaGastosScreen
 import com.jhon.micontroldidi.ui.gasto.RegistrarGastoScreen
+import com.jhon.micontroldidi.ui.jornada.JornadaViewModel
+import com.jhon.micontroldidi.ui.jornada.RegistrarJornadaScreen
 import com.jhon.micontroldidi.ui.meta.ConfigurarMetaScreen
 import com.jhon.micontroldidi.ui.meta.MetaViewModel
 import com.jhon.micontroldidi.ui.settings.ConfigurarPerfilScreen
@@ -59,6 +62,7 @@ object Rutas {
     const val REGISTRAR_GASTO_CON_ID = "registrar_gasto/{gastoId}"
     const val CONFIGURAR_META = "configurar_meta"
     const val CONFIGURAR_PERFIL = "configurar_perfil"
+    const val REGISTRAR_JORNADA = "registrar_jornada"
     const val ESTADISTICAS = "estadisticas"
     const val CONFIGURACION = "configuracion"
 }
@@ -131,6 +135,7 @@ fun AppNavGraph(
     categoriaGastoRepository: CategoriaGastoRepository,
     metaRepository: MetaRepository,
     perfilTrabajoRepository: PerfilTrabajoRepository,
+    jornadaRepository: JornadaRepository,
     resourceProvider: ResourceProvider
 ) {
     val viajeViewModel: ViajeViewModel = viewModel(
@@ -150,6 +155,13 @@ fun AppNavGraph(
     )
     val perfilTrabajoViewModel: PerfilTrabajoViewModel = viewModel(
         factory = PerfilTrabajoViewModel.Factory(perfilTrabajoRepository, resourceProvider)
+    )
+    val jornadaViewModel: JornadaViewModel = viewModel(
+        factory = JornadaViewModel.Factory(
+            jornadaRepository,
+            perfilTrabajoRepository,
+            resourceProvider
+        )
     )
 
     val mostrarBarra = navController.mostrarBarraInferior()
@@ -314,6 +326,18 @@ fun AppNavGraph(
                     },
                     onNavegarAConfigurarPerfil = {
                         navController.navigate(Rutas.CONFIGURAR_PERFIL)
+                    },
+                    onNavegarARegistrarJornada = {
+                        navController.navigate(Rutas.REGISTRAR_JORNADA)
+                    }
+                )
+            }
+
+            composable(Rutas.REGISTRAR_JORNADA) {
+                RegistrarJornadaScreen(
+                    viewModel = jornadaViewModel,
+                    onNavegarAtras = {
+                        navController.popBackStack()
                     }
                 )
             }

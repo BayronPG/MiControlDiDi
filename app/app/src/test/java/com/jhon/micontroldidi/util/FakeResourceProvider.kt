@@ -35,7 +35,14 @@ class FakeResourceProvider : ResourceProvider {
         com.jhon.micontroldidi.R.string.error_perfil_porcentaje_rango to "El porcentaje debe estar entre 0 y 100",
         com.jhon.micontroldidi.R.string.error_perfil_intervalo_cero to "Indica cada cuántos kilómetros",
         com.jhon.micontroldidi.R.string.error_guardar_perfil to "No se pudo guardar el perfil. Inténtalo de nuevo.",
-        com.jhon.micontroldidi.R.string.error_cargar_perfil to "No se pudo cargar el perfil. Inténtalo de nuevo."
+        com.jhon.micontroldidi.R.string.error_cargar_perfil to "No se pudo cargar el perfil. Inténtalo de nuevo.",
+        com.jhon.micontroldidi.R.string.error_jornada_plataforma_obligatoria to "Indica la plataforma",
+        com.jhon.micontroldidi.R.string.error_jornada_kilometraje_negativo to "El kilometraje no puede ser negativo",
+        com.jhon.micontroldidi.R.string.error_jornada_precio_positivo to "El precio del galón debe ser mayor que cero",
+        com.jhon.micontroldidi.R.string.error_jornada_meta_positiva to "La meta debe ser mayor que cero",
+        com.jhon.micontroldidi.R.string.error_jornada_energia_rango to "La energía debe estar entre 0 y 10",
+        com.jhon.micontroldidi.R.string.error_guardar_jornada to "No se pudo registrar la jornada. Inténtalo de nuevo.",
+        com.jhon.micontroldidi.R.string.error_cargar_jornada to "No se pudo cargar la jornada. Inténtalo de nuevo."
     )
 
     override fun getString(resId: Int): String {
