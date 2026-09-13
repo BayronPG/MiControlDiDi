@@ -1,6 +1,6 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 13-sep-2026 — Incrementos B, C y D del control diario cerrados y **validados en ALT-LX3** (309/309 unitarias + 130/130 instrumentadas).
+> Actualizado: 13-sep-2026 — Incrementos B, C y D del control diario cerrados, **estabilización previa al incremento E completada** y todo **validado en ALT-LX3** (316/316 unitarias + 131/131 instrumentadas).
 > Estado funcional anterior: 16-ago-2026 — Fase 8 cerrada (MVP): 322/322 pruebas; APK demo regenerado; push a origin/main completado.
 
 ---
@@ -770,3 +770,41 @@ Ninguna prueba se desactivó ni se omitió.
 | Advertencia en frenos, llantas y luces | ✅ visible y **no bloqueante** |
 | Ver la jornada en el dashboard | ⏳ llega con el incremento I |
 | Cierre de jornada con odómetro final | ⏳ llega con los kilómetros (incremento F) |
+
+---
+
+## Estabilización previa al incremento E (13-sep-2026)
+
+**Naturaleza: correcciones puntuales.** Sin cambios en la base de datos (sigue en **v6**), sin migraciones, sin dependencias nuevas, sin GPS, sin notificaciones y sin red. Se corrigieron los cinco hallazgos de la auditoría completa (`docs/AUDITORIA_COMPLETA_2026-09-13.md`) que el responsable autorizó, uno por commit.
+
+### Hallazgos cerrados
+
+| ID | Hallazgo | Corrección |
+|---|---|---|
+| H-02 | Paleta XML vestigial verde y `statusBarColor` desalineado del `primary` azul de Compose | `colors.xml` reducido a `barra_estado` (#FF2563EB) y `fondo_ventana` (#FFF8FAFC), alineados con `ui/theme/Color.kt`; `themes.xml` fija además `windowLightStatusBar=false` y `windowBackground`. El nombre del estilo no cambia. |
+| H-06 | Los tres primeros ítems de la barra inferior compartían icono | Dashboard → `Icons.Filled.Home`; Viajes conserva `Icons.AutoMirrored.Filled.List`; Gastos → `Icons.Filled.ShoppingCart`. Solo iconos de `material-icons-core` (sin dependencias nuevas); los `testTag` no cambian. |
+| H-05 | Al editar un viaje se mostraba la fecha actual en lugar de la original | La fecha informativa sale de `CalculadorFechaFormularioViaje` (función pura): en creación la actual, en edición la original y, mientras la edición carga, ninguna. Nuevo `testTag` `fecha_viaje`. |
+| H-08 | `JornadaViewModel` tragaba en silencio el error al cargar el perfil (`catch { }`) | El error publica `mensajeError` con `error_cargar_perfil`; los dos `catch` del `init` relanzan `CancellationException` (coherencia con dashboard, gasto y viaje). Se reutiliza una cadena existente. |
+| H-01 | `README.md` desactualizado y contradictorio con este documento | Reescrito al estado real: v6, 6 tablas, 5 migraciones, `dashboard` como origen, 316/131 pruebas, incrementos A–D cerrados y E–K no autorizados. |
+
+### Validación
+
+| Verificación | Resultado |
+|---|---|
+| `assembleDebug` | ✅ BUILD SUCCESSFUL tras cada hallazgo |
+| `testDebugUnitTest` | ✅ **316/316, 0 fallos, 0 omitidas** (309 previas + 4 de H-05 + 3 de H-08) |
+| `connectedDebugAndroidTest` en ALT-LX3 (Android 14, API 34) | ✅ **131/131, 0 fallos, 0 omitidas** (130 previas + 1 nueva de H-05) |
+| Versión de la base de datos | Sin cambios (**v6**); ninguna migración nueva |
+| Dependencias nuevas | Ninguna |
+| Pruebas desactivadas u omitidas | Ninguna |
+
+### Incidencia encontrada y corregida
+
+La prueba instrumentada nueva de H-05 usaba `assertTextMatches`, que no existe en la versión de `ui-test-junit4` del proyecto: falló la compilación de `debugAndroidTest` (`Unresolved reference`) y se corrigió **la prueba** (verifica el formato `dd/MM/yyyy HH:mm` leyendo la semántica del nodo). No se desactivó ni se omitió ninguna prueba; la corrida siguiente quedó **131/131**.
+
+### Decisiones pendientes
+
+- **H-02:** ALT-LX3 es Android 14 (API 34), así que `statusBarColor` **sí** se aplica ahí; en Android 15+ (API ≥ 35) el sistema lo ignora por el modo extremo a extremo obligatorio. El rediseño edge-to-edge sigue fuera de alcance.
+- **H-06:** no hay prueba automática que impida volver a repetir un icono; la verificación es visual.
+- **H-01:** los conteos del `README.md` son una instantánea y remiten a este documento como fuente única.
+- **Incrementos E–K:** siguen ⛔ no autorizados.

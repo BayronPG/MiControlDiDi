@@ -434,6 +434,7 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 
 | # | Incremento | Prioridad | Dependencias | Migración | Estado |
 |---|---|---|---|---|---|
+| 9.0 | Estabilización previa al incremento E (H-01, H-02, H-05, H-06, H-08 de la auditoría) | [H] | 9.A–9.D | — | ✅ Implementado (13-sep-2026) — 316/316 unitarias y 131/131 instrumentadas en ALT-LX3 |
 | 9.A | Auditoría del control diario + ADR de arquitectura | [H] | — | — | ✅ Completado (12-sep-2026) |
 | 9.B | Perfil de trabajo editable (plataforma, vehículo, combustible, ciudad, horario, umbrales, reservas por km) | [H] | 9.A | v4→v5 | ✅ Implementado (13-sep-2026) — 49 unitarias; migración v4→v5 validada en ALT-LX3 |
 | 9.C | Horario laboral: bloques, pausas, progreso y modo regreso (dominio puro) | [H] | 9.B | — | ✅ Implementado (13-sep-2026) — 29 pruebas nuevas; instrumentadas 129/129 |
@@ -500,6 +501,19 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 - ✅ Sin dependencias nuevas, sin GPS y sin notificaciones.
 - ⏳ Cierre de la jornada con odómetro final: corresponde al incremento F (kilómetros).
 - ⏳ Acceso destacado desde el dashboard: corresponde al incremento I.
+
+### Criterios de aceptación — Estabilización previa al incremento E (9.0)
+
+- ✅ H-02: `colors.xml` y `themes.xml` alineados con la paleta de `ui/theme/Color.kt`; sin paleta verde vestigial; `statusBarColor` con el azul del tema.
+- ✅ H-06: los cinco destinos de la barra inferior usan iconos distintos; sin dependencias nuevas y con los `testTag` intactos.
+- ✅ H-05: en edición se muestra la fecha original del viaje; en creación, la actual; sin fecha mientras la edición carga; `fechaHoraOriginal` guardada no cambia.
+- ✅ H-08: el fallo al cargar el perfil publica mensaje de error y no se traga en silencio; `CancellationException` se relanza.
+- ✅ H-01: `README.md` coherente con `PROJECT_STATUS.md` (v6, 6 tablas, `dashboard` como origen, 316/131 pruebas, E–K no autorizados).
+- ✅ `assembleDebug` BUILD SUCCESSFUL tras cada hallazgo.
+- ✅ `testDebugUnitTest` **316/316, 0 fallos, 0 omitidas** (4 pruebas nuevas de H-05 y 3 de H-08).
+- ✅ `connectedDebugAndroidTest` en ALT-LX3: **131/131, 0 fallos, 0 omitidas** (1 prueba nueva de H-05).
+- ✅ Sin cambios en la base de datos (v6), sin migraciones, sin dependencias nuevas y sin pruebas desactivadas.
+- ✅ `PROJECT_STATUS.md` y `TASKS.md` actualizados.
 
 ### Criterios de aceptación — Fase 9 (pendientes de implementación)
 
