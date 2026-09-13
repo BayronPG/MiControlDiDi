@@ -30,6 +30,7 @@ import com.jhon.micontroldidi.R
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
+import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.dashboard.DashboardScreen
 import com.jhon.micontroldidi.ui.dashboard.DashboardViewModel
@@ -38,6 +39,8 @@ import com.jhon.micontroldidi.ui.gasto.ListaGastosScreen
 import com.jhon.micontroldidi.ui.gasto.RegistrarGastoScreen
 import com.jhon.micontroldidi.ui.meta.ConfigurarMetaScreen
 import com.jhon.micontroldidi.ui.meta.MetaViewModel
+import com.jhon.micontroldidi.ui.settings.ConfigurarPerfilScreen
+import com.jhon.micontroldidi.ui.settings.PerfilTrabajoViewModel
 import com.jhon.micontroldidi.ui.settings.SettingsScreen
 import com.jhon.micontroldidi.ui.stats.StatsScreen
 import com.jhon.micontroldidi.ui.stats.StatsViewModel
@@ -55,6 +58,7 @@ object Rutas {
     const val REGISTRAR_GASTO = "registrar_gasto"
     const val REGISTRAR_GASTO_CON_ID = "registrar_gasto/{gastoId}"
     const val CONFIGURAR_META = "configurar_meta"
+    const val CONFIGURAR_PERFIL = "configurar_perfil"
     const val ESTADISTICAS = "estadisticas"
     const val CONFIGURACION = "configuracion"
 }
@@ -126,6 +130,7 @@ fun AppNavGraph(
     gastoRepository: GastoRepository,
     categoriaGastoRepository: CategoriaGastoRepository,
     metaRepository: MetaRepository,
+    perfilTrabajoRepository: PerfilTrabajoRepository,
     resourceProvider: ResourceProvider
 ) {
     val viajeViewModel: ViajeViewModel = viewModel(
@@ -142,6 +147,9 @@ fun AppNavGraph(
     )
     val statsViewModel: StatsViewModel = viewModel(
         factory = StatsViewModel.Factory(viajeRepository, gastoRepository, resourceProvider)
+    )
+    val perfilTrabajoViewModel: PerfilTrabajoViewModel = viewModel(
+        factory = PerfilTrabajoViewModel.Factory(perfilTrabajoRepository, resourceProvider)
     )
 
     val mostrarBarra = navController.mostrarBarraInferior()
@@ -303,6 +311,18 @@ fun AppNavGraph(
                 SettingsScreen(
                     onNavegarAConfigurarMeta = {
                         navController.navigate(Rutas.CONFIGURAR_META)
+                    },
+                    onNavegarAConfigurarPerfil = {
+                        navController.navigate(Rutas.CONFIGURAR_PERFIL)
+                    }
+                )
+            }
+
+            composable(Rutas.CONFIGURAR_PERFIL) {
+                ConfigurarPerfilScreen(
+                    viewModel = perfilTrabajoViewModel,
+                    onNavegarAtras = {
+                        navController.popBackStack()
                     }
                 )
             }

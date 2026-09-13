@@ -10,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jhon.micontroldidi.data.local.entity.CategoriaGastoEntity
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
+import com.jhon.micontroldidi.data.local.entity.PerfilTrabajoEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -78,7 +79,8 @@ class MigracionTest {
             .addMigrations(
                 MiControlDatabase.MIGRATION_1_2,
                 MiControlDatabase.MIGRATION_2_3,
-                MiControlDatabase.MIGRATION_3_4
+                MiControlDatabase.MIGRATION_3_4,
+                MiControlDatabase.MIGRATION_4_5
             )
             .build()
 
@@ -197,7 +199,8 @@ class MigracionTest {
             .addMigrations(
                 MiControlDatabase.MIGRATION_1_2,
                 MiControlDatabase.MIGRATION_2_3,
-                MiControlDatabase.MIGRATION_3_4
+                MiControlDatabase.MIGRATION_3_4,
+                MiControlDatabase.MIGRATION_4_5
             )
             .build()
 
@@ -333,7 +336,8 @@ class MigracionTest {
             .addMigrations(
                 MiControlDatabase.MIGRATION_1_2,
                 MiControlDatabase.MIGRATION_2_3,
-                MiControlDatabase.MIGRATION_3_4
+                MiControlDatabase.MIGRATION_3_4,
+                MiControlDatabase.MIGRATION_4_5
             )
             .build()
 
@@ -364,6 +368,153 @@ class MigracionTest {
                 indices.contains("index_viajes_fechaHora"))
             assertTrue("Debe existir índice de gastos por fecha",
                 indices.contains("index_gastos_fechaHora"))
+        }
+
+        database.close()
+    }
+
+    @Test
+    fun migracionCuatroACinco_creaPerfilTrabajoYConservaDatos() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val dbName = "migracion_v4_v5_test.db"
+        context.deleteDatabase(dbName)
+
+        // --- 1. Crear base SQLite v4 con las cuatro tablas anteriores ---
+        val factory = FrameworkSQLiteOpenHelperFactory()
+        val helper = factory.create(
+            SupportSQLiteOpenHelper.Configuration.builder(context)
+                .name(dbName)
+                .callback(object : SupportSQLiteOpenHelper.Callback(4) {
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `viajes` (
+                                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                `fechaHora` INTEGER NOT NULL,
+                                `valor` INTEGER NOT NULL,
+                                `propina` INTEGER NOT NULL,
+                                `observacion` TEXT NOT NULL
+                            )"""
+                        )
+                        db.execSQL(
+                            "CREATE INDEX IF NOT EXISTS `index_viajes_fechaHora` " +
+                            "ON `viajes` (`fechaHora`)"
+                        )
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `categorias_gasto` (
+                                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                `nombre` TEXT COLLATE NOCASE NOT NULL,
+                                `activa` INTEGER NOT NULL DEFAULT 1
+                            )"""
+                        )
+                        db.execSQL(
+                            "CREATE UNIQUE INDEX IF NOT EXISTS `index_categorias_gasto_nombre` " +
+                            "ON `categorias_gasto` (`nombre`)"
+                        )
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `gastos` (
+                                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                `fechaHora` INTEGER NOT NULL,
+                                `categoriaId` INTEGER NOT NULL,
+                                `valor` INTEGER NOT NULL,
+                                `descripcion` TEXT NOT NULL DEFAULT '',
+                                FOREIGN KEY (`categoriaId`) REFERENCES `categorias_gasto`(`id`)
+                                ON DELETE RESTRICT
+                            )"""
+                        )
+                        db.execSQL(
+                            "CREATE INDEX IF NOT EXISTS `index_gastos_categoriaId` " +
+                            "ON `gastos` (`categoriaId`)"
+                        )
+                        db.execSQL(
+                            "CREATE INDEX IF NOT EXISTS `index_gastos_fechaHora` " +
+                            "ON `gastos` (`fechaHora`)"
+                        )
+                        db.execSQL(
+                            """CREATE TABLE IF NOT EXISTS `metas` (
+                                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                                `tipoPeriodo` TEXT NOT NULL,
+                                `valorObjetivo` INTEGER NOT NULL,
+                                `activa` INTEGER NOT NULL DEFAULT 1,
+                                `createdAt` INTEGER NOT NULL
+                            )"""
+                        )
+                        db.execSQL(
+                            "CREATE TABLE IF NOT EXISTS room_master_table " +
+                            "(id INTEGER PRIMARY KEY,identity_hash TEXT)"
+                        )
+                        db.execSQL(
+                            "INSERT OR REPLACE INTO room_master_table " +
+                            "(id,identity_hash) VALUES(42, 'dummy_v4')"
+                        )
+                    }
+
+                    override fun onUpgrade(
+                        db: SupportSQLiteDatabase, old: Int, new: Int
+                    ) = Unit
+                }).build()
+        )
+        val sqLiteDb = helper.writableDatabase
+
+        // Datos de prueba en v4
+        sqLiteDb.execSQL(
+            "INSERT INTO viajes (fechaHora, valor, propina, observacion) " +
+            "VALUES (1000, 15000, 2000, 'Viaje pre-migraci\u00f3n')"
+        )
+        sqLiteDb.execSQL(
+            "INSERT INTO categorias_gasto (nombre, activa) VALUES ('Gasolina', 1)"
+        )
+        sqLiteDb.execSQL(
+            "INSERT INTO gastos (fechaHora, categoriaId, valor, descripcion) " +
+            "VALUES (2000, 1, 18000, 'Tanqueo')"
+        )
+        sqLiteDb.execSQL(
+            "INSERT INTO metas (tipoPeriodo, valorObjetivo, activa, createdAt) " +
+            "VALUES ('DIA', 50000, 1, 100)"
+        )
+        sqLiteDb.close()
+        helper.close()
+
+        // --- 2. Abrir con Room + MIGRATION_4_5 ---
+        val database = Room.databaseBuilder(
+            context, MiControlDatabase::class.java, dbName
+        )
+            .addMigrations(
+                MiControlDatabase.MIGRATION_1_2,
+                MiControlDatabase.MIGRATION_2_3,
+                MiControlDatabase.MIGRATION_3_4,
+                MiControlDatabase.MIGRATION_4_5
+            )
+            .build()
+
+        runBlocking {
+            // --- 3. Datos anteriores conservados ---
+            val viajes = database.viajeDao().obtenerTodos().first()
+            assertEquals(1, viajes.size)
+            assertEquals(15000L, viajes[0].valor)
+
+            val gastos = database.gastoDao().obtenerTodos().first()
+            assertEquals(1, gastos.size)
+            assertEquals(18000L, gastos[0].valor)
+
+            val metaActiva = database.metaDao().obtenerActiva().first()
+            assertTrue("Debe conservarse la meta activa", metaActiva != null)
+            assertEquals(50000L, metaActiva!!.valorObjetivo)
+
+            // --- 4. El perfil de trabajo queda sembrado ---
+            val perfil = database.perfilTrabajoDao().obtener(PerfilTrabajoEntity.ID_UNICO)
+            assertTrue("La migración debe sembrar el perfil de trabajo", perfil != null)
+            assertEquals("inDrive", perfil!!.plataforma)
+            assertEquals("TVS Raider 125 FI", perfil.vehiculo)
+            assertEquals("Extra", perfil.tipoCombustible)
+            assertEquals("1,2,3,4,5", perfil.diasLaborales)
+            assertEquals(360, perfil.horaInicioMinutos)
+            assertEquals(900, perfil.horaFinMinutos)
+            assertEquals(25, perfil.maxPorcentajeKmVacios)
+
+            // --- 5. El perfil se puede actualizar ---
+            database.perfilTrabajoDao().guardar(perfil.copy(ciudad = "Bogotá"))
+            val actualizado = database.perfilTrabajoDao().obtener(PerfilTrabajoEntity.ID_UNICO)
+            assertEquals("Bogotá", actualizado!!.ciudad)
         }
 
         database.close()

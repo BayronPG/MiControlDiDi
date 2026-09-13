@@ -10,9 +10,11 @@ import com.jhon.micontroldidi.data.local.dao.CategoriaGastoDao
 import com.jhon.micontroldidi.data.local.dao.GastoDao
 import com.jhon.micontroldidi.data.local.dao.ViajeDao
 import com.jhon.micontroldidi.data.local.dao.MetaDao
+import com.jhon.micontroldidi.data.local.dao.PerfilTrabajoDao
 import com.jhon.micontroldidi.data.local.entity.CategoriaGastoEntity
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.local.entity.MetaEntity
+import com.jhon.micontroldidi.data.local.entity.PerfilTrabajoEntity
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 
 @Database(
@@ -20,9 +22,10 @@ import com.jhon.micontroldidi.data.local.entity.ViajeEntity
         ViajeEntity::class,
         CategoriaGastoEntity::class,
         GastoEntity::class,
-        MetaEntity::class
+        MetaEntity::class,
+        PerfilTrabajoEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class MiControlDatabase : RoomDatabase() {
@@ -31,6 +34,7 @@ abstract class MiControlDatabase : RoomDatabase() {
     abstract fun categoriaGastoDao(): CategoriaGastoDao
     abstract fun gastoDao(): GastoDao
     abstract fun metaDao(): MetaDao
+    abstract fun perfilTrabajoDao(): PerfilTrabajoDao
 
     companion object {
         @Volatile
@@ -110,6 +114,84 @@ abstract class MiControlDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Inserta el perfil de trabajo por defecto (fila única) partiendo de los
+         * valores por defecto de [PerfilTrabajoEntity], de modo que la migración y
+         * la entidad no puedan quedar desincronizadas.
+         */
+        private fun sembrarPerfilPorDefecto(db: SupportSQLiteDatabase) {
+            val perfil = PerfilTrabajoEntity()
+            db.execSQL(
+                """INSERT OR REPLACE INTO `perfil_trabajo` (
+                    `id`, `plataforma`, `plataformasDisponibles`, `vehiculo`, `tipoCombustible`,
+                    `ciudad`, `diasLaborales`, `horaInicioMinutos`, `horaFinMinutos`,
+                    `maxPorcentajeKmVacios`, `costoAceite`, `intervaloAceiteKm`, `costoLlantas`,
+                    `intervaloLlantasKm`, `costoFrenos`, `intervaloFrenosKm`, `costoKitArrastre`,
+                    `intervaloKitArrastreKm`, `costoMantenimiento`, `intervaloMantenimientoKm`,
+                    `costoDepreciacion`, `intervaloDepreciacionKm`, `actualizadoEn`
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                arrayOf(
+                    perfil.id,
+                    perfil.plataforma,
+                    perfil.plataformasDisponibles,
+                    perfil.vehiculo,
+                    perfil.tipoCombustible,
+                    perfil.ciudad,
+                    perfil.diasLaborales,
+                    perfil.horaInicioMinutos,
+                    perfil.horaFinMinutos,
+                    perfil.maxPorcentajeKmVacios,
+                    perfil.costoAceite,
+                    perfil.intervaloAceiteKm,
+                    perfil.costoLlantas,
+                    perfil.intervaloLlantasKm,
+                    perfil.costoFrenos,
+                    perfil.intervaloFrenosKm,
+                    perfil.costoKitArrastre,
+                    perfil.intervaloKitArrastreKm,
+                    perfil.costoMantenimiento,
+                    perfil.intervaloMantenimientoKm,
+                    perfil.costoDepreciacion,
+                    perfil.intervaloDepreciacionKm,
+                    perfil.actualizadoEn
+                )
+            )
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS `perfil_trabajo` (
+                        `id` INTEGER NOT NULL,
+                        `plataforma` TEXT NOT NULL,
+                        `plataformasDisponibles` TEXT NOT NULL,
+                        `vehiculo` TEXT NOT NULL,
+                        `tipoCombustible` TEXT NOT NULL,
+                        `ciudad` TEXT NOT NULL,
+                        `diasLaborales` TEXT NOT NULL,
+                        `horaInicioMinutos` INTEGER NOT NULL,
+                        `horaFinMinutos` INTEGER NOT NULL,
+                        `maxPorcentajeKmVacios` INTEGER NOT NULL,
+                        `costoAceite` INTEGER NOT NULL,
+                        `intervaloAceiteKm` INTEGER NOT NULL,
+                        `costoLlantas` INTEGER NOT NULL,
+                        `intervaloLlantasKm` INTEGER NOT NULL,
+                        `costoFrenos` INTEGER NOT NULL,
+                        `intervaloFrenosKm` INTEGER NOT NULL,
+                        `costoKitArrastre` INTEGER NOT NULL,
+                        `intervaloKitArrastreKm` INTEGER NOT NULL,
+                        `costoMantenimiento` INTEGER NOT NULL,
+                        `intervaloMantenimientoKm` INTEGER NOT NULL,
+                        `costoDepreciacion` INTEGER NOT NULL,
+                        `intervaloDepreciacionKm` INTEGER NOT NULL,
+                        `actualizadoEn` INTEGER NOT NULL,
+                        PRIMARY KEY(`id`)
+                    )"""
+                )
+                sembrarPerfilPorDefecto(db)
+            }
+        }
+
     private val PREPOBLAR_CATEGORIAS = object : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
@@ -127,6 +209,7 @@ abstract class MiControlDatabase : RoomDatabase() {
                         arrayOf(nombre)
                     )
                 }
+                sembrarPerfilPorDefecto(db)
             }
         }
 
@@ -140,7 +223,7 @@ abstract class MiControlDatabase : RoomDatabase() {
                     MiControlDatabase::class.java,
                     "micontrol_didi.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .addCallback(PREPOBLAR_CATEGORIAS)
                     .build()
                 INSTANCIA = instancia

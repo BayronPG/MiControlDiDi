@@ -14,6 +14,7 @@ import com.jhon.micontroldidi.data.local.database.MiControlDatabase
 import com.jhon.micontroldidi.data.repository.CategoriaGastoRepository
 import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
+import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.navigation.AppNavGraph
 import com.jhon.micontroldidi.ui.theme.MiControlDiDiTheme
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
         val categoriaGastoRepository = CategoriaGastoRepository(database.categoriaGastoDao())
         val gastoRepository = GastoRepository(database.gastoDao())
         val metaRepository = MetaRepository(database.metaDao())
+        val perfilTrabajoRepository = PerfilTrabajoRepository(database.perfilTrabajoDao())
 
         val resourceProvider = ResourceProvider { resId -> resources.getString(resId) }
 
@@ -45,6 +47,7 @@ class MainActivity : ComponentActivity() {
                         gastoRepository = gastoRepository,
                         categoriaGastoRepository = categoriaGastoRepository,
                         metaRepository = metaRepository,
+                        perfilTrabajoRepository = perfilTrabajoRepository,
                         resourceProvider = resourceProvider
                     )
                 }

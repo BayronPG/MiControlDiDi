@@ -129,4 +129,52 @@
     <!-- Estadísticas -->
     <string name="stats_sin_datos">No hay datos estadísticos disponibles</string>
     <string name="stats_error">Error al cargar las estadísticas</string>
+
+    <!-- Perfil de trabajo -->
+    <string name="perfil_titulo">Perfil de trabajo</string>
+    <string name="perfil_configurar">Configurar perfil de trabajo</string>
+    <string name="perfil_descripcion">Plataforma, horario y costo real por kilómetro</string>
+    <string name="perfil_seccion_trabajo">Datos del trabajo</string>
+    <string name="perfil_seccion_horario">Horario</string>
+    <string name="perfil_seccion_reservas">Reserva por kilómetro</string>
+    <string name="perfil_reservas_ayuda">Costo y cada cuántos kilómetros. La reserva por km se calcula sola.</string>
+    <string name="perfil_plataforma">Plataforma principal</string>
+    <string name="perfil_plataformas_disponibles">Plataformas disponibles</string>
+    <string name="perfil_vehiculo">Vehículo</string>
+    <string name="perfil_tipo_combustible">Tipo de combustible</string>
+    <string name="perfil_ciudad">Ciudad</string>
+    <string name="perfil_dias_laborales">Días de trabajo</string>
+    <string name="perfil_hora_inicio">Hora de inicio (HH:mm)</string>
+    <string name="perfil_hora_fin">Hora de fin (HH:mm)</string>
+    <string name="perfil_max_km_vacios">Kilómetros vacíos máximo (%)</string>
+    <string name="perfil_costo">Costo</string>
+    <string name="perfil_intervalo_km">Cada (km)</string>
+    <string name="perfil_item_aceite">Aceite</string>
+    <string name="perfil_item_llantas">Llantas</string>
+    <string name="perfil_item_frenos">Frenos</string>
+    <string name="perfil_item_kit_arrastre">Kit de arrastre</string>
+    <string name="perfil_item_mantenimiento">Mantenimiento general</string>
+    <string name="perfil_item_depreciacion">Depreciación</string>
+    <string name="perfil_reserva_por_km">%1$s por km</string>
+    <string name="perfil_reserva_total">Reserva por kilómetro</string>
+    <string name="perfil_guardado">Perfil guardado</string>
+    <string name="perfil_dia_lun">Lun</string>
+    <string name="perfil_dia_mar">Mar</string>
+    <string name="perfil_dia_mie">Mié</string>
+    <string name="perfil_dia_jue">Jue</string>
+    <string name="perfil_dia_vie">Vie</string>
+    <string name="perfil_dia_sab">Sáb</string>
+    <string name="perfil_dia_dom">Dom</string>
+
+    <!-- Validación del perfil de trabajo -->
+    <string name="error_perfil_plataforma_obligatoria">Indica la plataforma principal</string>
+    <string name="error_perfil_vehiculo_obligatorio">Indica el vehículo</string>
+    <string name="error_perfil_ciudad_obligatoria">Indica la ciudad</string>
+    <string name="error_perfil_dias_obligatorios">Selecciona al menos un día de trabajo</string>
+    <string name="error_perfil_hora_formato">Usa el formato HH:mm</string>
+    <string name="error_perfil_horas_invertidas">La hora de inicio debe ser anterior a la de fin</string>
+    <string name="error_perfil_porcentaje_rango">El porcentaje debe estar entre 0 y 100</string>
+    <string name="error_perfil_intervalo_cero">Indica cada cuántos kilómetros</string>
+    <string name="error_guardar_perfil">No se pudo guardar el perfil. Inténtalo de nuevo.</string>
+    <string name="error_cargar_perfil">No se pudo cargar el perfil. Inténtalo de nuevo.</string>
 </resources>

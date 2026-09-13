@@ -25,7 +25,8 @@ import com.jhon.micontroldidi.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onNavegarAConfigurarMeta: () -> Unit = {}
+    onNavegarAConfigurarMeta: () -> Unit = {},
+    onNavegarAConfigurarPerfil: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -58,6 +59,30 @@ fun SettingsScreen(
                     .testTag("boton_ir_a_meta")
             ) {
                 Text(stringResource(R.string.meta_configurar))
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                text = stringResource(R.string.perfil_titulo),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Text(
+                text = stringResource(R.string.perfil_descripcion),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            Button(
+                onClick = onNavegarAConfigurarPerfil,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("boton_ir_a_perfil")
+            ) {
+                Text(stringResource(R.string.perfil_configurar))
             }
 
             Spacer(Modifier.height(24.dp))

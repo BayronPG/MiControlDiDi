@@ -25,7 +25,17 @@ class FakeResourceProvider : ResourceProvider {
         com.jhon.micontroldidi.R.string.gastos_sin_resultados to "No hay gastos en el rango seleccionado",
         com.jhon.micontroldidi.R.string.gastos_error_carga to "Error al cargar los gastos",
         com.jhon.micontroldidi.R.string.dashboard_error to "Error al cargar los datos del dashboard",
-        com.jhon.micontroldidi.R.string.stats_error to "Error al cargar las estadísticas"
+        com.jhon.micontroldidi.R.string.stats_error to "Error al cargar las estadísticas",
+        com.jhon.micontroldidi.R.string.error_perfil_plataforma_obligatoria to "Indica la plataforma principal",
+        com.jhon.micontroldidi.R.string.error_perfil_vehiculo_obligatorio to "Indica el vehículo",
+        com.jhon.micontroldidi.R.string.error_perfil_ciudad_obligatoria to "Indica la ciudad",
+        com.jhon.micontroldidi.R.string.error_perfil_dias_obligatorios to "Selecciona al menos un día de trabajo",
+        com.jhon.micontroldidi.R.string.error_perfil_hora_formato to "Usa el formato HH:mm",
+        com.jhon.micontroldidi.R.string.error_perfil_horas_invertidas to "La hora de inicio debe ser anterior a la de fin",
+        com.jhon.micontroldidi.R.string.error_perfil_porcentaje_rango to "El porcentaje debe estar entre 0 y 100",
+        com.jhon.micontroldidi.R.string.error_perfil_intervalo_cero to "Indica cada cuántos kilómetros",
+        com.jhon.micontroldidi.R.string.error_guardar_perfil to "No se pudo guardar el perfil. Inténtalo de nuevo.",
+        com.jhon.micontroldidi.R.string.error_cargar_perfil to "No se pudo cargar el perfil. Inténtalo de nuevo."
     )
 
     override fun getString(resId: Int): String {
