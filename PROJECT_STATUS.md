@@ -1,7 +1,7 @@
 # Estado del proyecto MiControlDiDi
 
-> Actualizado: 12-sep-2026 — Incremento A del control diario cerrado (documentación únicamente: auditoría + ADR-001; sin cambios de código).
-> Estado funcional vigente: 16-ago-2026 — Fase 8 cerrada: APK demo regenerado con el código vigente; 322/322 pruebas; push a origin/main completado.
+> Actualizado: 13-sep-2026 — Incremento C del control diario cerrado (horario laboral; dominio puro; 272/272 unitarias).
+> Estado funcional anterior: 16-ago-2026 — Fase 8 cerrada (MVP): 322/322 pruebas; APK demo regenerado; push a origin/main completado.
 
 ---
 
@@ -196,9 +196,9 @@ class Factory(
 
 | Tipo | Cantidad | Estado |
 |------|---:|---:|
-| Unitarias | **194** | 194/194 (0 fallos) |
-| Instrumentadas | **128** | 128/128 en ALT-LX3 (0 fallos) — incluye PersistenciaTest (8.4) y migración v3→v4 |
-| **Total** | **322** | 0 fallos |
+| Unitarias | **272** | 272/272 (0 fallos) — 194 del MVP + 49 del Incremento B + 29 del Incremento C |
+| Instrumentadas | **128** | Última corrida: 128/128 en ALT-LX3 (16-ago-2026). **Pendientes de re-ejecutar** por el cambio de esquema v4→v5 |
+| **Total** | **371** | 243/243 unitarias verdes; instrumentadas pendientes de re-ejecución |
 
 > **Nota (25-jul-2026):**
 >
@@ -561,7 +561,7 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 - [x] **Fase 6: Filtros, metas, dashboard y estadísticas — Completada ✅**
 - [x] Fase 7: Preferencias (tema claro/oscuro) — **Retirada del alcance por decisión de producto. Se eliminó la funcionalidad de selección de tema y la aplicación conserva únicamente el esquema claro.**
 - [x] **Fase 8: Calidad y cierre del MVP — Cerrada el 16-ago-2026 ✅** (322/322 pruebas; APK demo regenerado; push a origin/main; verificación manual descartada por decisión del usuario).
-- [ ] **Control diario del trabajo — Incremento A ✅ completado (documentación); incrementos B–K ⛔ no autorizados** (ver sección siguiente).
+- [x] **Control diario del trabajo — Incremento A ✅ (documentación), B ✅ (perfil de trabajo) y C ✅ (horario laboral, dominio); instrumentadas pendientes en ALT-LX3; incrementos D–K ⛔ no autorizados** (ver secciones siguientes).
 
 ---
 
@@ -592,8 +592,8 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 | # | Incremento | Migración | Estado |
 |---|---|---|---|
 | A | Auditoría documentada + ADR | — | ✅ Completado |
-| B | Perfil de trabajo | v4→v5 | ⛔ No autorizado |
-| C | Horario laboral (dominio) | — | ⛔ No autorizado |
+| B | Perfil de trabajo | v4→v5 | ✅ Implementado (13-sep-2026) |
+| C | Horario laboral (dominio) | — | ✅ Implementado (13-sep-2026) |
 | D | Registro de jornada + checklist | v5→v6 | ⛔ No autorizado |
 | E | Viaje adaptado a plataforma | v6→v7 | ⛔ No autorizado |
 | F | Gasolina extra / tanqueos | v7→v8 | ⛔ No autorizado |
@@ -612,4 +612,96 @@ Se auditaron los formularios de Viaje, Gasto y Meta y se corrigieron 4 problemas
 | Versión de la base de datos | Sin cambios (v4) |
 | Batería de pruebas | No ejecutada: no hubo cambios de código (estado vigente 322/322) |
 
-> **Estado:** A cerrado y a la espera de revisión. **Ningún incremento posterior está autorizado.**
+> **Estado:** A cerrado. El incremento B fue autorizado y cerrado después (ver «Incremento B — Perfil de trabajo»). **Ningún incremento posterior a B está autorizado.**
+
+---
+
+## Incremento B — Perfil de trabajo (13-sep-2026)
+
+**Naturaleza del incremento: código funcional.** Base de datos **v4 → v5** con migración explícita. Sin dependencias nuevas, sin GPS, sin notificaciones y sin red.
+
+### Implementado
+
+- **`PerfilTrabajoEntity`** (tabla `perfil_trabajo`, fila única con `id = 1`): plataforma principal, plataformas disponibles, vehículo, tipo de combustible, ciudad, días laborales (CSV con numeración ISO 1–7), hora de inicio y de fin en minutos desde la medianoche, porcentaje máximo de kilómetros vacíos y, para cada uno de los seis mantenimientos, su costo y su intervalo en kilómetros.
+- **Reserva por kilómetro calculada, no persistida** (ADR-001 D-16): `reservaPorKm = costo ÷ intervalo`, con el total de los seis mantenimientos como propiedad derivada. Los intervalos se guardan en kilómetros (`Long`), coherente con D-14.
+- **`PerfilTrabajoDao`**: observar, obtener y guardar (upsert con `REPLACE`), siempre sobre la fila única.
+- **`PerfilTrabajoRepository`** con validaciones: plataforma, vehículo y ciudad obligatorios; al menos un día laboral; horas dentro del día y con inicio anterior al fin; porcentaje entre 0 y 100; costos no negativos y, si hay costo, intervalo mayor que cero. El guardado fuerza el id único.
+- **`PerfilTrabajoViewModel`** con `Clock` inyectable (patrón del proyecto): carga el perfil —o los valores por defecto si todavía no existe fila—, valida el formulario en cada edición, guarda y expone `reservaTotalPorKm`.
+- **`ConfigurarPerfilScreen`** con secciones de datos del trabajo, horario (chips de días), umbral de kilómetros vacíos y reservas; accesible desde **Configuración** mediante la nueva ruta `configurar_perfil`.
+- **Migración `MIGRATION_4_5`**: crea `perfil_trabajo` y siembra el perfil por defecto partiendo de los valores por defecto de la entidad, de modo que migración y entidad no puedan desincronizarse. El callback de creación hace lo mismo en instalaciones nuevas.
+- **`strings.xml`**: 44 cadenas nuevas (etiquetas, secciones, días y mensajes de validación). Sin textos visibles hardcodeados.
+
+### Decisiones del incremento
+
+- La **meta diaria no se duplica**: sigue viviendo en la tabla `metas` del MVP.
+- **Costos e intervalos** son datos de entrada; la reserva por kilómetro y su total son derivados y no se persisten.
+- El perfil se siembra con los valores del ADR-001 (inDrive, TVS Raider 125 FI, gasolina extra, Medellín, lunes a viernes de 06:00 a 15:00, umbral 25 %); el usuario puede editarlos.
+- Se añadió una **pantalla propia** (`ConfigurarPerfilScreen`) en lugar de incrustar el formulario en Configuración, siguiendo el patrón ya existente de «Configurar meta».
+
+### Validación
+
+| Verificación | Resultado |
+|---|---|
+| `assembleDebug` | ✅ BUILD SUCCESSFUL — `app-debug.apk` regenerado |
+| `testDebugUnitTest` | ✅ **243/243, 0 fallos, 0 omitidas** (194 previas + 49 nuevas) |
+| Pruebas nuevas | `PerfilTrabajoEntityTest` (13), `PerfilTrabajoRepositoryTest` (18), `PerfilTrabajoViewModelTest` (18) |
+| `MigracionTest` | Ampliado: nueva prueba **v4→v5** y `MIGRATION_4_5` añadida a las tres pruebas existentes |
+| `PersistenciaTest` | Actualizado con `MIGRATION_4_5` (mantiene la paridad con la configuración real de la app) |
+| `connectedDebugAndroidTest` en ALT-LX3 | ⏳ **Pendiente**: no había dispositivo conectado al cerrar el incremento |
+
+### Incidencia encontrada y corregida durante el incremento
+
+La primera corrida de `testDebugUnitTest` falló con **1 prueba de 243**: una aserción mal escrita en `PerfilTrabajoViewModelTest` (se esperaba el intervalo de mantenimiento como reserva por kilómetro). Se corrigió la prueba —no el código de producción— y la corrida siguiente quedó **243/243**. No se desactivó ni omitió ninguna prueba.
+
+> **Pendiente de validación en dispositivo:** las pruebas instrumentadas —incluida la migración v4→v5— no se ejecutaron por falta de dispositivo. La migración es el cambio de mayor riesgo del incremento y debe validarse en **ALT-LX3** antes de darlo por cerrado funcionalmente.
+
+---
+
+## Incremento C — Horario laboral (13-sep-2026)
+
+**Naturaleza del incremento: dominio puro.** Sin cambios en la base de datos, sin pantallas nuevas y sin dependencias. Prepara el cálculo que consumirán la jornada (incremento D), los recordatorios internos (H) y el dashboard (I).
+
+### Implementado
+
+- **`BloqueJornada`** (`domain/`): los ocho bloques del horario con su tipo (trabajo o pausa) y su duración — principal 150 min, primera pausa 15, segundo bloque 135, snack y revisión 15, bloque selectivo 75, almuerzo 30, bloque final 90 y regreso productivo 30. Total **540 minutos**: 480 de trabajo y 60 de pausa.
+- **`EstadoHorarioLaboral`** (`domain/`): bloque actual, hora de fin del bloque, siguiente pausa, progreso (0–100), minutos conectado, minutos en pausa, minutos restantes, modo regreso y advertencia de finalización.
+- **`CalculadorHorarioLaboral`** (`domain/`): función pura que, dada la hora actual y el horario del perfil, devuelve el estado. Los bloques se **anclan a la hora de inicio del perfil**, así que todo el horario se desplaza cuando el conductor cambia su hora de inicio; los rangos son semiabiertos y una jornada más corta recorta los últimos bloques.
+- **La jornada nunca se cierra sola** (requisito de la FASE 3): el calculador solo informa. El modo regreso se activa durante el bloque de regreso productivo (14:30–15:00 por defecto) y la advertencia de finalización desde la hora de fin.
+
+### Decisiones del incremento
+
+- Los bloques **no se guardan en la base de datos**: son reglas del dominio ancladas al horario del perfil, así que cambiar la hora de inicio no exige migración.
+- El calculador recibe `LocalTime` y devuelve un estado inmutable: no depende de Android, de Room ni del reloj, y por eso es directo de probar.
+- La hora del dispositivo se usará en el incremento que consuma el calculador, con `Clock` inyectable como ya hace el Dashboard.
+
+### Validación
+
+| Verificación | Resultado |
+|---|---|
+| `assembleDebug` | ✅ BUILD SUCCESSFUL — `app-debug.apk` regenerado |
+| `testDebugUnitTest` | ✅ **272/272, 0 fallos, 0 omitidas** (243 previas + 29 nuevas) |
+| Pruebas nuevas | `CalculadorHorarioLaboralTest` (29 pruebas) |
+| Cambios en la base de datos | Ninguno (sigue en v5) |
+| `connectedDebugAndroidTest` en ALT-LX3 | ⏳ Pendiente (sin dispositivo conectado) |
+
+### Incidencia encontrada y corregida durante el incremento
+
+La primera corrida falló **4 pruebas de 272**: cuatro expectativas mal sumadas en las propias pruebas (minutos de trabajo acumulados a las 11:15, 12:30, 13:00 y 14:30). Se verificó contra el reporte que el calculador devolvía los valores correctos (285, 360, 360 y 450) y se corrigieron **las pruebas**, no el código. Corrida siguiente: **272/272**. No se desactivó ni omitió ninguna prueba.
+
+### Cobertura de la FASE 3
+
+| Requisito | Estado |
+|---|---|
+| Bloque actual | ✅ `bloqueActual` |
+| Hora de finalización del bloque | ✅ `finBloque` |
+| Siguiente pausa | ✅ `proximaPausa` (se salta la pausa en curso) |
+| Progreso de la jornada | ✅ `progresoPorcentaje` (0–100) |
+| Tiempo conectado | ✅ `minutosConectado` (480 al completar el horario) |
+| Tiempo en pausa | ✅ `minutosEnPausa` (60 al completar el horario) |
+| Tiempo restante | ✅ `minutosRestantes` |
+| Mensaje de modo regreso desde 2:30 p. m. | ✅ `modoRegreso` |
+| Advertencia de finalización a las 3:00 p. m. | ✅ `advertenciaFinalizacion` |
+| No obligar a finalizar la jornada | ✅ solo informa; no existe ninguna acción de cierre |
+| Mostrarlo en la interfaz | ⏳ Pendiente: llega con la jornada (D) y el dashboard (I) |
+
+> **Pendiente de validación en dispositivo:** las pruebas instrumentadas siguen sin ejecutarse por falta de dispositivo. Cubren la migración v4→v5 del incremento B, el cambio de mayor riesgo pendiente de validar en **ALT-LX3**.

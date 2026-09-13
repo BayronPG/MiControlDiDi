@@ -429,14 +429,14 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 
 ## Fase 9 — Control diario del trabajo (propuesta — NO autorizada)
 
-> **Estado global: ⛔ no autorizada.** Solo el **Incremento A** fue autorizado y completado (documentación). Los incrementos B–K requieren autorización explícita e individual.
+> **Estado global: ⛔ no autorizada (parcial).** Autorizados y cerrados: **Incremento A** (documentación), **Incremento B** (perfil de trabajo) e **Incremento C** (horario laboral). Los incrementos D–K requieren autorización explícita e individual.
 > Documentos de referencia: `docs/AUDITORIA_CONTROL_DIARIO.md` y `docs/ADR-001-control-diario.md`.
 
 | # | Incremento | Prioridad | Dependencias | Migración | Estado |
 |---|---|---|---|---|---|
 | 9.A | Auditoría del control diario + ADR de arquitectura | [H] | — | — | ✅ Completado (12-sep-2026) |
-| 9.B | Perfil de trabajo editable (plataforma, vehículo, combustible, ciudad, horario, umbrales, reservas por km) | [H] | 9.A | v4→v5 | ⛔ No autorizado |
-| 9.C | Horario laboral: bloques, pausas, progreso y modo regreso (dominio puro) | [H] | 9.B | — | ⛔ No autorizado |
+| 9.B | Perfil de trabajo editable (plataforma, vehículo, combustible, ciudad, horario, umbrales, reservas por km) | [H] | 9.A | v4→v5 | ✅ Implementado (13-sep-2026) — unitarias verdes; instrumentadas pendientes en ALT-LX3 |
+| 9.C | Horario laboral: bloques, pausas, progreso y modo regreso (dominio puro) | [H] | 9.B | — | ✅ Implementado (13-sep-2026) — 29 pruebas nuevas |
 | 9.D | Registro de jornada + checklist de 12 puntos de seguridad | [H] | 9.B, 9.C | v5→v6 | ⛔ No autorizado |
 | 9.E | Viaje adaptado a plataforma (precios, distancias, zonas, forma de pago, peajes) | [H] | 9.B | v6→v7 | ⛔ No autorizado |
 | 9.F | Gasolina extra: tanqueos con enlace a gasto de categoría Gasolina | [H] | 9.B, 9.E | v7→v8 | ⛔ No autorizado |
@@ -456,6 +456,35 @@ Los siguientes elementos **no forman parte de la Fase 5** y permanecen pendiente
 - ✅ Riesgos técnicos identificados con mitigación.
 - ✅ Sin cambios en código funcional, Gradle, Room, pruebas ni APK; sin migraciones nuevas.
 - ✅ `PROJECT_STATUS.md` y `TASKS.md` actualizados (solo documentación).
+
+### Criterios de aceptación — Incremento B (9.B)
+
+- ✅ Entidad `perfil_trabajo` de fila única (id = 1) con plataforma, vehículo, combustible, ciudad, días, horario, umbral y reservas por km.
+- ✅ Migración explícita v4→v5 que crea la tabla y siembra el perfil por defecto; sin `destructiveMigration`.
+- ✅ DAO, repositorio con validaciones y ViewModel con `Clock` inyectable.
+- ✅ La reserva por kilómetro se calcula; no se persiste (ADR-001 D-16).
+- ✅ Pantalla de configuración accesible desde Configuración (ruta `configurar_perfil`).
+- ✅ Días laborales y horas validadas; mensajes de error en recursos de strings.
+- ✅ `assembleDebug` BUILD SUCCESSFUL.
+- ✅ `testDebugUnitTest` **243/243, 0 fallos** (49 pruebas nuevas).
+- ✅ `MigracionTest` ampliado con la prueba v4→v5; `PersistenciaTest` actualizado.
+- ⏳ `connectedDebugAndroidTest` en ALT-LX3 **pendiente**: no había dispositivo conectado.
+- ✅ `PROJECT_STATUS.md` y `TASKS.md` actualizados.
+- ✅ Sin dependencias nuevas, sin GPS, sin notificaciones y sin permisos nuevos.
+
+### Criterios de aceptación — Incremento C (9.C)
+
+- ✅ Los ocho bloques del horario con sus duraciones (540 min: 480 de trabajo y 60 de pausa).
+- ✅ Bloques anclados a la hora de inicio del perfil (el horario se desplaza con ella).
+- ✅ Rangos semiabiertos y recorte correcto cuando la jornada es más corta que la suma de bloques.
+- ✅ Bloque actual, fin del bloque, siguiente pausa, progreso, tiempo conectado, tiempo en pausa y tiempo restante.
+- ✅ Modo regreso activo durante el bloque de regreso productivo.
+- ✅ Advertencia de finalización desde la hora de fin, **sin cerrar la jornada automáticamente**.
+- ✅ Sin divisiones por cero (jornada de duración cero) ni valores fuera de rango.
+- ✅ `assembleDebug` BUILD SUCCESSFUL.
+- ✅ `testDebugUnitTest` **272/272, 0 fallos** (29 pruebas nuevas de horario).
+- ✅ Sin cambios en la base de datos (sigue en v5) y sin dependencias nuevas.
+- ⏳ Mostrar el estado en la interfaz: corresponde a los incrementos D (jornada) e I (dashboard).
 
 ### Criterios de aceptación — Fase 9 (pendientes de implementación)
 
