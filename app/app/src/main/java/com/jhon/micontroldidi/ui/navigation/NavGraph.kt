@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -88,7 +90,7 @@ private val bottomNavItems = listOf(
         ruta = Rutas.DASHBOARD,
         labelRes = R.string.dashboard_titulo,
         labelCortoRes = R.string.nav_inicio,
-        icon = Icons.AutoMirrored.Filled.List,
+        icon = Icons.Filled.Home,
         testTag = "navegacion_dashboard"
     ),
     BottomNavItem(
@@ -102,7 +104,7 @@ private val bottomNavItems = listOf(
         ruta = Rutas.LISTA_GASTOS,
         labelRes = R.string.gastos,
         labelCortoRes = R.string.nav_gastos,
-        icon = Icons.AutoMirrored.Filled.List,
+        icon = Icons.Filled.ShoppingCart,
         testTag = "navegacion_gastos"
     ),
     BottomNavItem(
