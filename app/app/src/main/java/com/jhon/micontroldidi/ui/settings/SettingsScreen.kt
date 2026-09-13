@@ -27,7 +27,8 @@ import com.jhon.micontroldidi.R
 fun SettingsScreen(
     onNavegarAConfigurarMeta: () -> Unit = {},
     onNavegarAConfigurarPerfil: () -> Unit = {},
-    onNavegarARegistrarJornada: () -> Unit = {}
+    onNavegarARegistrarJornada: () -> Unit = {},
+    onNavegarATanqueos: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -108,6 +109,17 @@ fun SettingsScreen(
                     .testTag("boton_ir_a_jornada")
             ) {
                 Text(stringResource(R.string.jornada_confirmar_guardar))
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            Button(
+                onClick = onNavegarATanqueos,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("boton_ir_a_tanqueos")
+            ) {
+                Text(stringResource(R.string.configurar_tanqueos))
             }
 
             Spacer(Modifier.height(24.dp))

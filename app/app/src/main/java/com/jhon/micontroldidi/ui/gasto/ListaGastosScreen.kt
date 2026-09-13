@@ -455,8 +455,17 @@ private fun GastoCard(
                     .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.End
             ) {
+                if (gasto.esTanqueo) {
+                    Text(
+                        text = stringResource(R.string.gasto_de_tanqueo),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.testTag("gasto_de_tanqueo_${gasto.id}")
+                    )
+                }
                 IconButton(
                     onClick = onEditar,
+                    enabled = !gasto.esTanqueo,
                     modifier = Modifier.testTag("boton_editar_gasto_${gasto.id}")
                 ) {
                     Icon(
@@ -467,6 +476,7 @@ private fun GastoCard(
                 }
                 IconButton(
                     onClick = onEliminar,
+                    enabled = !gasto.esTanqueo,
                     modifier = Modifier.testTag("boton_eliminar_gasto_${gasto.id}")
                 ) {
                     Icon(

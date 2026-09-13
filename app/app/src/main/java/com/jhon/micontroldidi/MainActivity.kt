@@ -16,6 +16,7 @@ import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.JornadaRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
+import com.jhon.micontroldidi.data.repository.TanqueoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.navigation.AppNavGraph
 import com.jhon.micontroldidi.ui.theme.MiControlDiDiTheme
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
         val metaRepository = MetaRepository(database.metaDao())
         val perfilTrabajoRepository = PerfilTrabajoRepository(database.perfilTrabajoDao())
         val jornadaRepository = JornadaRepository(database.jornadaDao())
+val tanqueoRepository = TanqueoRepository(database.tanqueoDao(), database.categoriaGastoDao())
 
         val resourceProvider = ResourceProvider { resId -> resources.getString(resId) }
 
@@ -51,6 +53,7 @@ class MainActivity : ComponentActivity() {
                         metaRepository = metaRepository,
                         perfilTrabajoRepository = perfilTrabajoRepository,
                         jornadaRepository = jornadaRepository,
+        tanqueoRepository = tanqueoRepository,
                         resourceProvider = resourceProvider
                     )
                 }

@@ -173,6 +173,61 @@ fun RegistrarJornadaScreen(
 
             Spacer(Modifier.height(16.dp))
 
+            val jornadaAbierta = state.jornadaDeHoy?.takeIf { !it.cerrada }
+            if (jornadaAbierta != null) {
+                Spacer(Modifier.height(24.dp))
+
+                Text(
+                    text = stringResource(R.string.cerrar_jornada_titulo),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.testTag("seccion_cerrar_jornada")
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.cerrar_jornada_descripcion),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = state.odometroFinalText,
+                    onValueChange = { viewModel.actualizarOdometroFinal(it) },
+                    label = { Text(stringResource(R.string.odometro_final_jornada)) },
+                    isError = state.errorOdometroFinal != null,
+                    supportingText = state.errorOdometroFinal?.let { error ->
+                        { Text(text = error) }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("campo_odometro_final_jornada")
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Button(
+                    onClick = { viewModel.cerrarJornada() },
+                    enabled = !state.cerrando,
+                    modifier = Modifier.fillMaxWidth().testTag("boton_cerrar_jornada")
+                ) {
+                    Text(stringResource(R.string.cerrar_jornada))
+                }
+
+                if (state.errorCierre != null) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = state.errorCierre!!,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.testTag("error_cierre_jornada")
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+            }
+
             if (state.mensajeError != null) {
                 Text(
                     text = state.mensajeError!!,

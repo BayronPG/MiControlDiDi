@@ -34,6 +34,7 @@ import com.jhon.micontroldidi.data.repository.GastoRepository
 import com.jhon.micontroldidi.data.repository.JornadaRepository
 import com.jhon.micontroldidi.data.repository.MetaRepository
 import com.jhon.micontroldidi.data.repository.PerfilTrabajoRepository
+import com.jhon.micontroldidi.data.repository.TanqueoRepository
 import com.jhon.micontroldidi.data.repository.ViajeRepository
 import com.jhon.micontroldidi.ui.dashboard.DashboardScreen
 import com.jhon.micontroldidi.ui.dashboard.DashboardViewModel
@@ -49,6 +50,9 @@ import com.jhon.micontroldidi.ui.settings.PerfilTrabajoViewModel
 import com.jhon.micontroldidi.ui.settings.SettingsScreen
 import com.jhon.micontroldidi.ui.stats.StatsScreen
 import com.jhon.micontroldidi.ui.stats.StatsViewModel
+import com.jhon.micontroldidi.ui.tanqueo.ListaTanqueosScreen
+import com.jhon.micontroldidi.ui.tanqueo.RegistrarTanqueoScreen
+import com.jhon.micontroldidi.ui.tanqueo.TanqueoViewModel
 import com.jhon.micontroldidi.ui.viaje.ListaViajesScreen
 import com.jhon.micontroldidi.ui.viaje.RegistrarViajeScreen
 import com.jhon.micontroldidi.ui.viaje.ViajeViewModel
@@ -65,6 +69,9 @@ object Rutas {
     const val CONFIGURAR_META = "configurar_meta"
     const val CONFIGURAR_PERFIL = "configurar_perfil"
     const val REGISTRAR_JORNADA = "registrar_jornada"
+    const val LISTA_TANQUEOS = "lista_tanqueos"
+    const val REGISTRAR_TANQUEO = "registrar_tanqueo"
+    const val REGISTRAR_TANQUEO_CON_ID = "registrar_tanqueo/{tanqueoId}"
     const val ESTADISTICAS = "estadisticas"
     const val CONFIGURACION = "configuracion"
 }
@@ -138,6 +145,7 @@ fun AppNavGraph(
     metaRepository: MetaRepository,
     perfilTrabajoRepository: PerfilTrabajoRepository,
     jornadaRepository: JornadaRepository,
+    tanqueoRepository: TanqueoRepository,
     resourceProvider: ResourceProvider
 ) {
     val viajeViewModel: ViajeViewModel = viewModel(
@@ -165,6 +173,13 @@ fun AppNavGraph(
     val jornadaViewModel: JornadaViewModel = viewModel(
         factory = JornadaViewModel.Factory(
             jornadaRepository,
+            perfilTrabajoRepository,
+            resourceProvider
+        )
+    )
+    val tanqueoViewModel: TanqueoViewModel = viewModel(
+        factory = TanqueoViewModel.Factory(
+            tanqueoRepository,
             perfilTrabajoRepository,
             resourceProvider
         )
@@ -335,6 +350,9 @@ fun AppNavGraph(
                     },
                     onNavegarARegistrarJornada = {
                         navController.navigate(Rutas.REGISTRAR_JORNADA)
+                    },
+                    onNavegarATanqueos = {
+                        navController.navigate(Rutas.LISTA_TANQUEOS)
                     }
                 )
             }
@@ -354,6 +372,41 @@ fun AppNavGraph(
                     onNavegarAtras = {
                         navController.popBackStack()
                     }
+                )
+            }
+
+            composable(Rutas.LISTA_TANQUEOS) {
+                ListaTanqueosScreen(
+                    viewModel = tanqueoViewModel,
+                    onNavegarARegistrar = {
+                        navController.navigate(Rutas.REGISTRAR_TANQUEO)
+                    },
+                    onNavegarAEditar = { tanqueoId ->
+                        navController.navigate("registrar_tanqueo/$tanqueoId")
+                    }
+                )
+            }
+
+            composable(Rutas.REGISTRAR_TANQUEO) {
+                RegistrarTanqueoScreen(
+                    viewModel = tanqueoViewModel,
+                    onGuardadoExitoso = { navController.popBackStack() },
+                    onCancelar = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = Rutas.REGISTRAR_TANQUEO_CON_ID,
+                arguments = listOf(
+                    navArgument("tanqueoId") { type = NavType.LongType; defaultValue = -1L }
+                )
+            ) { backStackEntry ->
+                val tanqueoId = backStackEntry.arguments?.getLong("tanqueoId") ?: -1L
+                RegistrarTanqueoScreen(
+                    viewModel = tanqueoViewModel,
+                    tanqueoId = if (tanqueoId > 0) tanqueoId else null,
+                    onGuardadoExitoso = { navController.popBackStack() },
+                    onCancelar = { navController.popBackStack() }
                 )
             }
 

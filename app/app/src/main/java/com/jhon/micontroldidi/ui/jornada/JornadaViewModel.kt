@@ -134,6 +134,71 @@ class JornadaViewModel(
         }
     }
 
+    /** Odómetro final digitado por el conductor para cerrar la jornada de hoy. */
+    fun actualizarOdometroFinal(texto: String) {
+        _uiState.value = _uiState.value.copy(
+            odometroFinalText = texto,
+            errorOdometroFinal = null,
+            errorCierre = null
+        )
+    }
+
+    /**
+     * Cierra la jornada de hoy con la hora actual y el odómetro final.
+     * Rechaza cerrar dos veces y un odómetro final menor que el inicial.
+     */
+    fun cerrarJornada() {
+        val estado = _uiState.value
+        val jornada = estado.jornadaDeHoy ?: return
+        if (estado.cerrando) return
+
+        if (jornada.cerrada) {
+            _uiState.value = estado.copy(
+                errorCierre = resourceProvider.getString(R.string.error_jornada_ya_cerrada)
+            )
+            return
+        }
+
+        val kmFinal = estado.odometroFinalText.toLongOrNull()
+        if (kmFinal == null || kmFinal < 0L) {
+            _uiState.value = estado.copy(
+                errorOdometroFinal = resourceProvider.getString(R.string.error_valor_obligatorio)
+            )
+            return
+        }
+
+        val kmFinalMetros = kmFinal * JornadaEntity.METROS_POR_KM
+        if (kmFinalMetros < jornada.kilometrajeInicialMetros) {
+            _uiState.value = estado.copy(
+                errorOdometroFinal =
+                resourceProvider.getString(R.string.error_jornada_odometro_final)
+            )
+            return
+        }
+
+        _uiState.value = estado.copy(
+            cerrando = true,
+            errorCierre = null,
+            errorOdometroFinal = null
+        )
+
+        viewModelScope.launch {
+            val resultado = jornadaRepository.cerrar(jornada.id, clock.millis(), kmFinalMetros)
+            _uiState.value = if (resultado.isSuccess) {
+                _uiState.value.copy(
+                    cerrando = false,
+                    cierreExitoso = true,
+                    odometroFinalText = ""
+                )
+            } else {
+                _uiState.value.copy(
+                    cerrando = false,
+                    errorCierre = resourceProvider.getString(R.string.error_cerrar_jornada)
+                )
+            }
+        }
+    }
+
     fun limpiarEstadoTransitorio() {
         _uiState.value = _uiState.value.copy(guardadoExitoso = false)
     }

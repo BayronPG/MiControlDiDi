@@ -35,6 +35,12 @@ data class JornadaUiState(
     val jornadaDeHoy: JornadaEntity? = null,
     val guardando: Boolean = false,
     val guardadoExitoso: Boolean = false,
+    /** Odómetro final digitado para cerrar la jornada de hoy. */
+    val odometroFinalText: String = "",
+    val errorOdometroFinal: String? = null,
+    val errorCierre: String? = null,
+    val cerrando: Boolean = false,
+    val cierreExitoso: Boolean = false,
     val mensajeError: String? = null
 ) {
 

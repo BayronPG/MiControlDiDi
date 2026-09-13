@@ -4,6 +4,7 @@ import com.jhon.micontroldidi.data.local.dao.CategoriaGastoDao
 import com.jhon.micontroldidi.data.local.dao.TanqueoDao
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.local.entity.TanqueoEntity
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -29,7 +30,9 @@ class TanqueoRepository(
             validarTanqueo(tanqueo)
             val categoriaId = resolverCategoriaGasolina()
             Result.success(tanqueoDao.crear(tanqueo, gastoDe(tanqueo, categoriaId)))
-        } catch (e: IllegalArgumentException) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
@@ -46,7 +49,9 @@ class TanqueoRepository(
             } else {
                 Result.success(Unit)
             }
-        } catch (e: IllegalArgumentException) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
@@ -59,6 +64,8 @@ class TanqueoRepository(
             } else {
                 Result.success(Unit)
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }

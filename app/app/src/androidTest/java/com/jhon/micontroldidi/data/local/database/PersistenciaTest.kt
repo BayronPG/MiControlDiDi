@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jhon.micontroldidi.data.local.entity.GastoEntity
 import com.jhon.micontroldidi.data.local.entity.MetaEntity
+import com.jhon.micontroldidi.data.local.entity.TanqueoEntity
 import com.jhon.micontroldidi.data.local.entity.ViajeEntity
 import com.jhon.micontroldidi.domain.FormaPago
 import kotlinx.coroutines.flow.first
@@ -208,6 +209,54 @@ class PersistenciaTest {
 
         val totalIngresos = database.viajeDao().obtenerIngresosPorRango(0L, 9999L).first()
         assertEquals("Los ingresos por rango deben reflejar los datos persistidos", 25000L, totalIngresos)
+
+        database.close()
+    }
+
+    @Test
+    fun cerrarYReabrir_conservaTanqueoYGastoVinculado() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.deleteDatabase(dbName)
+
+        // --- 1. Primera instancia: tanqueo con su gasto, y cerrar ---
+        var database = crearBaseDatos()
+        val categoriaId = database.categoriaGastoDao().obtenerIdGasolina()!!
+        val tanqueoId = database.tanqueoDao().crear(
+            TanqueoEntity(
+                fechaHora = 5000L,
+                odometroMetros = 10_045_000L,
+                litrosMililitros = 4000L,
+                importePagado = 60000L,
+                esLleno = true,
+                tipoCombustible = "Extra",
+                observacion = "Tanqueo persistente"
+            ),
+            GastoEntity(
+                fechaHora = 5000L,
+                categoriaId = categoriaId,
+                valor = 60000L,
+                descripcion = "Tanqueo persistente"
+            )
+        )
+        assertTrue(tanqueoId > 0)
+        database.close()
+
+        // --- 2. Nueva instancia sobre el mismo archivo ---
+        database = crearBaseDatos()
+
+        val tanqueos = database.tanqueoDao().observarTodos().first()
+        assertEquals("Debe conservarse el tanqueo", 1, tanqueos.size)
+        assertEquals(60000L, tanqueos[0].importePagado)
+        assertEquals(4000L, tanqueos[0].litrosMililitros)
+        assertEquals(15000L, tanqueos[0].precioLitro)
+        assertEquals("Extra", tanqueos[0].tipoCombustible)
+        assertEquals(10_045_000L, tanqueos[0].odometroMetros)
+
+        val gastos = database.gastoDao().obtenerTodos().first()
+        assertEquals("El gasto del tanqueo se conserva", 1, gastos.size)
+        assertEquals(60000L, gastos[0].valor)
+        assertTrue("El gasto sigue marcado como procedente de un tanqueo", gastos[0].esTanqueo)
+        assertEquals(tanqueos[0].gastoId, gastos[0].id)
 
         database.close()
     }

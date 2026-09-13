@@ -143,6 +143,12 @@ class GastoViewModel(
     }
 
     fun cargarGastoParaEditar(id: Long) {
+        if (estaVinculado(id)) {
+            _uiState.value = _uiState.value.copy(
+                errorEdicion = resourceProvider.getString(R.string.gasto_vinculado_no_editable)
+            )
+            return
+        }
         if (id <= 0) return
         _uiState.value = _uiState.value.copy(
             modoFormulario = ModoFormulario.CARGANDO_EDICION,
@@ -248,6 +254,12 @@ class GastoViewModel(
     }
 
     fun mostrarDialogoEliminar(gastoId: Long) {
+        if (estaVinculado(gastoId)) {
+            _uiState.value = _uiState.value.copy(
+                errorEliminacion = resourceProvider.getString(R.string.gasto_vinculado_no_editable)
+            )
+            return
+        }
         _uiState.value = _uiState.value.copy(gastoIdAEliminar = gastoId)
     }
 
@@ -279,6 +291,10 @@ class GastoViewModel(
     fun limpiarEstadoTransitorio() {
         _uiState.value = _uiState.value.copy(guardadoExitoso = false)
     }
+
+    /** Indica si el gasto procede de un tanqueo y solo se gestiona desde Tanqueos. */
+    private fun estaVinculado(id: Long): Boolean =
+        _uiState.value.gastos.any { it.id == id && it.esTanqueo }
 
     private fun validarValor(texto: String): String? {
         if (texto.isBlank()) return resourceProvider.getString(R.string.error_valor_obligatorio)
