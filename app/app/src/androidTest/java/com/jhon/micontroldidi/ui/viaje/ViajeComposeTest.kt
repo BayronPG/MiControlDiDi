@@ -2,7 +2,9 @@ package com.jhon.micontroldidi.ui.viaje
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextMatches
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -104,5 +106,34 @@ class ViajeComposeTest {
         composeTestRule.onNodeWithTag("boton_guardar_viaje").performClick()
 
         composeTestRule.onNodeWithText(observacion).assertIsDisplayed()
+    }
+
+    /**
+     * La fecha informativa del formulario debe verse tanto al crear como al editar.
+     * El cálculo (fecha original en edición) se cubre con la prueba unitaria
+     * `CalculadorFechaFormularioViajeTest`.
+     */
+    @Test
+    fun fechaInformativa_visibleEnCreacionYEnEdicion() {
+        val patronFecha = Regex("""\d{2}/\d{2}/\d{4} \d{2}:\d{2}""")
+
+        navegarAViajes()
+        composeTestRule.onNodeWithTag("boton_registrar_viaje").performClick()
+
+        composeTestRule.onNodeWithTag("fecha_viaje")
+            .assertIsDisplayed()
+            .assertTextMatches(patronFecha)
+
+        composeTestRule.onNodeWithTag("campo_valor_viaje").performTextReplacement("18000")
+        composeTestRule.onNodeWithTag("campo_observacion_viaje")
+            .performTextReplacement("Viaje con fecha")
+        composeTestRule.onNodeWithTag("boton_guardar_viaje").performClick()
+
+        // Se abre la edición del viaje recién guardado (el primero de la lista).
+        composeTestRule.onAllNodesWithContentDescription("Editar")[0].performClick()
+
+        composeTestRule.onNodeWithTag("fecha_viaje")
+            .assertIsDisplayed()
+            .assertTextMatches(patronFecha)
     }
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.jhon.micontroldidi.R
+import com.jhon.micontroldidi.util.CalculadorFechaFormularioViaje
 import com.jhon.micontroldidi.util.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,12 +76,22 @@ fun RegistrarViajeScreen(
         ) {
             Spacer(Modifier.height(16.dp))
 
-            // Fecha y hora (solo informativa)
-            Text(
-                text = DateFormatter.format(System.currentTimeMillis()),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            // Fecha y hora (solo informativa):
+            // en edición se muestra la del viaje y no la actual.
+            val fechaInformativa = CalculadorFechaFormularioViaje.fechaVisible(
+                esEdicion = viajeId != null,
+                editando = state.editando,
+                fechaHoraOriginal = state.fechaHoraOriginal,
+                ahora = System.currentTimeMillis()
             )
+            if (fechaInformativa != null) {
+                Text(
+                    text = DateFormatter.format(fechaInformativa),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.testTag("fecha_viaje")
+                )
+            }
 
             Spacer(Modifier.height(20.dp))
 
